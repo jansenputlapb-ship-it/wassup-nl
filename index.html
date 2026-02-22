@@ -185,55 +185,48 @@
         return;
       }
 
-      // --- TRIK PAKSA BUKA KUNCI SUARA (AUDIO UNLOCKER) ---
-      // Saat tombol login diklik, kita paksa YouTube bersuara sebentar lalu pause
+      // --- TRIK PAKSA BUKA KUNCI SUARA ---
       try {
         if (isYtReady && typeof ytPlayer !== 'undefined') {
-           ytPlayer.unMute();         // Pastikan tidak di-mute
-           ytPlayer.setVolume(100);   // Set volume maksimal
-           ytPlayer.playVideo();      // Pancing putar (minta izin browser)
-           setTimeout(() => { 
-             ytPlayer.pauseVideo();   // Pause lagi dengan cepat agar tidak bocor suaranya
-           }, 500); 
+           ytPlayer.unMute();
+           ytPlayer.setVolume(100);
+           ytPlayer.playVideo();
+           setTimeout(() => { ytPlayer.pauseVideo(); }, 500); 
         }
       } catch (e) {
         console.log("Audio unlock tertunda...");
       }
-      // ----------------------------------------------------
+      // -----------------------------------
 
       btn.disabled = true; 
       btn.innerText = "Processing..."; 
       err.style.display = "none";
       
-      try {
-        if (typeof google === 'undefined' || typeof google.script === 'undefined') {
-          throw new Error("Sistem Google Script tidak ditemukan. Buka lewat link Web App resmi!");
-        }
+      // --- DATABASE KODE LOGIN (BEBAS GOOGLE SCRIPT) ---
+      // Silakan ganti KODE, NAMA KAMU, dan NAMA PASANGAN di bawah ini:
+      const users = {
+        "123456": { success: true, name: "NamaCowok", partner: "NamaCewek", role: "cowok" },
+        "654321": { success: true, name: "NamaCewek", partner: "NamaCowok", role: "cewek" }
+      };
 
-        google.script.run
-          .withSuccessHandler(function(res) {
-            if (res && res.success) {
-              myName = res.name; partnerName = res.partner;
-              const avatarImg = document.getElementById('headerAvatar');
-              avatarImg.src = (res.role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-              initApp();
-            } else { 
-              err.innerText = "Kode salah!";
-              err.style.display = "block";
-              btn.disabled = false; btn.innerText = "MASUK";
-            }
-          })
-          .withFailureHandler(function(error) {
-              err.innerText = "Gagal terhubung ke server!";
-              err.style.display = "block";
-              btn.disabled = false; btn.innerText = "MASUK";
-          })
-          .verifyCode(code);
-      } catch (e) {
-         err.innerText = e.message;
-         err.style.display = "block";
-         btn.disabled = false; btn.innerText = "MASUK";
-      }
+      // Proses Pengecekan Kode
+      setTimeout(() => {
+        if (users[code]) {
+          let res = users[code];
+          myName = res.name; 
+          partnerName = res.partner;
+          
+          const avatarImg = document.getElementById('headerAvatar');
+          avatarImg.src = (res.role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+          
+          initApp(); // Masuk ke dalam aplikasi
+        } else {
+          err.innerText = "Kode salah! Coba lagi.";
+          err.style.display = "block";
+          btn.disabled = false; 
+          btn.innerText = "MASUK";
+        }
+      }, 500);
     }
 
     function initApp() {
@@ -465,3 +458,4 @@
   </script>
 </body>
 </html>
+
