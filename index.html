@@ -3,125 +3,111 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Radio Bucin 💖</title>
+  <title>Portal Bucin 💖</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
     body { background-color: #ECE5DD; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     
-    /* Login */
-    #loginScreen { position: fixed; inset: 0; background: #ECE5DD; display: flex; align-items: center; justify-content: center; z-index: 10000; }
-    .login-box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
-    .login-box button { width: 100%; padding: 12px; background: #075E54; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-
-    /* Header */
-    header { background: #075E54; color: white; padding: 15px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
+    header { background: #075E54; color: white; padding: 15px; display: flex; align-items: center; gap: 10px; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
     #headerAvatar { width: 40px; height: 40px; border-radius: 50%; background: #eee; }
 
-    /* Radio Widget (Muncul saat radio menyala) */
-    #radioWidget {
+    /* Pemutar Musik Internal yang Menyatu */
+    #musicBar {
       background: #fff; padding: 10px 15px; display: none; align-items: center; justify-content: space-between;
-      border-bottom: 2px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 900;
+      border-bottom: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 900;
     }
-    .radio-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; color: #075E54; }
-    .radio-info img { width: 30px; height: 30px; border-radius: 50%; animation: spin 3s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    .btn-stop { background: #ff3b30; color: white; border: none; padding: 5px 10px; border-radius: 15px; cursor: pointer; font-size: 12px; font-weight: bold; }
+    .music-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; color: #075E54; }
+    .music-info span { font-size: 20px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    
+    .btn-stop { background: #d32f2f; color: white; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-size: 12px; font-weight: bold; }
 
-    /* Chat Area */
+    /* Area Chat */
     main { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
     .message { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; line-height: 1.4; }
     .msg-me { background: #DCF8C6; align-self: flex-end; border-bottom-right-radius: 0; }
     .msg-partner { background: white; align-self: flex-start; border-bottom-left-radius: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    .msg-system { background: #e1f5fe; color: #0277bd; align-self: center; text-align: center; font-size: 12px; padding: 5px 15px; border-radius: 10px; }
 
-    /* Footer */
     footer { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; }
     footer input { flex: 1; padding: 12px 15px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
     footer button { background: #075E54; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
 
-    /* Modal Radio */
-    #radioModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 5000; }
+    /* Modal Playlist */
+    #playlistModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 5000; }
     .modal-content { background: white; width: 90%; max-width: 350px; border-radius: 15px; padding: 20px; max-height: 80vh; overflow-y: auto; }
-    .radio-item { display: flex; gap: 15px; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; align-items: center; transition: 0.2s; }
-    .radio-item:hover { background: #f9f9f9; }
-    .radio-icon { font-size: 24px; }
-    .radio-name { font-weight: bold; font-size: 15px; }
-
-    /* Toast Notif */
-    #customToast { visibility: hidden; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; z-index: 10000; font-size: 13px; }
-    #customToast.show { visibility: visible; }
+    .song-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; align-items: center; transition: 0.2s; }
+    .song-item:hover { background: #f9f9f9; }
+    .song-title { font-weight: bold; font-size: 14px; color: #333; }
+    .song-artist { font-size: 11px; color: gray; }
   </style>
 </head>
 <body>
 
-  <div id="loginScreen">
-    <div class="login-box">
-      <h2>Portal Bucin 💖</h2>
-      <input type="password" id="inputCode" placeholder="Masukkan Kode..." style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc; text-align:center;">
-      <button onclick="doLogin()">MASUK</button>
-    </div>
-  </div>
-
-  <div id="appScreen" style="display:none; flex-direction:column; height:100%;">
+  <div id="appScreen" style="display:flex; flex-direction:column; height:100%;">
     <header>
       <img id="headerAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
       <span><b>Si Doi</b> (Online)</span>
     </header>
 
-    <div id="radioWidget">
-      <div class="radio-info">
-        <img src="https://cdn-icons-png.flaticon.com/512/1753/1753311.png" alt="disk">
+    <div id="musicBar">
+      <div class="music-info">
+        <span>🎵</span>
         <div>
-          <div style="font-size: 10px; color: gray;">Live Streaming</div>
-          <div id="radioNameDisplay">Prambors FM</div>
+          <div style="font-size: 10px; color: gray;">Sedang diputar bareng</div>
+          <div id="musicTitleDisplay">Judul Lagu</div>
         </div>
       </div>
-      <button class="btn-stop" onclick="stopRadio()">⏹ STOP</button>
+      <button class="btn-stop" onclick="stopMusic()">⏹ STOP</button>
     </div>
 
-    <audio id="audioPlayer" preload="none"></audio>
+    <audio id="audioPlayer" preload="auto"></audio>
 
     <main id="chatBox">
-      <div class="message msg-partner">Halo sayang! Ketik <b>/radio</b> untuk milih stasiun musik ya. Biar kita dengerin lagu yang persis sama! 📻🎶</div>
+      <div class="message msg-partner">Halo sayang! Ketik <b>/musik</b> ya buat buka Playlist Kenangan kita. 💕</div>
     </main>
 
     <footer>
-      <input type="text" id="chatInput" placeholder="Ketik pesan atau /radio..." onkeypress="if(event.key==='Enter') sendMessage()">
+      <input type="text" id="chatInput" placeholder="Ketik pesan atau /musik..." onkeypress="if(event.key==='Enter') sendMessage()">
       <button onclick="sendMessage()">Kirim</button>
     </footer>
   </div>
 
-  <div id="radioModal">
+  <div id="playlistModal">
     <div class="modal-content">
-      <h3 style="margin-bottom:15px; color:#075E54; text-align:center;">Pilih Stasiun Radio 📻</h3>
-      <div id="radioList">
+      <h3 style="margin-bottom:15px; color:#075E54; text-align:center;">Playlist Kita 🎶</h3>
+      <div id="playlistContainer">
         </div>
       <button onclick="closeModal()" style="width:100%; margin-top:15px; padding:10px; border:none; background:#ccc; border-radius:8px; font-weight:bold; cursor:pointer;">Tutup</button>
     </div>
   </div>
 
-  <div id="customToast"></div>
-
   <script>
-    // Daftar Stasiun Radio Live
-    const radioStations = [
-      { name: "Prambors FM (Jakarta)", url: "https://masima.rastream.com/masima-pramborsjakarta", icon: "🔥" },
-      { name: "Hard Rock FM", url: "https://masima.rastream.com/masima-hardrockjakarta", icon: "🎸" },
-      { name: "Trax FM", url: "https://masima.rastream.com/masima-traxjakarta", icon: "🎧" },
-      { name: "Gen FM", url: "https://20873.live.streamtheworld.com/GEN_FM_JKT.mp3", icon: "🌟" },
-      { name: "Lofi Girl (Santai)", url: "https://play.streamafrica.net/lofi", icon: "☕" }
+    // ==========================================
+    // DAFTAR LAGU PRIBADI (MP3)
+    // ==========================================
+    const myPlaylist = [
+      { 
+        title: "Lagu Percobaan 1", 
+        artist: "Pasti Berbunyi", 
+        // Ini contoh link mp3 asli yang pasti nyala
+        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" 
+      },
+      { 
+        title: "Lagu Percobaan 2", 
+        artist: "Pasti Berbunyi", 
+        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" 
+      }
+      /* NANTI KAMU BISA TAMBAHKAN LAGU KAMU SENDIRI SEPERTI INI:
+      ,{ 
+        title: "Sempurna", 
+        artist: "Andra and The Backbone", 
+        url: "sempurna.mp3" // Syaratnya file mp3 ini harus diupload di GitHub kamu juga!
+      }
+      */
     ];
 
     const audioPlayer = document.getElementById('audioPlayer');
-
-    function doLogin() {
-      const code = document.getElementById('inputCode').value;
-      if(code === "123456" || code === "654321") {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('appScreen').style.display = 'flex';
-      } else {
-        alert("Kode Salah!");
-      }
-    }
 
     function sendMessage() {
       const input = document.getElementById('chatInput');
@@ -130,68 +116,68 @@
 
       input.value = "";
 
-      if(text.toLowerCase() === '/radio') {
-        addMsg("<i>Membuka menu radio...</i>", 'me');
-        openRadioModal();
+      if(text.toLowerCase() === '/musik') {
+        openPlaylist();
         return;
       }
 
       addMsg(text, 'me');
-      
-      // LOGIKA SINKRONISASI FIREBASE NANTINYA:
-      // Di sini kamu kirim data text ke Firebase.
-      // Kalau textnya "/play-radio:Prambors", maka HP doi otomatis akan ikut memutar!
     }
 
-    function openRadioModal() {
-      const list = document.getElementById('radioList');
+    function openPlaylist() {
+      const list = document.getElementById('playlistContainer');
       list.innerHTML = "";
-      radioStations.forEach(station => {
+      myPlaylist.forEach((song, index) => {
         const div = document.createElement('div');
-        div.className = "radio-item";
-        div.onclick = () => playRadio(station.name, station.url);
+        div.className = "song-item";
+        div.onclick = () => playMusic(song.title, song.url);
         div.innerHTML = `
-          <div class="radio-icon">${station.icon}</div>
-          <div class="radio-name">${station.name}</div>
+          <div>
+            <div class="song-title">${song.title}</div>
+            <div class="song-artist">${song.artist}</div>
+          </div>
+          <span style="color:#075E54; font-size:18px;">▶</span>
         `;
         list.appendChild(div);
       });
-      document.getElementById('radioModal').style.display = 'flex';
+      document.getElementById('playlistModal').style.display = 'flex';
     }
 
-    function playRadio(name, url) {
+    function playMusic(title, url) {
       closeModal();
       
-      // Mainkan Audionya
       audioPlayer.src = url;
       audioPlayer.play().then(() => {
-        document.getElementById('radioWidget').style.display = 'flex';
-        document.getElementById('radioNameDisplay').innerText = name;
-        showToast("Memutar Radio: " + name);
-        addMsg(`<i>Memutar live radio: <b>${name}</b></i> 📻`, 'me');
+        document.getElementById('musicBar').style.display = 'flex';
+        document.getElementById('musicTitleDisplay').innerText = title;
+        addMsg(`Memutar musik: <b>${title}</b> 🎶`, 'system');
       }).catch(err => {
-        showToast("Gagal memutar. Coba stasiun lain atau klik play manual.");
+        alert("Klik mana saja di layar lalu coba putar lagi. (Aturan browser)");
       });
     }
 
-    function stopRadio() {
+    function stopMusic() {
       audioPlayer.pause();
-      audioPlayer.src = "";
-      document.getElementById('radioWidget').style.display = 'none';
-      addMsg(`<i>Mematikan radio.</i> ⏹️`, 'me');
+      document.getElementById('musicBar').style.display = 'none';
+      addMsg(`Musik dihentikan.`, 'system');
     }
 
     function addMsg(txt, side) {
       const b = document.getElementById('chatBox');
       const d = document.createElement('div');
-      d.className = `message msg-${side === 'me' ? 'me' : 'partner'}`;
+      
+      if(side === 'system') {
+        d.className = `msg-system`;
+      } else {
+        d.className = `message msg-${side}`;
+      }
+      
       d.innerHTML = txt;
       b.appendChild(d);
       b.scrollTop = b.scrollHeight;
     }
 
-    function closeModal() { document.getElementById('radioModal').style.display = 'none'; }
-    function showToast(m) { const t = document.getElementById('customToast'); t.innerText = m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3000); }
+    function closeModal() { document.getElementById('playlistModal').style.display = 'none'; }
   </script>
 </body>
 </html>
