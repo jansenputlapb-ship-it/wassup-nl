@@ -82,8 +82,22 @@
     }
     #customToast.show { visibility: visible; opacity: 1; bottom: 80px; }
 
-    /* Pemutar YouTube (Disembunyikan) */
-    #playerContainer { position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    /* Pemutar YouTube (Mini Widget) */
+#playerContainer { 
+  position: fixed; 
+  top: 80px; 
+  right: 20px; 
+  width: 250px; 
+  height: 140px; 
+  border-radius: 12px; 
+  overflow: hidden; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+  z-index: 50;
+  border: 2px solid #075E54;
+  background: black;
+}
+/* Paksa iframe YouTube menyesuaikan ukuran kotak */
+#ytplayer { width: 100% !important; height: 100% !important; }
   </style>
 </head>
 <body>
@@ -353,4 +367,5 @@
   </script>
 </body>
 </html>
+
 
