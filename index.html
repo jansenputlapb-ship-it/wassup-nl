@@ -98,23 +98,66 @@
   transition: all 0.3s ease; /* Efek transisi halus saat berubah ukuran */
 }
 
-/* Mode Full Screen */
-#playerContainer.full-mode {
-  top: 0; left: 0; right: 0; bottom: 0;
-  width: 100vw; height: 100vh;
-  border-radius: 0; border: none;
+/* Container Pemutar - Default: Standar (Di bawah Header) */
+#playerContainer { 
+  position: fixed; 
+  top: 70px; /* Menyesuaikan tinggi header */
+  left: 0;
+  width: 100%; 
+  height: 210px; /* Ukuran standar 16:9 yang aman dari bot */
+  background: black;
+  z-index: 100;
+  border-bottom: 3px solid #075E54;
+  transition: all 0.4s ease-in-out;
+  display: none; /* Awalnya sembunyi, muncul saat /play */
 }
 
-/* Tombol Kontrol Ukuran */
-.player-controls {
-  position: absolute; top: 5px; right: 5px;
-  display: flex; gap: 5px; z-index: 10;
+/* Mode Mini (Pojok Kanan Bawah) */
+#playerContainer.mini-mode {
+  top: auto;
+  bottom: 85px;
+  right: 15px;
+  width: 180px;
+  height: 110px;
+  left: auto;
+  border-radius: 12px;
+  border: 2px solid #075E54;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
-.player-controls button {
-  background: rgba(0,0,0,0.6); color: white; border: none;
-  padding: 5px 8px; border-radius: 5px; cursor: pointer; font-size: 10px;
+
+/* Mode Full (Layar Penuh) */
+#playerContainer.full-mode {
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  border: none;
+  z-index: 9999;
 }
-#ytplayer { width: 100% !important; height: 100% !important; }
+
+/* Tombol Pengatur Ukuran */
+.size-controls {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 5px;
+  z-index: 101;
+}
+.size-controls button {
+  background: rgba(0,0,0,0.7);
+  color: white;
+  border: 1px solid #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+/* Penyesuaian Area Chat agar tidak tertutup video standar */
+#appScreen.video-active main {
+  padding-top: 220px; /* Memberi ruang agar chat tidak tertutup video */
+}
   </style>
 </head>
 <body>
@@ -160,7 +203,8 @@
   <div id="customToast"></div>
 
   <div id="playerContainer">
-  <div class="player-controls">
+  <div class="size-controls">
+    <button onclick="resizePlayer('std')">Standard</button>
     <button onclick="resizePlayer('mini')">Mini</button>
     <button onclick="resizePlayer('full')">Full</button>
   </div>
@@ -274,13 +318,49 @@ function onYouTubeIframeAPIReady() {
   });
 }
 
-// Fungsi untuk ubah ukuran
+// Fungsi mengubah ukuran pemutar
 function resizePlayer(mode) {
   const container = document.getElementById('playerContainer');
-  if (mode === 'full') {
+  const app = document.getElementById('appScreen');
+  
+  // Reset semua class
+  container.classList.remove('mini-mode', 'full-mode');
+  
+  if (mode === 'mini') {
+    container.classList.add('mini-mode');
+    app.classList.remove('video-active');
+  } else if (mode === 'full') {
     container.classList.add('full-mode');
+    app.classList.remove('video-active');
   } else {
-    container.classList.remove('full-mode');
+    // Mode Standar
+    app.classList.add('video-active');
+  }
+}
+
+// Modifikasi fungsi playFromList agar memunculkan player
+function playFromList(vidId, title) {
+  if (!isYtReady || !ytPlayer || typeof ytPlayer.loadVideoById !== 'function') { 
+    showToast("⏳ Sabar sayang, pemutar lagi disiapin...");
+    setTimeout(() => { playFromList(vidId, title); }, 1500);
+    return; 
+  }
+
+  try {
+    // Munculkan container dan set ke mode standar agar tidak dianggap bot
+    document.getElementById('playerContainer').style.display = 'block';
+    document.getElementById('appScreen').classList.add('video-active');
+    
+    ytPlayer.loadVideoById(vidId);
+    ytPlayer.playVideo();
+    ytPlayer.unMute();
+    ytPlayer.setVolume(100);
+    
+    closeModal();
+    showToast("🎶 Memutar: " + title);
+    addMessage("<i>Sedang memutar lagu: " + title + "</i> 🎵", "me");
+  } catch(e) {
+    showToast("Gagal memutar lagu.");
   }
 }
 
@@ -405,6 +485,7 @@ function resizePlayer(mode) {
   </script>
 </body>
 </html>
+
 
 
 
