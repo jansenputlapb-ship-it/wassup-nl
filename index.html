@@ -5,159 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Bucin 💖</title>
   <style>
-    /* CSS Reset & Basic */
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #ECE5DD; display: flex; flex-direction: column; height: 100vh; }
+    /* CSS Dasar */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background-color: #ECE5DD; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     
-    /* Tampilan Login */
-    #loginScreen {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #ECE5DD; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; z-index: 1000;
-    }
-    .login-box {
-      background: white; padding: 30px; border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px;
-    }
-    .login-box h2 { color: #075E54; margin-bottom: 20px; font-size: 24px; }
-    .login-box input {
-      width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc;
-      border-radius: 8px; font-size: 16px; text-align: center; outline: none;
-    }
-    .login-box button {
-      width: 100%; padding: 12px; background: #075E54; color: white;
-      border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s;
-    }
-    .login-box button:disabled { background: #999; }
-    #errorMsg { color: #d32f2f; margin-top: 10px; display: none; font-size: 14px; font-weight: bold; }
+    /* Login Screen */
+    #loginScreen { position: fixed; inset: 0; background: #ECE5DD; display: flex; align-items: center; justify-content: center; z-index: 10000; }
+    .login-box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
+    .login-box h2 { color: #075E54; margin-bottom: 20px; }
+    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
+    .login-box button { width: 100%; padding: 12px; background: #075E54; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-    /* Header Aplikasi */
-    header {
-      background-color: #075E54; color: white; padding: 15px;
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10;
+    /* Header */
+    header { background: #075E54; color: white; padding: 15px; display: flex; align-items: center; gap: 10px; z-index: 1000; position: relative; }
+    #headerAvatar { width: 40px; height: 40px; border-radius: 50%; background: white; }
+
+    /* PEMUTAR VIDEO (Standard: Di bawah Header) */
+    #playerContainer { 
+      position: relative; 
+      width: 100%; 
+      height: 220px; /* Ukuran standard agar tidak dianggap bot */
+      background: black; 
+      display: none; /* Muncul saat mulai putar */
+      z-index: 900;
+      border-bottom: 3px solid #075E54;
+      transition: all 0.3s ease;
     }
-    .header-left { display: flex; align-items: center; gap: 10px; }
-    #headerAvatar { width: 40px; height: 40px; border-radius: 50%; background: white; object-fit: cover; }
-    .header-title { font-weight: bold; font-size: 18px; }
+
+    /* Mode Mini */
+    #playerContainer.mini-mode {
+      position: fixed; bottom: 80px; right: 15px;
+      width: 200px; height: 120px; border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 999;
+    }
+
+    /* Mode Full screen */
+    #playerContainer.full-mode {
+      position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 9999;
+    }
+
+    /* Tombol Kontrol Ukuran */
+    .size-controls { position: absolute; top: 5px; right: 5px; display: flex; gap: 5px; z-index: 1001; }
+    .size-controls button { background: rgba(0,0,0,0.6); color: white; border: 1px solid white; padding: 3px 7px; border-radius: 4px; font-size: 10px; cursor: pointer; }
 
     /* Area Chat */
-    main { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-    .message { max-width: 80%; padding: 10px 15px; border-radius: 15px; position: relative; font-size: 15px; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-    .msg-me { background-color: #DCF8C6; align-self: flex-end; border-bottom-right-radius: 0; }
-    .msg-partner { background-color: white; align-self: flex-start; border-bottom-left-radius: 0; }
-    
-    /* Area Ketik Pesan */
-    footer { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; align-items: center; }
-    footer input { flex: 1; padding: 12px 15px; border: none; border-radius: 20px; outline: none; font-size: 15px; }
-    footer button { background: #075E54; color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+    main { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+    .message { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    .msg-me { background: #DCF8C6; align-self: flex-end; }
+    .msg-partner { background: white; align-self: flex-start; }
 
-    /* Pop-up Pencarian YouTube */
-    #searchModal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 2000;
-    }
-    .modal-content {
-      background: white; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px;
-      max-height: 80vh; display: flex; flex-direction: column;
-    }
-    .modal-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; color: #075E54; font-size: 18px; }
-    .close-btn { cursor: pointer; color: #d32f2f; font-size: 20px; }
-    #searchResults { overflow-y: auto; flex: 1; }
-    .result-item {
-      display: flex; gap: 10px; padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer; align-items: center; transition: background 0.2s;
-    }
-    .result-item:hover { background: #f1f1f1; }
-    .result-item img { width: 80px; height: 60px; object-fit: cover; border-radius: 8px; }
-    .result-item-info { flex: 1; font-size: 14px; }
+    /* Footer */
+    footer { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; }
+    footer input { flex: 1; padding: 10px; border-radius: 20px; border: none; outline: none; }
+    footer button { background: #075E54; color: white; border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; }
 
-    /* Pop-up Estetik (Toast) */
-    #customToast {
-      visibility: hidden; min-width: 250px; background-color: #075E54; color: white;
-      text-align: center; border-radius: 20px; padding: 12px 20px;
-      position: fixed; z-index: 9999; left: 50%; bottom: 20px;
-      transform: translateX(-50%); font-size: 14px; font-weight: bold;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3); opacity: 0; 
-      transition: opacity 0.4s, bottom 0.4s;
-    }
-    #customToast.show { visibility: visible; opacity: 1; bottom: 80px; }
+    /* Modal Pencarian */
+    #searchModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 5000; }
+    .modal-content { background: white; width: 90%; max-width: 380px; border-radius: 15px; padding: 15px; max-height: 70vh; overflow-y: auto; }
+    .result-item { display: flex; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; align-items: center; }
+    .result-item img { width: 70px; border-radius: 5px; }
 
-    /* Pemutar YouTube - Standar (Mini) */
-#playerContainer { 
-  position: fixed; 
-  bottom: 80px; 
-  right: 20px;
-  width: 280px; 
-  height: 160px; 
-  border-radius: 12px; 
-  overflow: hidden; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
-  z-index: 9999;
-  border: 2px solid #075E54;
-  background: black;
-  transition: all 0.3s ease; /* Efek transisi halus saat berubah ukuran */
-}
-
-/* Container Pemutar - Default: Standar (Di bawah Header) */
-#playerContainer { 
-  position: fixed; 
-  top: 70px; /* Menyesuaikan tinggi header */
-  left: 0;
-  width: 100%; 
-  height: 210px; /* Ukuran standar 16:9 yang aman dari bot */
-  background: black;
-  z-index: 100;
-  border-bottom: 3px solid #075E54;
-  transition: all 0.4s ease-in-out;
-  display: none; /* Awalnya sembunyi, muncul saat /play */
-}
-
-/* Mode Mini (Pojok Kanan Bawah) */
-#playerContainer.mini-mode {
-  top: auto;
-  bottom: 85px;
-  right: 15px;
-  width: 180px;
-  height: 110px;
-  left: auto;
-  border-radius: 12px;
-  border: 2px solid #075E54;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
-
-/* Mode Full (Layar Penuh) */
-#playerContainer.full-mode {
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  border: none;
-  z-index: 9999;
-}
-
-/* Tombol Pengatur Ukuran */
-.size-controls {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  display: flex;
-  gap: 5px;
-  z-index: 101;
-}
-.size-controls button {
-  background: rgba(0,0,0,0.7);
-  color: white;
-  border: 1px solid #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  cursor: pointer;
-}
-
-/* Penyesuaian Area Chat agar tidak tertutup video standar */
-#appScreen.video-active main {
-  padding-top: 220px; /* Memberi ruang agar chat tidak tertutup video */
-}
+    /* Toast */
+    #customToast { visibility: hidden; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; z-index: 10000; transition: 0.3s; opacity: 0; }
+    #customToast.show { visibility: visible; opacity: 1; }
   </style>
 </head>
 <body>
@@ -166,328 +76,118 @@
     <div class="login-box">
       <h2>Portal Bucin 💖</h2>
       <input type="password" id="inputCode" placeholder="Masukkan Kode Akses...">
-      <button id="btnLogin" onclick="doLogin()">MASUK</button>
-      <div id="errorMsg"></div>
+      <button onclick="doLogin()">MASUK</button>
+      <div id="errorMsg" style="color:red; margin-top:10px; display:none;"></div>
     </div>
   </div>
 
-  <div id="appScreen" style="display: none; flex-direction: column; height: 100%;">
+  <div id="appScreen" style="display:none; flex-direction:column; height:100%;">
     <header>
-      <div class="header-left">
-        <img id="headerAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Avatar">
-        <span class="header-title" id="partnerNameDisplay">Si Doi</span>
-      </div>
-      <div>🎵</div>
+      <img id="headerAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+      <span id="partnerNameDisplay">Si Doi</span>
     </header>
 
+    <div id="playerContainer">
+      <div class="size-controls">
+        <button onclick="changeSize('std')">STD</button>
+        <button onclick="changeSize('mini')">MINI</button>
+        <button onclick="changeSize('full')">FULL</button>
+      </div>
+      <div id="ytplayer"></div>
+    </div>
+
     <main id="chatBox">
-      <div class="message msg-partner">Halo sayang! Coba ketik <b>/play nama lagu</b> untuk muter musik berdua ya. 🎶</div>
+      <div class="message msg-partner">Halo sayang! Ketik <b>/play nama lagu</b> ya. 🎶</div>
     </main>
 
     <footer>
-      <input type="text" id="chatInput" placeholder="Ketik pesan atau /play lagu..." onkeypress="handleEnter(event)">
+      <input type="text" id="chatInput" placeholder="Ketik /play..." onkeypress="if(event.key==='Enter') sendMessage()">
       <button onclick="sendMessage()">KIRIM</button>
     </footer>
   </div>
 
   <div id="searchModal">
     <div class="modal-content">
-      <div class="modal-header">
-        <span>Hasil Pencarian 🔎</span>
-        <span class="close-btn" onclick="closeModal()">✖</span>
-      </div>
+      <h3 style="margin-bottom:10px">Pilih Lagu 🔎</h3>
       <div id="searchResults"></div>
+      <button onclick="closeModal()" style="width:100%; margin-top:10px; padding:8px;">Tutup</button>
     </div>
   </div>
 
   <div id="customToast"></div>
 
-  <div id="playerContainer">
-  <div class="size-controls">
-    <button onclick="resizePlayer('std')">Standard</button>
-    <button onclick="resizePlayer('mini')">Mini</button>
-    <button onclick="resizePlayer('full')">Full</button>
-  </div>
-  <div id="ytplayer"></div>
-</div>
-
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    // ==========================================
-    // 1. ISI DENGAN API KEY YOUTUBE KAMU DI SINI
-    // ==========================================
-    const YOUTUBE_API_KEY = "AIzaSyDyjdnaA2Ipa_j6-pWN4K4j-42_ja-LH24"; 
+    const API_KEY = "AIzaSyDyjdnaA2Ipa_j6-pWN4K4j-42_ja-LH24";
+    let ytPlayer, isYtReady = false;
 
-    // Variabel Global
-    let myName = "";
-    let partnerName = "";
-    let ytPlayer;
-    let isYtReady = false;
-
-    // --- FUNGSI TOAST ESTETIK ---
-    function showToast(msg) {
-      const toast = document.getElementById("customToast");
-      toast.innerText = msg;
-      toast.classList.add("show");
-      // Sembunyikan otomatis setelah 3.5 detik
-      setTimeout(() => { toast.classList.remove("show"); }, 3500);
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('ytplayer', {
+        height: '100%', width: '100%',
+        playerVars: { 'playsinline': 1, 'controls': 1, 'modestbranding': 1 },
+        events: { 'onReady': () => { isYtReady = true; } }
+      });
     }
 
-    // --- FUNGSI LOGIN (TIDAK BUTUH GOOGLE SCRIPT LAGI) ---
     function doLogin() {
-      const btn = document.getElementById('btnLogin');
-      const code = document.getElementById('inputCode').value.trim();
-      const err = document.getElementById('errorMsg');
-
-      if (!code) {
-        err.innerText = "Kode akses tidak boleh kosong!";
-        err.style.display = "block";
-        return;
-      }
-
-      // Trik "Pancingan" agar browser mengizinkan suara keluar (Autoplay Bypass)
-      try {
-        if (isYtReady && typeof ytPlayer !== 'undefined') {
-           ytPlayer.unMute();
-           ytPlayer.setVolume(100);
-           ytPlayer.playVideo();
-           setTimeout(() => { ytPlayer.pauseVideo(); }, 500); 
-        }
-      } catch (e) { console.log("Audio unlock tertunda..."); }
-
-      btn.disabled = true; 
-      btn.innerText = "Processing..."; 
-      err.style.display = "none";
-      
-      // ==========================================
-      // 2. UBAH KODE AKSES DAN NAMA KALIAN DI SINI
-      // ==========================================
-      const users = {
-        "123456": { success: true, name: "NamaCowok", partner: "NamaCewek", role: "cowok" },
-        "654321": { success: true, name: "NamaCewek", partner: "NamaCowok", role: "cewek" }
-      };
-
-      // Simulasi loading sebentar agar terasa natural
-      setTimeout(() => {
-        if (users[code]) {
-          let res = users[code];
-          myName = res.name; 
-          partnerName = res.partner;
-          
-          // Ganti gambar profil berdasarkan yang login
-          const avatarImg = document.getElementById('headerAvatar');
-          avatarImg.src = (res.role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-          
-          // Ganti nama profil atas
-          document.getElementById('partnerNameDisplay').innerText = partnerName;
-          
-          initApp(); 
-        } else {
-          err.innerText = "Kode salah! Coba lagi.";
-          err.style.display = "block";
-          btn.disabled = false; 
-          btn.innerText = "MASUK";
-        }
-      }, 500);
-    }
-
-    function initApp() {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('appScreen').style.display = 'flex';
-      showToast("Berhasil masuk! Selamat datang, " + myName + " 💖");
-    }
-
-    // Ganti fungsi lama kamu dengan yang ini
-function onYouTubeIframeAPIReady() {
-  ytPlayer = new YT.Player('ytplayer', {
-    height: '100%', 
-    width: '100%',
-    videoId: '', 
-    playerVars: { 
-      'playsinline': 1, 
-      'controls': 1, // PENTING: Harus 1 agar tidak dianggap bot di Mozilla
-      'disablekb': 1
-    },
-    events: {
-      'onReady': function(event) { isYtReady = true; },
-      'onError': function(event) { 
-         console.log("YT Error: " + event.data);
-         showToast("Video tidak bisa diputar (Error 150). Pilih lagu lain/lirik.");
-      }
-    }
-  });
-}
-
-// Fungsi mengubah ukuran pemutar
-function resizePlayer(mode) {
-  const container = document.getElementById('playerContainer');
-  const app = document.getElementById('appScreen');
-  
-  // Reset semua class
-  container.classList.remove('mini-mode', 'full-mode');
-  
-  if (mode === 'mini') {
-    container.classList.add('mini-mode');
-    app.classList.remove('video-active');
-  } else if (mode === 'full') {
-    container.classList.add('full-mode');
-    app.classList.remove('video-active');
-  } else {
-    // Mode Standar
-    app.classList.add('video-active');
-  }
-}
-
-// Modifikasi fungsi playFromList agar memunculkan player
-function playFromList(vidId, title) {
-  if (!isYtReady || !ytPlayer || typeof ytPlayer.loadVideoById !== 'function') { 
-    showToast("⏳ Sabar sayang, pemutar lagi disiapin...");
-    setTimeout(() => { playFromList(vidId, title); }, 1500);
-    return; 
-  }
-
-  try {
-    // Munculkan container dan set ke mode standar agar tidak dianggap bot
-    document.getElementById('playerContainer').style.display = 'block';
-    document.getElementById('appScreen').classList.add('video-active');
-    
-    ytPlayer.loadVideoById(vidId);
-    ytPlayer.playVideo();
-    ytPlayer.unMute();
-    ytPlayer.setVolume(100);
-    
-    closeModal();
-    showToast("🎶 Memutar: " + title);
-    addMessage("<i>Sedang memutar lagu: " + title + "</i> 🎵", "me");
-  } catch(e) {
-    showToast("Gagal memutar lagu.");
-  }
-}
-
-    async function searchYouTube(query) {
-      showToast("Mencari lagu: " + query + " ⏳");
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=5`;
-      
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if(data.error) {
-          showToast("Error API: " + data.error.message);
-          return;
-        }
-        displaySearchResults(data.items);
-      } catch (error) {
-        showToast("Gagal mencari lagu. Cek koneksi / API Key.");
-      }
-    }
-
-    function displaySearchResults(items) {
-      const resultsDiv = document.getElementById('searchResults');
-      resultsDiv.innerHTML = "";
-      
-      if (!items || items.length === 0) {
-        resultsDiv.innerHTML = "<p style='text-align:center; padding: 20px;'>Lagu tidak ditemukan 😢</p>";
+      const code = document.getElementById('inputCode').value;
+      if(code === "123456" || code === "654321") {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('appScreen').style.display = 'flex';
+        // Unlock audio browser
+        if(isYtReady) { ytPlayer.playVideo(); setTimeout(() => ytPlayer.pauseVideo(), 500); }
       } else {
-        items.forEach(item => {
-          const vidId = item.id.videoId;
-          const title = item.snippet.title;
-          const thumb = item.snippet.thumbnails.default.url;
-          const channel = item.snippet.channelTitle;
-
-          const div = document.createElement('div');
-          div.className = "result-item";
-          // Ketika lagu diklik
-          div.onclick = () => playFromList(vidId, title);
-          
-          div.innerHTML = `
-            <img src="${thumb}" alt="thumb">
-            <div class="result-item-info">
-              <strong>${title}</strong><br>
-              <span style="color: gray; font-size: 12px;">${channel}</span>
-            </div>
-          `;
-          resultsDiv.appendChild(div);
-        });
+        document.getElementById('errorMsg').innerText = "Kode salah!";
+        document.getElementById('errorMsg').style.display = "block";
       }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if(!text) return;
+      addMsg(text, 'me');
+      input.value = "";
+      if(text.toLowerCase().startsWith('/play ')) searchYT(text.substring(6));
+    }
+
+    async function searchYT(q) {
+      showToast("Mencari: " + q);
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&type=video&key=${API_KEY}&maxResults=5`);
+      const data = await res.json();
+      const list = document.getElementById('searchResults');
+      list.innerHTML = "";
+      data.items.forEach(item => {
+        const d = document.createElement('div');
+        d.className = "result-item";
+        d.onclick = () => playLagu(item.id.videoId, item.snippet.title);
+        d.innerHTML = `<img src="${item.snippet.thumbnails.default.url}"><div><b>${item.snippet.title}</b></div>`;
+        list.appendChild(d);
+      });
       document.getElementById('searchModal').style.display = 'flex';
     }
 
-    function closeModal() {
-      document.getElementById('searchModal').style.display = 'none';
-    }
-
-    // --- FITUR AUTO-RETRY KETIKA MEMUTAR LAGU ---
-    function playFromList(vidId, title) {
-  if (!isYtReady || !ytPlayer || typeof ytPlayer.loadVideoById !== 'function') { 
-    showToast("⏳ Sabar sayang, pemutar lagi disiapin...");
-    setTimeout(() => { playFromList(vidId, title); }, 1500);
-    return; 
-  }
-
-  try {
-    // Tambahkan perintah ini agar Firefox mengizinkan audio
-    ytPlayer.loadVideoById(vidId);
-    ytPlayer.playVideo();
-    
-    // Gunakan timeout kecil untuk unMute agar tidak diblokir browser
-    setTimeout(() => {
+    function playLagu(id, title) {
+      closeModal();
+      const container = document.getElementById('playerContainer');
+      container.style.display = 'block';
+      ytPlayer.loadVideoById(id);
       ytPlayer.unMute();
       ytPlayer.setVolume(100);
-    }, 500);
-
-    closeModal();
-    showToast("🎶 Memutar: " + title);
-    addMessage("<i>Sedang memutar lagu: " + title + "</i> 🎵", "me");
-  } catch(e) {
-    showToast("Gagal memutar lagu. Coba lagi ya.");
-  }
-}
-
-    // --- FUNGSI CHAT UI ---
-    function handleEnter(e) {
-      if (e.key === 'Enter') sendMessage();
+      showToast("Memutar: " + title);
+      addMsg(`<i>Memutar lagu: ${title}</i> 🎵`, 'me');
     }
 
-    function sendMessage() {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      input.value = "";
-
-      // Cek apakah ketikan depannya adalah /play
-      if (text.toLowerCase().startsWith('/play ')) {
-        const query = text.substring(6).trim();
-        addMessage(text, "me"); // Tampilkan perintah di chat
-        if(query) {
-          searchYouTube(query);
-        }
-        return;
-      }
-
-      // Kirim pesan biasa ke layar chat
-      addMessage(text, "me");
-      
-      // Catatan: Jika Firebase Chat kamu sudah siap, kamu bisa tambahkan kode "push" Firebase-nya di bawah ini!
+    function changeSize(mode) {
+      const pc = document.getElementById('playerContainer');
+      pc.className = ""; // Reset
+      if(mode === 'mini') pc.classList.add('mini-mode');
+      if(mode === 'full') pc.classList.add('full-mode');
     }
 
-    function addMessage(text, sender) {
-      const box = document.getElementById('chatBox');
-      const div = document.createElement('div');
-      div.className = `message ${sender === 'me' ? 'msg-me' : 'msg-partner'}`;
-      div.innerHTML = text;
-      box.appendChild(div);
-      
-      // Auto-scroll layar chat ke paling bawah
-      box.scrollTop = box.scrollHeight;
-    }
+    function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
+    function showToast(m) { const t = document.getElementById('customToast'); t.innerText = m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3000); }
+    function addMsg(t, s) { const b = document.getElementById('chatBox'); const d = document.createElement('div'); d.className = `message msg-${s === 'me' ? 'me' : 'partner'}`; d.innerHTML = t; b.appendChild(d); b.scrollTop = b.scrollHeight; }
   </script>
 </body>
 </html>
-
-
-
-
-
-
