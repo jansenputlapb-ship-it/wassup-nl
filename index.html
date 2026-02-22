@@ -160,8 +160,12 @@
   <div id="customToast"></div>
 
   <div id="playerContainer">
-    <div id="ytplayer"></div>
+  <div class="player-controls">
+    <button onclick="resizePlayer('mini')">Mini</button>
+    <button onclick="resizePlayer('full')">Full</button>
   </div>
+  <div id="ytplayer"></div>
+</div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
@@ -249,23 +253,35 @@
       showToast("Berhasil masuk! Selamat datang, " + myName + " 💖");
     }
 
-    // --- FUNGSI YOUTUBE PLAYER & PENCARIAN ---
-    // Ganti bagian ini di file aa.txt (sekitar baris 147)
+    // Ganti fungsi lama kamu dengan yang ini
 function onYouTubeIframeAPIReady() {
   ytPlayer = new YT.Player('ytplayer', {
-    height: '200',
-    width: '300',
+    height: '100%', 
+    width: '100%',
     videoId: '', 
     playerVars: { 
       'playsinline': 1, 
-      'controls': 1, // UBAH DARI 0 KE 1
-      'origin': window.location.origin 
+      'controls': 1, // PENTING: Harus 1 agar tidak dianggap bot di Mozilla
+      'disablekb': 1
     },
     events: {
-      'onReady': function(event) { isYtReady = true; console.log("YT Player Siap!"); },
-      'onError': function(event) { console.log("YT Error: " + event.data); }
+      'onReady': function(event) { isYtReady = true; },
+      'onError': function(event) { 
+         console.log("YT Error: " + event.data);
+         showToast("Video tidak bisa diputar (Error 150). Pilih lagu lain/lirik.");
+      }
     }
   });
+}
+
+// Fungsi untuk ubah ukuran
+function resizePlayer(mode) {
+  const container = document.getElementById('playerContainer');
+  if (mode === 'full') {
+    container.classList.add('full-mode');
+  } else {
+    container.classList.remove('full-mode');
+  }
 }
 
     async function searchYouTube(query) {
@@ -389,6 +405,7 @@ function onYouTubeIframeAPIReady() {
   </script>
 </body>
 </html>
+
 
 
 
