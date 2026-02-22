@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  
+  <style>
+    :root { --wa-green: #075E54; --wa-light-green: #25D366; --bg-chat: #E5DDD5; --wa-teal: #128C7E; }
+    body, html { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-chat); height: 100vh; overflow: hidden; }
+    
+    #loginScreen { position: fixed; inset: 0; background: #f0f0f0; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    .login-box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 300px; }
+    .login-box h2 { color: var(--wa-green); margin-bottom: 20px; }
+    .login-box input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 25px; border: 1px solid #ddd; box-sizing: border-box; outline: none; text-align: center; font-size: 16px; }
+    .login-box button { width: 100%; padding: 12px; background: var(--wa-green); color: white; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+
+    #mainApp { display: none; flex-direction: column; height: 100vh; }
+    .header { background: var(--wa-green); color: white; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); z-index: 100; }
+    .header-top { display: flex; align-items: center; justify-content: space-between; }
+    .profile-section { display: flex; align-items: center; gap: 12px; }
+    .avatar-wrapper { position: relative; width: 45px; height: 45px; }
+    .avatar-circle { width: 100%; height: 100%; background: #ddd; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255,255,255,0.5); }
+    .status-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--wa-green); }
+    .status-online { background: #25D366; } .status-afk { background: #ffeb3b; } .status-offline { background: #bbb; }
+
+    .bucin-timer-container { background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 10px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); }
+    .timer-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.8; margin-bottom: 4px; display: block; font-weight: 300; }
+    #bucinTimer { font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; color: #fff; letter-spacing: 0.5px; }
+    .timer-unit { color: var(--wa-light-green); font-size: 11px; margin-right: 4px; }
+
+    .music-player { background: #fff; padding: 8px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 90; border-bottom: 1px solid #ddd; }
+    .music-info { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; font-weight: bold; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; }
+    .music-icon { width: 20px; height: 20px; animation: none; flex-shrink: 0; }
+    .music-icon.spin { animation: spin 3s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .play-btn { background: var(--wa-teal); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); flex-shrink: 0; }
+    
+    #yt-container { position: absolute; bottom: 0; left: 0; width: 100px; height: 100px; opacity: 0.01; pointer-events: none; z-index: -1; }
+
+    .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; }
+    .message { max-width: 80%; padding: 8px 12px; border-radius: 10px; font-size: 14px; line-height: 1.4; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); word-wrap: break-word; }
+    .msg-out { align-self: flex-end; background: #DCF8C6; border-top-right-radius: 0; }
+    .msg-in { align-self: flex-start; background: white; border-top-left-radius: 0; }
+    .msg-system { align-self: center; background: rgba(0,0,0,0.1); font-size: 11px; font-style: italic; color: #555; padding: 5px 12px; border-radius: 15px; box-shadow: none; max-width: 90%; text-align: center; }
+    
+    .input-area { background: #f0f0f0; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
+    .input-box { flex: 1; padding: 12px 18px; border-radius: 25px; border: none; outline: none; font-size: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .send-btn { background: var(--wa-teal); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+    .modal-content { background: white; width: 90%; max-width: 350px; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 80vh; }
+    .modal-header { background: var(--wa-green); color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+    .modal-close { cursor: pointer; font-size: 24px; line-height: 1; }
+    .playlist-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+    .playlist-item { padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 12px; }
+    .playlist-item:hover { background: #f9f9f9; }
+    .yt-thumb { width: 60px; height: 45px; object-fit: cover; border-radius: 5px; background: #ccc; }
+    .yt-info { display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
+    .yt-title { font-size: 13px; font-weight: bold; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .yt-channel { font-size: 11px; color: #777; }
+  </style>
+</head>
+<body>
+
+  <div id="loginScreen">
+    <div class="login-box">
+      <h2>Portal Bucin 💖</h2>
+      <input type="password" id="inputCode" placeholder="Masukkan Kode Akses..." onkeypress="if(event.key==='Enter') doLogin()">
+      <button id="btnLogin" onclick="doLogin()">MASUK</button>
+      <p id="errorMsg" style="color:red; font-size:12px; display:none; margin-top:10px;"></p>
+    </div>
+  </div>
+
+  <div id="mainApp">
+    <div class="header">
+      <div class="header-top">
+        <div class="profile-section">
+          <div class="avatar-wrapper">
+            <img src="" id="headerAvatar" class="avatar-circle">
+            <div id="pStat" class="status-dot status-offline"></div>
+          </div>
+          <div>
+            <div style="font-weight: bold; font-size: 17px;" id="pName">Memuat...</div>
+            <div style="font-size: 11px; opacity: 0.9;" id="pDetail">Offline</div>
+          </div>
+        </div>
+      </div>
+      <div class="bucin-timer-container">
+        <span class="timer-label">Counting Our Love Since 30 July 2025</span>
+        <div id="bucinTimer">00 Hari 00 Jam 00 Min 00 Detik</div>
+      </div>
+    </div>
+
+    <div class="music-player">
+      <div class="music-info" onclick="openPlaylist()">
+        <img src="https://cdn-icons-png.flaticon.com/512/3061/3061341.png" class="music-icon" id="musicDisk">
+        <span id="musicTitle" style="text-decoration: underline;">Pilih / Cari Lagu 🎵</span>
+      </div>
+      <button class="play-btn" id="playBtn" onclick="toggleMusic()">▶</button>
+    </div>
+
+    <div id="yt-container"><div id="ytplayer"></div></div>
+    <div class="chat-area" id="chatArea"></div>
+
+    <div class="input-area">
+      <input type="text" id="msgInput" class="input-box" placeholder="Ketik pesan atau /play judul lagu..." oninput="handleTyping()" onkeydown="if(event.key==='Enter') sendChat()">
+      <button class="send-btn" onclick="sendChat()">➤</button>
+    </div>
+    
+    <div class="modal-overlay" id="playlistModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span id="modalTitle">Daftar Lagu Kita 🎧</span>
+          <span class="modal-close" onclick="closePlaylist()">×</span>
+        </div>
+        <ul class="playlist-list" id="playlistItems"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- PENDETEKSI ERROR OTOMATIS ---
+    window.onerror = function(msg, url, line) {
+      alert("TERJADI ERROR SISTEM!\nPesan: " + msg + "\nBaris: " + line);
+      return false;
+    };
+
+    const CONFIG = {
+      apiKey: "AIzaSyDyjdnaA2Ipa_j6-pWN4K4j-42_ja-LH24", 
+      databaseURL: "https://wassup-nl-default-rtdb.asia-southeast1.firebasedatabase.app",
+      chatRoom: "bucin_room_standard_2"
+    };
+
+    const defaultPlaylist = [
+      { title: "Maliq & D'Essentials - Kita Bikin Romantis", channel: "MALIQ & D'Essentials", id: "0w2fK8qfX8k", thumb: "https://img.youtube.com/vi/0w2fK8qfX8k/default.jpg" },
+      { title: "Tulus - Hati-Hati di Jalan", channel: "Tulus", id: "5sE0aD0-B00", thumb: "https://img.youtube.com/vi/5sE0aD0-B00/default.jpg" },
+      { title: "Ed Sheeran - Perfect", channel: "Ed Sheeran", id: "2Vv-BfVoq4g", thumb: "https://img.youtube.com/vi/2Vv-BfVoq4g/default.jpg" }
+    ];
+
+    let myName = "", partnerName = "";
+    let db, mRef, pRef, myPRef, musicRef;
+    let tTimer, aTimer; 
+    let ytPlayer, isYtReady = false, isLocalMusicAction = false, currentLoadedVideoId = "";
+
+    function onYouTubeIframeAPIReady() {
+      ytPlayer = new YT.Player('ytplayer', {
+        height: '50', width: '50',
+        videoId: '0w2fK8qfX8k', // Lagu pancingan (Maliq & D'Essentials)
+        playerVars: { 'autoplay': 0, 'controls': 0, 'playsinline': 1 },
+        events: {
+          'onReady': (event) => { 
+             isYtReady = true; 
+             event.target.unMute();       
+             event.target.setVolume(100); 
+          },
+          'onStateChange': (event) => {
+             if(event.data === YT.PlayerState.ENDED) {
+                document.getElementById('playBtn').innerText = "▶";
+                document.getElementById('musicDisk').classList.remove('spin');
+             }
+          }
+        }
+      });
+    }
+
+    const decodeHTML = (html) => {
+      let txt = document.createElement("textarea");
+      txt.innerHTML = html;
+      return txt.value;
+    };
+
+    function doLogin() {
+      const btn = document.getElementById('btnLogin');
+      const code = document.getElementById('inputCode').value.trim();
+      const err = document.getElementById('errorMsg');
+
+      if (!code) {
+        err.innerText = "Kode akses tidak boleh kosong!";
+        err.style.display = "block";
+        return;
+      }
+
+      // --- TRIK PAKSA BUKA KUNCI SUARA (AUDIO UNLOCKER) ---
+      // Saat tombol login diklik, kita paksa YouTube bersuara sebentar lalu pause
+      try {
+        if (isYtReady && typeof ytPlayer !== 'undefined') {
+           ytPlayer.unMute();         // Pastikan tidak di-mute
+           ytPlayer.setVolume(100);   // Set volume maksimal
+           ytPlayer.playVideo();      // Pancing putar (minta izin browser)
+           setTimeout(() => { 
+             ytPlayer.pauseVideo();   // Pause lagi dengan cepat agar tidak bocor suaranya
+           }, 500); 
+        }
+      } catch (e) {
+        console.log("Audio unlock tertunda...");
+      }
+      // ----------------------------------------------------
+
+      btn.disabled = true; 
+      btn.innerText = "Processing..."; 
+      err.style.display = "none";
+      
+      try {
+        if (typeof google === 'undefined' || typeof google.script === 'undefined') {
+          throw new Error("Sistem Google Script tidak ditemukan. Buka lewat link Web App resmi!");
+        }
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res && res.success) {
+              myName = res.name; partnerName = res.partner;
+              const avatarImg = document.getElementById('headerAvatar');
+              avatarImg.src = (res.role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+              initApp();
+            } else { 
+              err.innerText = "Kode salah!";
+              err.style.display = "block";
+              btn.disabled = false; btn.innerText = "MASUK";
+            }
+          })
+          .withFailureHandler(function(error) {
+              err.innerText = "Gagal terhubung ke server!";
+              err.style.display = "block";
+              btn.disabled = false; btn.innerText = "MASUK";
+          })
+          .verifyCode(code);
+      } catch (e) {
+         err.innerText = e.message;
+         err.style.display = "block";
+         btn.disabled = false; btn.innerText = "MASUK";
+      }
+    }
+
+    function initApp() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'flex';
+      document.getElementById('pName').innerText = partnerName;
+
+      if (!firebase.apps.length) firebase.initializeApp(CONFIG);
+      db = firebase.database();
+      
+      mRef = db.ref(`chats/${CONFIG.chatRoom}/messages`);
+      myPRef = db.ref(`chats/${CONFIG.chatRoom}/presence/${myName}`);
+      pRef = db.ref(`chats/${CONFIG.chatRoom}/presence/${partnerName}`);
+      musicRef = db.ref(`chats/${CONFIG.chatRoom}/youtubeSync`);
+
+      startPresence(); startChatListener(); startLoveTimer(); setupMusicSync();
+    }
+
+    function searchYouTube(query) {
+      document.getElementById('playlistModal').style.display = 'flex';
+      document.getElementById('modalTitle').innerText = `Mencari: ${query}...`;
+      const listUI = document.getElementById('playlistItems');
+      listUI.innerHTML = "<li style='padding:20px;text-align:center;'>Mencari lagu di YouTube... ⏳</li>";
+
+      const ytUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query)}&type=video&key=${CONFIG.apiKey}`;
+
+      fetch(ytUrl)
+        .then(response => response.json())
+        .then(data => {
+          if(data.error) {
+             listUI.innerHTML = `<li style='padding:15px;color:red;font-size:12px;text-align:center;'><b>Error:</b> YouTube Data API v3 belum diaktifkan di Google Cloud Project kamu.</li>`;
+             return;
+          }
+          listUI.innerHTML = "";
+          document.getElementById('modalTitle').innerText = `Hasil Pencarian 🔎`;
+
+          if(data.items && data.items.length > 0) {
+            data.items.forEach(item => {
+              const title = decodeHTML(item.snippet.title);
+              const channel = decodeHTML(item.snippet.channelTitle);
+              const vidId = item.id.videoId;
+              const thumb = item.snippet.thumbnails.default.url;
+              const li = document.createElement('li');
+              li.className = 'playlist-item';
+              li.innerHTML = `
+                <img src="${thumb}" class="yt-thumb">
+                <div class="yt-info">
+                  <span class="yt-title">${title}</span>
+                  <span class="yt-channel">${channel}</span>
+                </div>
+              `;
+              li.onclick = () => playFromList(vidId, title);
+              listUI.appendChild(li);
+            });
+          } else {
+            listUI.innerHTML = "<li style='padding:20px;text-align:center;'>Lagu tidak ditemukan 😔</li>";
+          }
+        })
+        .catch(err => {
+           listUI.innerHTML = "<li style='padding:20px;text-align:center;'>Gagal menghubungi server YouTube.</li>";
+        });
+    }
+
+    function openPlaylist() {
+      document.getElementById('modalTitle').innerText = `Daftar Lagu Kita 🎧`;
+      const listUI = document.getElementById('playlistItems');
+      listUI.innerHTML = "";
+      
+      defaultPlaylist.forEach(song => {
+        const li = document.createElement('li');
+        li.className = 'playlist-item';
+        li.innerHTML = `
+          <img src="${song.thumb}" class="yt-thumb">
+          <div class="yt-info">
+            <span class="yt-title">${song.title}</span>
+            <span class="yt-channel">${song.channel}</span>
+          </div>
+        `;
+        li.onclick = () => playFromList(song.id, song.title);
+        listUI.appendChild(li);
+      });
+      document.getElementById('playlistModal').style.display = 'flex';
+    }
+
+    function closePlaylist() { document.getElementById('playlistModal').style.display = 'none'; }
+
+    function playFromList(vidId, title) {
+      if (!isYtReady) { alert("Sabar ya, pemutar sedang disiapkan..."); return; }
+
+      // 1. EKSEKUSI LANGSUNG (Bypass blokir Autoplay Browser)
+      ytPlayer.unMute();
+      ytPlayer.setVolume(100);
+      ytPlayer.loadVideoById(vidId, 0); // Langsung muat dan putar lagunya
+      currentLoadedVideoId = vidId;
+
+      // 2. Update UI langsung berputar
+      document.getElementById('musicTitle').innerText = title;
+      document.getElementById('playBtn').innerText = "⏸";
+      document.getElementById('musicDisk').classList.add('spin');
+
+      // 3. Simpan ke Firebase untuk pasanganmu (ditunda sedikit agar tidak bentrok)
+      isLocalMusicAction = true;
+      musicRef.set({ videoId: vidId, title: title, playing: true, time: 0, by: myName, timestamp: firebase.database.ServerValue.TIMESTAMP });
+      mRef.push({ sender: 'System', text: `🎵 <b>${myName}</b> memutar lagu: <i>${title}</i>`, timestamp: firebase.database.ServerValue.TIMESTAMP });
+
+      closePlaylist();
+      
+      // Reset pelacak aksi lokal setelah 1.5 detik
+      setTimeout(() => { isLocalMusicAction = false; }, 1500); 
+    }
+
+    function handleTyping() {
+      if (!myPRef) return; myPRef.update({ typing: true }); clearTimeout(tTimer);
+      tTimer = setTimeout(() => myPRef.update({ typing: false }), 2000);
+    }
+
+    function sendChat() {
+      const inp = document.getElementById('msgInput'); const val = inp.value.trim();
+      if (!val || !mRef) return;
+
+      if (val.toLowerCase().startsWith('/play ')) {
+         let query = val.substring(6).trim();
+         if(query !== "") { searchYouTube(query); }
+         inp.value = ""; return;
+      }
+
+      mRef.push({ sender: myName, text: val, timestamp: firebase.database.ServerValue.TIMESTAMP });
+      inp.value = "";
+    }
+
+    function startLoveTimer() {
+      const startDate = new Date("2025-07-30T00:00:00").getTime();
+      setInterval(() => {
+        const diff = new Date().getTime() - startDate;
+        if (diff < 0) return;
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24)), h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)), s = Math.floor((diff % (1000 * 60)) / 1000);
+        document.getElementById("bucinTimer").innerHTML = `${d}<span class="timer-unit"> Hr</span> ${h}<span class="timer-unit"> Jam</span> ${m}<span class="timer-unit"> Min</span> ${s}<span class="timer-unit"> Dtk</span>`;
+      }, 1000);
+    }
+
+    function startPresence() {
+      db.ref('.info/connected').on('value', (s) => {
+        if (s.val()) {
+          myPRef.set({ status: 'online', typing: false, last: firebase.database.ServerValue.TIMESTAMP });
+          myPRef.onDisconnect().set({ status: 'offline', typing: false, last: firebase.database.ServerValue.TIMESTAMP });
+        }
+      });
+      pRef.on('value', (s) => {
+        const d = s.val(); if (!d) return;
+        const ind = document.getElementById('pStat'), det = document.getElementById('pDetail');
+        if (d.typing) { ind.className = "status-dot status-online"; det.innerText = "sedang mengetik..."; } 
+        else { 
+          ind.className = "status-dot status-" + (d.status || 'offline'); 
+          det.innerText = d.status === 'online' ? 'Online' : 'Terakhir dilihat ' + new Date(d.last).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); 
+        }
+      });
+      const resetAFK = () => {
+        clearTimeout(aTimer); if (myPRef) myPRef.update({ status: 'online', last: firebase.database.ServerValue.TIMESTAMP });
+        aTimer = setTimeout(() => { if (myPRef) myPRef.update({ status: 'afk', last: firebase.database.ServerValue.TIMESTAMP }); }, 60000);
+      };
+      window.onmousemove = resetAFK; window.onkeydown = resetAFK; window.ontouchstart = resetAFK;
+    }
+
+    function startChatListener() {
+      mRef.limitToLast(30).on('child_added', (s) => {
+        const m = s.val(), area = document.getElementById('chatArea'), d = document.createElement('div');
+        if (m.sender === 'System') { d.className = 'message msg-system'; d.innerHTML = m.text; } 
+        else { d.className = `message ${m.sender === myName ? 'msg-out' : 'msg-in'}`; d.innerHTML = m.text; }
+        area.appendChild(d); area.scrollTop = area.scrollHeight;
+      });
+    }
+
+    function setupMusicSync() {
+      const checkReady = setInterval(() => {
+        if (!isYtReady) return; clearInterval(checkReady);
+        musicRef.on('value', (s) => {
+          if (isLocalMusicAction) { isLocalMusicAction = false; return; }
+          const d = s.val(); if (!d) return;
+
+          if (d.videoId) {
+            if (currentLoadedVideoId !== d.videoId) {
+               ytPlayer.loadVideoById(d.videoId, d.time); currentLoadedVideoId = d.videoId;
+            } else {
+               if (Math.abs(ytPlayer.getCurrentTime() - d.time) > 2) ytPlayer.seekTo(d.time, true);
+            }
+            document.getElementById('musicTitle').innerText = d.title ? d.title : "YouTube Playing 🎵";
+            
+            if (d.playing) { 
+              ytPlayer.unMute();         // Paksa suara keluar
+              ytPlayer.setVolume(100);   // Paksa volume 100
+              ytPlayer.playVideo(); 
+              document.getElementById('playBtn').innerText = "⏸"; 
+              document.getElementById('musicDisk').classList.add('spin'); 
+            } 
+            else { 
+              ytPlayer.pauseVideo(); 
+              document.getElementById('playBtn').innerText = "▶"; 
+              document.getElementById('musicDisk').classList.remove('spin'); 
+            }
+          }
+        });
+      }, 500);
+    }
+
+    function toggleMusic() {
+      if (!isYtReady || !currentLoadedVideoId) { openPlaylist(); return; }
+      
+      isLocalMusicAction = true; 
+      let isPlaying = (ytPlayer.getPlayerState() === 1);
+      let currentTime = ytPlayer.getCurrentTime() || 0;
+      
+      if (isPlaying) {
+        ytPlayer.pauseVideo(); 
+        document.getElementById('playBtn').innerText = "▶"; 
+        document.getElementById('musicDisk').classList.remove('spin');
+        musicRef.update({ playing: false, time: currentTime, by: myName });
+      } else {
+        ytPlayer.unMute();
+        ytPlayer.setVolume(100);
+        ytPlayer.playVideo(); 
+        document.getElementById('playBtn').innerText = "⏸"; 
+        document.getElementById('musicDisk').classList.add('spin');
+        musicRef.update({ playing: true, time: currentTime, by: myName });
+      }
+
+      setTimeout(() => { isLocalMusicAction = false; }, 1500);
+    }
+  </script>
+</body>
+</html>
