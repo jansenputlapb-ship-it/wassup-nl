@@ -5,69 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Bucin 💖</title>
   <style>
-    /* CSS Dasar */
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
     body { background-color: #ECE5DD; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     
-    /* Login Screen */
+    /* Login */
     #loginScreen { position: fixed; inset: 0; background: #ECE5DD; display: flex; align-items: center; justify-content: center; z-index: 10000; }
     .login-box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
-    .login-box h2 { color: #075E54; margin-bottom: 20px; }
-    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
-    .login-box button { width: 100%; padding: 12px; background: #075E54; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .login-box button { width: 100%; padding: 12px; background: #075E54; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
     /* Header */
-    header { background: #075E54; color: white; padding: 15px; display: flex; align-items: center; gap: 10px; z-index: 1000; position: relative; }
-    #headerAvatar { width: 40px; height: 40px; border-radius: 50%; background: white; }
+    header { background: #075E54; color: white; padding: 15px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
+    #headerAvatar { width: 40px; height: 40px; border-radius: 50%; background: #eee; }
 
-    /* PEMUTAR VIDEO (Standard: Di bawah Header) */
-    #playerContainer { 
-      position: relative; 
+    /* PEMUTAR VIDEO (Standard Size - Anti Bot) */
+    #playerSection { 
       width: 100%; 
-      height: 220px; /* Ukuran standard agar tidak dianggap bot */
-      background: black; 
-      display: none; /* Muncul saat mulai putar */
-      z-index: 900;
-      border-bottom: 3px solid #075E54;
-      transition: all 0.3s ease;
+      background: #000; 
+      display: none; /* Muncul hanya saat play */
+      position: relative;
+    }
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%; /* Ratio 16:9 */
+      height: 0;
+    }
+    .video-wrapper iframe {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     }
 
-    /* Mode Mini */
-    #playerContainer.mini-mode {
-      position: fixed; bottom: 80px; right: 15px;
-      width: 200px; height: 120px; border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 999;
+    /* Floating Controls */
+    .controls {
+      background: #f0f0f0;
+      padding: 5px 15px;
+      display: flex;
+      justify-content: space-around;
+      border-bottom: 1px solid #ccc;
     }
+    .controls button { background: none; border: 1px solid #075E54; padding: 2px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; }
 
-    /* Mode Full screen */
-    #playerContainer.full-mode {
-      position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 9999;
-    }
-
-    /* Tombol Kontrol Ukuran */
-    .size-controls { position: absolute; top: 5px; right: 5px; display: flex; gap: 5px; z-index: 1001; }
-    .size-controls button { background: rgba(0,0,0,0.6); color: white; border: 1px solid white; padding: 3px 7px; border-radius: 4px; font-size: 10px; cursor: pointer; }
-
-    /* Area Chat */
+    /* Chat Area */
     main { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-    .message { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    .message { max-width: 80%; padding: 10px; border-radius: 10px; font-size: 14px; position: relative; }
     .msg-me { background: #DCF8C6; align-self: flex-end; }
     .msg-partner { background: white; align-self: flex-start; }
 
     /* Footer */
     footer { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; }
-    footer input { flex: 1; padding: 10px; border-radius: 20px; border: none; outline: none; }
-    footer button { background: #075E54; color: white; border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; }
+    footer input { flex: 1; padding: 12px; border-radius: 20px; border: none; outline: none; }
+    footer button { background: #075E54; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; }
 
-    /* Modal Pencarian */
-    #searchModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 5000; }
-    .modal-content { background: white; width: 90%; max-width: 380px; border-radius: 15px; padding: 15px; max-height: 70vh; overflow-y: auto; }
-    .result-item { display: flex; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; align-items: center; }
+    /* Search Modal */
+    #searchModal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 5000; }
+    .modal-content { background: white; width: 90%; max-width: 380px; border-radius: 15px; padding: 15px; }
+    .result-item { display: flex; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
     .result-item img { width: 70px; border-radius: 5px; }
 
-    /* Toast */
-    #customToast { visibility: hidden; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; z-index: 10000; transition: 0.3s; opacity: 0; }
-    #customToast.show { visibility: visible; opacity: 1; }
+    #customToast { visibility: hidden; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; z-index: 10000; }
+    #customToast.show { visibility: visible; }
   </style>
 </head>
 <body>
@@ -75,25 +69,27 @@
   <div id="loginScreen">
     <div class="login-box">
       <h2>Portal Bucin 💖</h2>
-      <input type="password" id="inputCode" placeholder="Masukkan Kode Akses...">
-      <button onclick="doLogin()">MASUK</button>
-      <div id="errorMsg" style="color:red; margin-top:10px; display:none;"></div>
+      <input type="password" id="inputCode" placeholder="Masukkan Kode..." style="width:100%; padding:10px; border-radius:5px; border:1px solid #ccc;">
+      <button onclick="doLogin()">MASUK & AKTIFKAN MUSIK</button>
+      <p style="font-size:11px; color:gray; margin-top:10px;">*Klik tombol ini wajib untuk izin suara di Mozilla</p>
     </div>
   </div>
 
   <div id="appScreen" style="display:none; flex-direction:column; height:100%;">
     <header>
       <img id="headerAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-      <span id="partnerNameDisplay">Si Doi</span>
+      <span><b>Si Doi</b> (Online)</span>
     </header>
 
-    <div id="playerContainer">
-      <div class="size-controls">
-        <button onclick="changeSize('std')">STD</button>
-        <button onclick="changeSize('mini')">MINI</button>
-        <button onclick="changeSize('full')">FULL</button>
+    <div id="playerSection">
+      <div class="video-wrapper">
+        <div id="ytplayer"></div>
       </div>
-      <div id="ytplayer"></div>
+      <div class="controls">
+        <button onclick="resizePlayer('std')">Standard</button>
+        <button onclick="resizePlayer('mini')">Mini View</button>
+        <button onclick="resizePlayer('hide')">Sembunyikan</button>
+      </div>
     </div>
 
     <main id="chatBox">
@@ -101,8 +97,8 @@
     </main>
 
     <footer>
-      <input type="text" id="chatInput" placeholder="Ketik /play..." onkeypress="if(event.key==='Enter') sendMessage()">
-      <button onclick="sendMessage()">KIRIM</button>
+      <input type="text" id="chatInput" placeholder="Ketik /play nama lagu..." onkeypress="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()">Kirim</button>
     </footer>
   </div>
 
@@ -110,7 +106,7 @@
     <div class="modal-content">
       <h3 style="margin-bottom:10px">Pilih Lagu 🔎</h3>
       <div id="searchResults"></div>
-      <button onclick="closeModal()" style="width:100%; margin-top:10px; padding:8px;">Tutup</button>
+      <button onclick="closeModal()" style="width:100%; margin-top:10px; padding:5px;">Tutup</button>
     </div>
   </div>
 
@@ -119,13 +115,29 @@
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     const API_KEY = "AIzaSyDyjdnaA2Ipa_j6-pWN4K4j-42_ja-LH24";
-    let ytPlayer, isYtReady = false;
+    let player;
+    let isReady = false;
 
+    // Inisialisasi Player dengan parameter paling aman
     function onYouTubeIframeAPIReady() {
-      ytPlayer = new YT.Player('ytplayer', {
-        height: '100%', width: '100%',
-        playerVars: { 'playsinline': 1, 'controls': 1, 'modestbranding': 1 },
-        events: { 'onReady': () => { isYtReady = true; } }
+      player = new YT.Player('ytplayer', {
+        height: '100%',
+        width: '100%',
+        host: 'https://www.youtube-nocookie.com', // PAKAI NO-COOKIE BIAR TIDAK DETEKSI BOT
+        playerVars: {
+          'autoplay': 1,
+          'controls': 1,
+          'modestbranding': 1,
+          'rel': 0,
+          'showinfo': 0,
+          'ecver': 2
+        },
+        events: {
+          'onReady': () => { isReady = true; },
+          'onError': (e) => { 
+            if(e.data == 150) showToast("Lagu ini diproteksi. Coba cari versi 'Lyrics' atau 'Audio'.");
+          }
+        }
       });
     }
 
@@ -134,11 +146,13 @@
       if(code === "123456" || code === "654321") {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('appScreen').style.display = 'flex';
-        // Unlock audio browser
-        if(isYtReady) { ytPlayer.playVideo(); setTimeout(() => ytPlayer.pauseVideo(), 500); }
-      } else {
-        document.getElementById('errorMsg').innerText = "Kode salah!";
-        document.getElementById('errorMsg').style.display = "block";
+        
+        // PANCINGAN: Browser Mozilla butuh interaksi user agar audio aktif
+        if(isReady) {
+           player.mute(); 
+           player.playVideo(); 
+           setTimeout(() => { player.unMute(); player.setVolume(100); player.pauseVideo(); }, 800);
+        }
       }
     }
 
@@ -160,34 +174,46 @@
       data.items.forEach(item => {
         const d = document.createElement('div');
         d.className = "result-item";
-        d.onclick = () => playLagu(item.id.videoId, item.snippet.title);
+        d.onclick = () => playSong(item.id.videoId, item.snippet.title);
         d.innerHTML = `<img src="${item.snippet.thumbnails.default.url}"><div><b>${item.snippet.title}</b></div>`;
         list.appendChild(d);
       });
       document.getElementById('searchModal').style.display = 'flex';
     }
 
-    function playLagu(id, title) {
-      closeModal();
-      const container = document.getElementById('playerContainer');
-      container.style.display = 'block';
-      ytPlayer.loadVideoById(id);
-      ytPlayer.unMute();
-      ytPlayer.setVolume(100);
+    function playSong(id, title) {
+      document.getElementById('searchModal').style.display = 'none';
+      document.getElementById('playerSection').style.display = 'block';
+      
+      player.loadVideoById(id);
+      player.playVideo();
+      
       showToast("Memutar: " + title);
       addMsg(`<i>Memutar lagu: ${title}</i> 🎵`, 'me');
     }
 
-    function changeSize(mode) {
-      const pc = document.getElementById('playerContainer');
-      pc.className = ""; // Reset
-      if(mode === 'mini') pc.classList.add('mini-mode');
-      if(mode === 'full') pc.classList.add('full-mode');
+    function resizePlayer(mode) {
+      const ps = document.getElementById('playerSection');
+      if(mode === 'mini') {
+        ps.style.position = 'fixed'; ps.style.bottom = '80px'; ps.style.right = '10px'; ps.style.width = '180px';
+      } else if(mode === 'hide') {
+        ps.style.display = 'none';
+      } else {
+        ps.style.position = 'relative'; ps.style.width = '100%'; ps.style.bottom = 'auto'; ps.style.right = 'auto';
+        ps.style.display = 'block';
+      }
     }
 
     function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
     function showToast(m) { const t = document.getElementById('customToast'); t.innerText = m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3000); }
-    function addMsg(t, s) { const b = document.getElementById('chatBox'); const d = document.createElement('div'); d.className = `message msg-${s === 'me' ? 'me' : 'partner'}`; d.innerHTML = t; b.appendChild(d); b.scrollTop = b.scrollHeight; }
+    function addMsg(t, s) { 
+      const b = document.getElementById('chatBox'); 
+      const d = document.createElement('div'); 
+      d.className = `message msg-${s === 'me' ? 'me' : 'partner'}`; 
+      d.innerHTML = t; 
+      b.appendChild(d); 
+      b.scrollTop = b.scrollHeight; 
+    }
   </script>
 </body>
 </html>
