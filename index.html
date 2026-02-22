@@ -233,17 +233,23 @@
     }
 
     // --- FUNGSI YOUTUBE PLAYER & PENCARIAN ---
-    function onYouTubeIframeAPIReady() {
-      ytPlayer = new YT.Player('ytplayer', {
-        height: '200', width: '300',
-        videoId: '', 
-        playerVars: { 'playsinline': 1, 'controls': 0 },
-        events: {
-          'onReady': function(event) { isYtReady = true; console.log("YT Player Siap!"); },
-          'onError': function(event) { console.log("YT Error: " + event.data); }
-        }
-      });
+    // Ganti bagian ini di file aa.txt (sekitar baris 147)
+function onYouTubeIframeAPIReady() {
+  ytPlayer = new YT.Player('ytplayer', {
+    height: '200',
+    width: '300',
+    videoId: '', 
+    playerVars: { 
+      'playsinline': 1, 
+      'controls': 1, // UBAH DARI 0 KE 1
+      'origin': window.location.origin 
+    },
+    events: {
+      'onReady': function(event) { isYtReady = true; console.log("YT Player Siap!"); },
+      'onError': function(event) { console.log("YT Error: " + event.data); }
     }
+  });
+}
 
     async function searchYouTube(query) {
       showToast("Mencari lagu: " + query + " ⏳");
@@ -300,31 +306,30 @@
 
     // --- FITUR AUTO-RETRY KETIKA MEMUTAR LAGU ---
     function playFromList(vidId, title) {
-      // JIKA PLAYER BELUM SIAP: Munculkan pop-up & coba lagi otomatis 1.5 detik kemudian!
-      if (!isYtReady || !ytPlayer || typeof ytPlayer.loadVideoById !== 'function') { 
-        showToast("⏳ Sabar sayang, pemutar lagi disiapin... (otomatis muter kok!)"); 
-        
-        // Memanggil fungsinya sendiri lagi nanti (Looping sampai berhasil)
-        setTimeout(() => { playFromList(vidId, title); }, 1500); 
-        return; 
-      }
+  if (!isYtReady || !ytPlayer || typeof ytPlayer.loadVideoById !== 'function') { 
+    showToast("⏳ Sabar sayang, pemutar lagi disiapin...");
+    setTimeout(() => { playFromList(vidId, title); }, 1500);
+    return; 
+  }
 
-      // JIKA SUDAH SIAP: Langsung eksekusi pemutaran
-      try {
-        ytPlayer.unMute();
-        ytPlayer.setVolume(100);
-        ytPlayer.loadVideoById(vidId);
-        ytPlayer.playVideo();
-        
-        closeModal();
-        showToast("🎶 Memutar: " + title);
-        
-        // Menampilkan pesan ke dalam chatbox bahwa kamu memutar lagu
-        addMessage("<i>Sedang memutar lagu: " + title + "</i> 🎵", "me");
-      } catch(e) {
-        showToast("Gagal memutar lagu. Coba lagi ya.");
-      }
-    }
+  try {
+    // Tambahkan perintah ini agar Firefox mengizinkan audio
+    ytPlayer.loadVideoById(vidId);
+    ytPlayer.playVideo();
+    
+    // Gunakan timeout kecil untuk unMute agar tidak diblokir browser
+    setTimeout(() => {
+      ytPlayer.unMute();
+      ytPlayer.setVolume(100);
+    }, 500);
+
+    closeModal();
+    showToast("🎶 Memutar: " + title);
+    addMessage("<i>Sedang memutar lagu: " + title + "</i> 🎵", "me");
+  } catch(e) {
+    showToast("Gagal memutar lagu. Coba lagi ya.");
+  }
+}
 
     // --- FUNGSI CHAT UI ---
     function handleEnter(e) {
@@ -367,5 +372,6 @@
   </script>
 </body>
 </html>
+
 
 
