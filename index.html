@@ -1201,39 +1201,57 @@ document.addEventListener('DOMContentLoaded', () => {
 }); 
 
     // ==========================================
-    // 10. GIPHY PICKER
+    // 10. GIPHY PICKER (TAMPILAN MEMANJANG KE SAMPING)
     // ==========================================
     function showGifPicker(gifs) {
       // Hapus kalau sebelumnya sudah ada pop-up GIF yang terbuka
       let existing = document.getElementById('gifPickerOverlay');
       if (existing) existing.remove();
 
+      // Kontainer utama (menempel di atas kotak input pesan)
       const overlay = document.createElement('div');
       overlay.id = 'gifPickerOverlay';
-      // Desain pop-up yang cocok dengan tema gelap WA
-      overlay.style.cssText = "position:fixed; bottom:70px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; background:#111b21; border:1px solid #202c33; border-radius:10px; padding:10px; display:flex; flex-wrap:wrap; gap:5px; z-index:2000; max-height:300px; overflow-y:auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5);";
+      // Asumsi tinggi area input sekitar 65px-70px dari bawah layar
+      overlay.style.cssText = "position:fixed; bottom:65px; left:0; width:100%; background:#111b21; border-top:1px solid #202c33; z-index:2000; display:flex; flex-direction:column; box-shadow: 0 -4px 10px rgba(0,0,0,0.3);";
+
+      // Header Bar untuk Judul dan Tombol Tutup
+      const headerBar = document.createElement('div');
+      headerBar.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 15px; background:#202c33; font-size:13px; color:#ccc;";
+      headerBar.innerHTML = `<span>Pilih GIF:</span>`;
+      
+      const closeBtn = document.createElement('span');
+      closeBtn.innerText = "❌ Tutup";
+      closeBtn.style.cssText = "color:#ef5350; cursor:pointer; font-weight:bold;";
+      closeBtn.onclick = () => overlay.remove();
+      headerBar.appendChild(closeBtn);
+      overlay.appendChild(headerBar);
+
+      // Kontainer untuk daftar GIF (bisa di-scroll ke samping)
+      const gifListContainer = document.createElement('div');
+      // overflow-x: auto membuat elemen memanjang dan bisa digeser
+      gifListContainer.style.cssText = "display:flex; gap:10px; padding:10px; overflow-x:auto; overflow-y:hidden; align-items:center; scrollbar-width:none;"; // scrollbar-width:none agar tidak ada scrollbar tebal di Firefox
+      
+      // Sembunyikan scrollbar di Chrome/Safari via style
+      const hideScrollbarStyle = document.createElement('style');
+      hideScrollbarStyle.innerText = "#gifPickerOverlay div::-webkit-scrollbar { display: none; }";
+      document.head.appendChild(hideScrollbarStyle);
 
       // Masukkan 10 gambar dari Giphy
       gifs.forEach(gif => {
         const img = document.createElement('img');
-        img.src = gif.images.fixed_height_small.url; // Gambar kecil untuk preview
-        img.style.cssText = "height:80px; cursor:pointer; flex: 1 1 auto; object-fit:cover; border-radius:5px;";
+        img.src = gif.images.fixed_height_small.url; 
+        // flex-shrink: 0 penting agar gambar tidak menyusut kepepet
+        img.style.cssText = "height:90px; width:auto; border-radius:5px; cursor:pointer; flex-shrink:0; object-fit:cover; border: 1px solid #2a3942;";
         
         // Kalau diklik, kirim GIF-nya
         img.onclick = () => {
-          sendGifMessage(gif.images.downsized_medium.url); // Kirim resolusi bagus
-          overlay.remove(); // Tutup pop-up
+          sendGifMessage(gif.images.downsized_medium.url); 
+          overlay.remove(); // Tutup setelah kirim
         };
-        overlay.appendChild(img);
+        gifListContainer.appendChild(img);
       });
 
-      // Tombol Tutup
-      const closeBtn = document.createElement('div');
-      closeBtn.innerText = "❌ Tutup";
-      closeBtn.style.cssText = "width:100%; text-align:center; padding:10px; color:#ef5350; cursor:pointer; font-weight:bold; margin-top:5px; border-top:1px solid #202c33;";
-      closeBtn.onclick = () => overlay.remove();
-      
-      overlay.appendChild(closeBtn);
+      overlay.appendChild(gifListContainer);
       document.body.appendChild(overlay);
     }
 
@@ -1245,6 +1263,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
