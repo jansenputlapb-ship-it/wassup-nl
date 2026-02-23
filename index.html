@@ -23,8 +23,13 @@
     
     /* WIDGET MENGHITUNG HARI JADIAN */
     #anniversaryWidget {
-      background: #DCF8C6; color: #075E54; text-align: center; padding: 8px;
+      background: #DCF8C6; color: #075E54; text-align: center; padding: 10px 5px;
       font-size: 13px; font-weight: bold; border-bottom: 2px solid #ccc; z-index: 950;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .time-box {
+      display: inline-block; background: #075E54; color: white; padding: 2px 6px; 
+      border-radius: 5px; margin: 0 2px; font-family: monospace; font-size: 14px;
     }
 
     /* Bar Pemutar Musik */
@@ -72,7 +77,11 @@
     </header>
 
     <div id="anniversaryWidget">
-      ❤️ Bersama selama: <span id="daysCount">0</span> Hari, <span id="hoursCount">0</span> Jam ❤️
+      ❤️ Bersama: 
+      <span class="time-box" id="daysCount">0</span> Hari, 
+      <span class="time-box" id="hoursCount">0</span> Jam, 
+      <span class="time-box" id="minutesCount">0</span> Menit, 
+      <span class="time-box" id="secondsCount">0</span> Detik ❤️
     </div>
 
     <div id="musicBar">
@@ -108,42 +117,40 @@
 
   <script>
     // ==============================================================
-    // 1. ISI KONFIGURASI FIREBASE KAMU DI SINI
+    // 1. FIREBASE CONFIG KAMU
     // ==============================================================
     const firebaseConfig = {
-      apiKey: "API_KEY_FIREBASE_KAMU",
-      authDomain: "PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://PROJECT_ID-default-rtdb.firebaseio.com",
-      projectId: "PROJECT_ID",
-      storageBucket: "PROJECT_ID.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
+      apiKey: "AIzaSyBiZ5Npq09AYDi9yTbYv5iYSrj9r5BCgxc",
+      authDomain: "wassup-nl.firebaseapp.com",
+      databaseURL: "https://wassup-nl-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "wassup-nl",
+      storageBucket: "wassup-nl.firebasestorage.app",
+      messagingSenderId: "275519716886",
+      appId: "1:275519716886:web:bf1d5ae52623a4c9ed3f37"
     };
 
-    // Inisialisasi Firebase
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.database();
 
     // ==============================================================
-    // 2. ATUR TANGGAL JADIAN & PLAYLIST
+    // 2. TANGGAL JADIAN & PLAYLIST MP3
     // ==============================================================
-    // Format: YYYY-MM-DDTHH:MM:SS (Contoh: 14 Februari 2022 jam 10 pagi)
-    const TANGGAL_JADIAN = "2022-02-14T10:00:00"; 
+    // 30 Juli 2025 (Format: YYYY-MM-DDTHH:MM:SS)
+    const TANGGAL_JADIAN = "2025-07-30T00:00:00"; 
 
+    // Ingat, ganti URL ini dengan nama file mp3 yang sudah kamu upload ke GitHub!
     const myPlaylist = [
       { title: "Lagu Percobaan 1", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
       { title: "Lagu Percobaan 2", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
-      // Tambahkan lagumu di sini misal url: "lagukita.mp3"
     ];
 
-    // Variabel Global
     let myName = "";
     let partnerName = "";
     let lastMusicTimestamp = 0;
     const audioPlayer = document.getElementById('audioPlayer');
 
     // ==============================================================
-    // FUNGSI LOGIN & WIDGET JADIAN
+    // FUNGSI LOGIN & WIDGET JADIAN REALTIME
     // ==============================================================
     function doLogin() {
       const code = document.getElementById('inputCode').value;
@@ -162,11 +169,10 @@
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('appScreen').style.display = 'flex';
         
-        // Mulai jalankan sinkronisasi Firebase & Widget Jadian
         startAnniversaryCounter();
         initFirebaseListeners();
         
-        // Pancingan Audio Browser (Wajib agar bisa auto-play saat doi ngeremote)
+        // Pancingan Audio
         audioPlayer.play().catch(()=>{}); setTimeout(()=>audioPlayer.pause(), 100);
       } else {
         document.getElementById('errorMsg').style.display = 'block';
@@ -179,14 +185,22 @@
         const now = new Date().getTime();
         const diff = now - start;
 
+        // Jika tanggal jadian belum tiba (opsional, untuk mencegah error minus)
+        if (diff < 0) return;
+
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
         
+        // Tambahkan angka 0 di depan jika di bawah 10 (biar estetik: 05 Detik)
         document.getElementById('daysCount').innerText = days;
-        document.getElementById('hoursCount').innerText = hours;
+        document.getElementById('hoursCount').innerText = hours.toString().padStart(2, '0');
+        document.getElementById('minutesCount').innerText = minutes.toString().padStart(2, '0');
+        document.getElementById('secondsCount').innerText = seconds.toString().padStart(2, '0');
       }
       update();
-      setInterval(update, 1000 * 60); // Update setiap menit
+      setInterval(update, 1000); // UPDATE SETIAP 1 DETIK!
     }
 
     // ==============================================================
@@ -201,7 +215,6 @@
 
       if(text.toLowerCase() === '/musik') { openPlaylist(); return; }
 
-      // Kirim Chat ke Firebase Database
       db.ref("chats").push({
         sender: myName,
         text: text,
@@ -210,17 +223,16 @@
     }
 
     // ==============================================================
-    // FUNGSI MUSIK SINKRON KE FIREBASE
+    // FUNGSI BROADCAST MUSIK KE FIREBASE
     // ==============================================================
     function broadcastMusic(title, url) {
       closeModal();
-      // Perintahkan Firebase: "Putar lagu ini sekarang!"
       db.ref("music_state").set({
         action: "play",
         title: title,
         url: url,
         sender: myName,
-        timestamp: Date.now() // Pakai waktu lokal agar tidak dobel putar
+        timestamp: Date.now()
       });
     }
 
@@ -233,21 +245,18 @@
     }
 
     // ==============================================================
-    // LISTENER FIREBASE (MENDENGARKAN PERUBAHAN SECARA REALTIME)
+    // LISTENER FIREBASE (REALTIME SINKRONISASI)
     // ==============================================================
     function initFirebaseListeners() {
-      // 1. Dengarkan Chat Baru
-      db.ref("chats").limitToLast(20).on("child_added", (snapshot) => {
+      db.ref("chats").limitToLast(30).on("child_added", (snapshot) => {
         const data = snapshot.val();
         renderChat(data.text, data.sender === myName ? 'me' : 'partner', data.sender);
       });
 
-      // 2. Dengarkan Status Musik (Inilah yang bikin sinkron!)
       db.ref("music_state").on("value", (snapshot) => {
         const state = snapshot.val();
         if(!state) return;
 
-        // Jangan eksekusi perintah yang sama berulang-ulang
         if(state.timestamp === lastMusicTimestamp) return;
         lastMusicTimestamp = state.timestamp;
 
@@ -256,10 +265,9 @@
           audioPlayer.play().then(() => {
             document.getElementById('musicBar').style.display = 'flex';
             document.getElementById('musicTitleDisplay').innerText = state.title;
-            // Jika yang mencet lagu adalah pasanganmu, beritahu di chat!
             if(state.sender !== myName) renderChat(`${state.sender} menyalakan lagu: <b>${state.title}</b> 🎶`, 'system');
           }).catch(() => {
-            renderChat(`[Gagal Putar Otomatis] Browser meminta kamu untuk ketuk layar sekali.`, 'system');
+            renderChat(`[Gagal Putar Otomatis] Sentuh layar sekali untuk mengizinkan audio masuk.`, 'system');
           });
         } 
         else if(state.action === "stop") {
@@ -282,7 +290,6 @@
         d.innerHTML = text;
       } else {
         d.className = `message msg-${side}`;
-        // Jika yang kirim bukan kamu, tampilkan namanya kecil di atas chat
         const senderTag = (side === 'partner') ? `<span class="msg-sender">${senderName}</span>` : '';
         d.innerHTML = senderTag + text;
       }
@@ -297,7 +304,6 @@
       myPlaylist.forEach(song => {
         const div = document.createElement('div');
         div.className = "song-item";
-        // Saat diklik, tidak lagi play lokal, tapi langsung BROADCAST KE FIREBASE!
         div.onclick = () => broadcastMusic(song.title, song.url);
         div.innerHTML = `<div><b>${song.title}</b><br><small style="color:gray;">${song.artist}</small></div><span style="color:#075E54; font-size:18px;">▶</span>`;
         list.appendChild(div);
