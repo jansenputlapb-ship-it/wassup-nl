@@ -650,78 +650,45 @@
       input.value = ""; 
     }
 
-   // ==========================================
-    // 6. IMAGE UPLOAD LOGIC
-    // ==========================================
-    const G_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwB0u554wQCWX7M_eaAo4pmCPoiz1fSZPLupmvWhCeuwCjHcFKww9Npy8neYZ_BV8JtIQ/exec";
+   const DRIVE_FOLDER_ID = '19KXyJHdtXyMEXkYeDACavOjxUYyuWQQw';
 
-    async function handleImageUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+// ១. មុខងារនេះប្រើសម្រាប់បង្ខំ Google ឱ្យសុំសិទ្ធិបង្កើតឯកសារ
+function forceDrivePermission() {
+  var folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+  // បង្កើតឯកសារសាកល្បង ដើម្បីទាមទារសិទ្ធិ
+  var tempFile = folder.createFile("test_permission.txt", "Testing", MimeType.PLAIN_TEXT);
+  // លុបឯកសារសាកល្បងនោះវិញភ្លាមៗ
+  tempFile.setTrashed(true); 
+  Logger.log("អបអរសាទរ! សិទ្ធិបង្កើតឯកសារទទួលបានជោគជ័យ។");
+}
 
-      showToast("Memproses foto... ⏳");
+// ២. មុខងារទទួលរូបភាព (មានភ្ជាប់ប្រព័ន្ធ Debug)
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+    
+    var contentType = data.base64.substring(5, data.base64.indexOf(';'));
+    var bytes = Utilities.base64Decode(data.base64.substring(data.base64.indexOf(',') + 1));
+    var blob = Utilities.newBlob(bytes, contentType, data.name);
+    
+    var file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    var imageUrl = "https://lh3.googleusercontent.com/d/" + file.getId() + "=s1600";
+    
+    return ContentService.createTextOutput(JSON.stringify({ success: true, url: imageUrl }))
+      .setMimeType(ContentService.MimeType.JSON);
       
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const im = new Image();
-        im.src = e.target.result;
-        im.onload = async () => {
-          
-          // --- Kompresi Canvas ---
-          const c = document.createElement('canvas');
-          const x = c.getContext('2d');
-          let w = im.width, h = im.height;
-          
-          if (w > 800) { h = Math.round(h * (800 / w)); w = 800; }
-          c.width = w; c.height = h; 
-          x.drawImage(im, 0, 0, w, h);
-          const compressedBase64 = c.toDataURL('image/jpeg', 0.7);
-          
-          showToast("Mengunggah ke Drive... 🚀");
-
-          try {
-            const res = await fetch(G_SCRIPT_URL, {
-              method: "POST",
-              // TRIK ANTI-CORS: Mengirim sebagai text/plain agar tidak diblokir browser
-              headers: {
-                "Content-Type": "text/plain;charset=utf-8"
-              },
-              // Data dikirim dalam format JSON string
-              body: JSON.stringify({ 
-                base64: compressedBase64, 
-                name: "img_" + Date.now() + ".jpg" 
-              })
-            });
-            
-            const result = await res.json();
-            
-            if (result.success) {
-              const payload = {
-                sender: myName,
-                text: "",
-                imageUrl: result.url,
-                time: formatTime(),
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-              };
-              if (replyingTo) payload.replyTo = replyingTo;
-
-              db.ref("chats").push(payload);
-              showToast("Foto terkirim! 🖼️");
-              cancelReplyEdit();
-            } else {
-              showToast("Error Server: " + result.error);
-              console.error("AppScript Error:", result.error);
-            }
-          } catch (err) {
-            showToast("Connection Error ❌ Cek Izin AppScript");
-            console.error("Fetch Error:", err);
-          }
-        };
-      };
-      
-      reader.readAsDataURL(file);
-      event.target.value = ""; 
-    }
+  } catch (err) {
+    // ប្រព័ន្ធ Debug៖ បង្ហាញកំហុសលម្អិតត្រឡប់ទៅវិញ
+    return ContentService.createTextOutput(JSON.stringify({ 
+      success: false, 
+      error: err.toString(),
+      trace: err.stack 
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
 
     // ==========================================
     // 7. MENUS, REACTIONS & ACTIONS
@@ -946,6 +913,7 @@
   </script>
 </body>
 </html>
+
 
 
 
