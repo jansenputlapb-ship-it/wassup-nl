@@ -616,39 +616,23 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
 }
 
     function buildChatUI(id, data) {
-  if (!data || !data.sender) return; 
+      if (!data || !data.sender) return; 
 
-  if (data.deletedForMe && data.deletedForMe[myName]) {
-    const el = document.getElementById(`msg-${id}`);
-    if(el) el.remove();
-    return;
-  }
+      if (data.deletedForMe && data.deletedForMe[myName]) {
+        const el = document.getElementById(`msg-${id}`);
+        if(el) el.remove();
+        return;
+      }
 
-  let wrapper = document.getElementById(`msg-${id}`);
-  let isNew = false;
-  if (!wrapper) {
-    isNew = true;
-    wrapper = document.createElement('div');
-    wrapper.id = `msg-${id}`;
-    wrapper.className = 'msg-wrapper';
-    
-    // Sembunyikan elemen secara total jika ini adalah pesan suara
-    if (data.type === 'suara') {
-      wrapper.style.display = 'none';
-    }
-    
-    document.getElementById('chatBox').appendChild(wrapper);
-  }
-
-  // --- LOGIKA EKSEKUSI SUARA TANPA BUBBLE CHAT ---
-  if (data.type === 'suara') {
-    if (isNew && allowSfx && data.audioUrl) {
-      const sfx = new Audio(data.audioUrl);
-      sfx.play().catch(e => console.log("Gagal memutar suara", e));
-    }
-    // STOP DI SINI! Jangan proses HTML bubble chat di bawahnya.
-    return; 
-  }
+      let wrapper = document.getElementById(`msg-${id}`);
+      let isNew = false;
+      if (!wrapper) {
+        isNew = true;
+        wrapper = document.createElement('div');
+        wrapper.id = `msg-${id}`;
+        wrapper.className = 'msg-wrapper';
+        document.getElementById('chatBox').appendChild(wrapper);
+      }
 
       const isMe = (data.sender === myName);
       let contentHTML = "";
@@ -723,14 +707,6 @@ contentHTML = `
     const b = document.getElementById('chatBox');
     setTimeout(() => b.scrollTop = b.scrollHeight, 100);
 
-    // Notifikasi "Ding" HANYA untuk chat biasa dari pasangan
-    if (data.sender !== myName && allowSfx) {
-      const notifSound = new Audio("https://www.myinstants.com/media/sounds/ding-sound-effect_2.mp3");
-      notifSound.play().catch(e => console.log("Gagal memutar notifikasi", e));
-    }
-  }
-}
-
     // --- LOGIKA PEMUTAR SUARA OTOMATIS (COMMAND /SUARA) ---
     if (data.type === 'suara' && data.audioUrl && allowSfx) {
       // Putar suara khas jika command /suara digunakan
@@ -741,11 +717,11 @@ contentHTML = `
     else if (data.sender !== myName && allowSfx) {
       // Hanya berbunyi jika mesej dihantar oleh pasangan (bukan diri sendiri)
       // Menggunakan bunyi 'Ding' dari myinstants
-      const notifSound = new Audio("https://www.myinstants.com/media/sounds/piuw.mp3");
+      const notifSound = new Audio("https://www.myinstants.com/media/sounds/ding-sound-effect_2.mp3");
       notifSound.play().catch(e => console.log("Gagal memutar notifikasi", e));
     }
   }
-    }
+} // <--- Penutup fungsi buildChatUI
 
     function scrollToMsg(id) {
       const el = document.getElementById(`msg-${id}`);
@@ -799,10 +775,11 @@ contentHTML = `
       ]
     };
 
-    // --- COMMAND SUARA (INVISIBLE) ---
+    // --- COMMAND SUARA ---
     if (cmd === '/suara') {
       const namaSuara = args[1] ? args[1].toLowerCase() : "";
       
+      // Kamus URL Suara dari myinstants
       const suaraDict = {
         "cium": "https://www.myinstants.com/media/sounds/anime-kiss.mp3",
         "wow": "https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3",
@@ -812,8 +789,10 @@ contentHTML = `
       };
 
       if (suaraDict[namaSuara]) {
+        // Kirim data pesan suara ke Firebase
         db.ref("chats").push({
           sender: myName,
+          text: `🔊 Mengirim suara: *${namaSuara}*`,
           type: 'suara',
           audioUrl: suaraDict[namaSuara],
           time: formatTime(),
@@ -826,7 +805,7 @@ contentHTML = `
       input.value = ""; input.style.height = 'auto';
       return;
     }
-
+    
     // Eksekusi Command
     if (cmd === '/clear' || cmd === '/clean') {
       if(confirm("Hapus semua chat?")) db.ref("chats").remove();
@@ -1206,25 +1185,3 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
