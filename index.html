@@ -590,6 +590,9 @@
         
         // --- KLIK KIRI (REACTION) ---
         wrapper.onclick = (e) => {
+          // Validasi: Abaikan jika yang diklik BUKAN bubble pesan (area kosong)
+          if (!e.target.closest('.message')) return; 
+          
           if (!e.target.closest('.msg-quote')) {
             openReactionPicker(e, id);
           }
@@ -597,7 +600,10 @@
 
         // --- KLIK KANAN (CONTEXT MENU) ---
         wrapper.oncontextmenu = (e) => {
-          e.preventDefault(); // Matikan menu klik kanan bawaan browser
+          // Validasi: Abaikan jika yang diklik BUKAN bubble pesan
+          if (!e.target.closest('.message')) return; 
+          
+          e.preventDefault(); // Matikan menu bawaan browser HANYA di area bubble
           if (!e.target.closest('.msg-quote')) {
             openContextMenu(e, id, isMe);
           }
@@ -905,3 +911,4 @@
   </script>
 </body>
 </html>
+
