@@ -4,31 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Bucin 💖</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
     body { background-color: #ECE5DD; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     
-    header { background: #075E54; color: white; padding: 15px; display: flex; align-items: center; gap: 10px; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-    #headerAvatar { width: 40px; height: 40px; border-radius: 50%; background: #eee; }
+    /* Login & Header */
+    #loginScreen { position: fixed; inset: 0; background: #ECE5DD; display: flex; align-items: center; justify-content: center; z-index: 10000; }
+    .login-box { background: white; padding: 30px; border-radius: 15px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .login-box input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
+    .login-box button { width: 100%; padding: 12px; background: #075E54; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-    /* Pemutar Musik Internal yang Menyatu */
-    #musicBar {
-      background: #fff; padding: 10px 15px; display: none; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 900;
+    header { background: #075E54; color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    #headerAvatar { width: 40px; height: 40px; border-radius: 50%; background: #eee; }
+    
+    /* WIDGET MENGHITUNG HARI JADIAN */
+    #anniversaryWidget {
+      background: #DCF8C6; color: #075E54; text-align: center; padding: 8px;
+      font-size: 13px; font-weight: bold; border-bottom: 2px solid #ccc; z-index: 950;
     }
+
+    /* Bar Pemutar Musik */
+    #musicBar { background: #fff; padding: 10px 15px; display: none; align-items: center; justify-content: space-between; border-bottom: 1px solid #ddd; z-index: 900; }
     .music-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; color: #075E54; }
     .music-info span { font-size: 20px; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-    
     .btn-stop { background: #d32f2f; color: white; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-size: 12px; font-weight: bold; }
 
     /* Area Chat */
     main { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-    .message { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; line-height: 1.4; }
+    .message { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; line-height: 1.4; position: relative; }
     .msg-me { background: #DCF8C6; align-self: flex-end; border-bottom-right-radius: 0; }
     .msg-partner { background: white; align-self: flex-start; border-bottom-left-radius: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
     .msg-system { background: #e1f5fe; color: #0277bd; align-self: center; text-align: center; font-size: 12px; padding: 5px 15px; border-radius: 10px; }
+    .msg-sender { font-size: 10px; font-weight: bold; color: gray; margin-bottom: 3px; display: block; }
 
+    /* Footer */
     footer { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; }
     footer input { flex: 1; padding: 12px 15px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
     footer button { background: #075E54; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
@@ -36,19 +50,30 @@
     /* Modal Playlist */
     #playlistModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 5000; }
     .modal-content { background: white; width: 90%; max-width: 350px; border-radius: 15px; padding: 20px; max-height: 80vh; overflow-y: auto; }
-    .song-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; align-items: center; transition: 0.2s; }
-    .song-item:hover { background: #f9f9f9; }
-    .song-title { font-weight: bold; font-size: 14px; color: #333; }
-    .song-artist { font-size: 11px; color: gray; }
+    .song-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; align-items: center; }
   </style>
 </head>
 <body>
 
-  <div id="appScreen" style="display:flex; flex-direction:column; height:100%;">
+  <div id="loginScreen">
+    <div class="login-box">
+      <h2>Portal Bucin 💖</h2>
+      <input type="password" id="inputCode" placeholder="Masukkan Kode Rahasia...">
+      <button onclick="doLogin()">MASUK</button>
+      <div id="errorMsg" style="color:red; font-size:12px; margin-top:10px; display:none;">Kode salah!</div>
+    </div>
+  </div>
+
+  <div id="appScreen" style="display:none; flex-direction:column; height:100%;">
+    
     <header>
       <img id="headerAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-      <span><b>Si Doi</b> (Online)</span>
+      <span><b id="partnerNameDisplay">Doi</b> (Online)</span>
     </header>
+
+    <div id="anniversaryWidget">
+      ❤️ Bersama selama: <span id="daysCount">0</span> Hari, <span id="hoursCount">0</span> Jam ❤️
+    </div>
 
     <div id="musicBar">
       <div class="music-info">
@@ -58,13 +83,13 @@
           <div id="musicTitleDisplay">Judul Lagu</div>
         </div>
       </div>
-      <button class="btn-stop" onclick="stopMusic()">⏹ STOP</button>
+      <button class="btn-stop" onclick="stopMusicBroadcast()">⏹ STOP</button>
     </div>
 
     <audio id="audioPlayer" preload="auto"></audio>
 
     <main id="chatBox">
-      <div class="message msg-partner">Halo sayang! Ketik <b>/musik</b> ya buat buka Playlist Kenangan kita. 💕</div>
+      <div class="msg-system">Selamat datang! Ketik <b>/musik</b> untuk memutar lagu berdua secara sinkron.</div>
     </main>
 
     <footer>
@@ -76,39 +101,97 @@
   <div id="playlistModal">
     <div class="modal-content">
       <h3 style="margin-bottom:15px; color:#075E54; text-align:center;">Playlist Kita 🎶</h3>
-      <div id="playlistContainer">
-        </div>
-      <button onclick="closeModal()" style="width:100%; margin-top:15px; padding:10px; border:none; background:#ccc; border-radius:8px; font-weight:bold; cursor:pointer;">Tutup</button>
+      <div id="playlistContainer"></div>
+      <button onclick="closeModal()" style="width:100%; margin-top:15px; padding:10px; background:#ccc; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Tutup</button>
     </div>
   </div>
 
   <script>
-    // ==========================================
-    // DAFTAR LAGU PRIBADI (MP3)
-    // ==========================================
+    // ==============================================================
+    // 1. ISI KONFIGURASI FIREBASE KAMU DI SINI
+    // ==============================================================
+    const firebaseConfig = {
+      apiKey: "API_KEY_FIREBASE_KAMU",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "PROJECT_ID",
+      storageBucket: "PROJECT_ID.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    // Inisialisasi Firebase
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const db = firebase.database();
+
+    // ==============================================================
+    // 2. ATUR TANGGAL JADIAN & PLAYLIST
+    // ==============================================================
+    // Format: YYYY-MM-DDTHH:MM:SS (Contoh: 14 Februari 2022 jam 10 pagi)
+    const TANGGAL_JADIAN = "2022-02-14T10:00:00"; 
+
     const myPlaylist = [
-      { 
-        title: "Lagu Percobaan 1", 
-        artist: "Pasti Berbunyi", 
-        // Ini contoh link mp3 asli yang pasti nyala
-        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" 
-      },
-      { 
-        title: "Lagu Percobaan 2", 
-        artist: "Pasti Berbunyi", 
-        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" 
-      }
-      /* NANTI KAMU BISA TAMBAHKAN LAGU KAMU SENDIRI SEPERTI INI:
-      ,{ 
-        title: "Sempurna", 
-        artist: "Andra and The Backbone", 
-        url: "sempurna.mp3" // Syaratnya file mp3 ini harus diupload di GitHub kamu juga!
-      }
-      */
+      { title: "Lagu Percobaan 1", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+      { title: "Lagu Percobaan 2", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
+      // Tambahkan lagumu di sini misal url: "lagukita.mp3"
     ];
 
+    // Variabel Global
+    let myName = "";
+    let partnerName = "";
+    let lastMusicTimestamp = 0;
     const audioPlayer = document.getElementById('audioPlayer');
 
+    // ==============================================================
+    // FUNGSI LOGIN & WIDGET JADIAN
+    // ==============================================================
+    function doLogin() {
+      const code = document.getElementById('inputCode').value;
+      const users = {
+        "123456": { name: "NamaCowok", partner: "NamaCewek", role: "cowok" },
+        "654321": { name: "NamaCewek", partner: "NamaCowok", role: "cewek" }
+      };
+
+      if(users[code]) {
+        myName = users[code].name;
+        partnerName = users[code].partner;
+        
+        document.getElementById('partnerNameDisplay').innerText = partnerName;
+        document.getElementById('headerAvatar').src = (users[code].role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+        
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('appScreen').style.display = 'flex';
+        
+        // Mulai jalankan sinkronisasi Firebase & Widget Jadian
+        startAnniversaryCounter();
+        initFirebaseListeners();
+        
+        // Pancingan Audio Browser (Wajib agar bisa auto-play saat doi ngeremote)
+        audioPlayer.play().catch(()=>{}); setTimeout(()=>audioPlayer.pause(), 100);
+      } else {
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    }
+
+    function startAnniversaryCounter() {
+      function update() {
+        const start = new Date(TANGGAL_JADIAN).getTime();
+        const now = new Date().getTime();
+        const diff = now - start;
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        
+        document.getElementById('daysCount').innerText = days;
+        document.getElementById('hoursCount').innerText = hours;
+      }
+      update();
+      setInterval(update, 1000 * 60); // Update setiap menit
+    }
+
+    // ==============================================================
+    // FUNGSI CHAT KE FIREBASE
+    // ==============================================================
     function sendMessage() {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
@@ -116,65 +199,110 @@
 
       input.value = "";
 
-      if(text.toLowerCase() === '/musik') {
-        openPlaylist();
-        return;
-      }
+      if(text.toLowerCase() === '/musik') { openPlaylist(); return; }
 
-      addMsg(text, 'me');
-    }
-
-    function openPlaylist() {
-      const list = document.getElementById('playlistContainer');
-      list.innerHTML = "";
-      myPlaylist.forEach((song, index) => {
-        const div = document.createElement('div');
-        div.className = "song-item";
-        div.onclick = () => playMusic(song.title, song.url);
-        div.innerHTML = `
-          <div>
-            <div class="song-title">${song.title}</div>
-            <div class="song-artist">${song.artist}</div>
-          </div>
-          <span style="color:#075E54; font-size:18px;">▶</span>
-        `;
-        list.appendChild(div);
+      // Kirim Chat ke Firebase Database
+      db.ref("chats").push({
+        sender: myName,
+        text: text,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
       });
-      document.getElementById('playlistModal').style.display = 'flex';
     }
 
-    function playMusic(title, url) {
+    // ==============================================================
+    // FUNGSI MUSIK SINKRON KE FIREBASE
+    // ==============================================================
+    function broadcastMusic(title, url) {
       closeModal();
-      
-      audioPlayer.src = url;
-      audioPlayer.play().then(() => {
-        document.getElementById('musicBar').style.display = 'flex';
-        document.getElementById('musicTitleDisplay').innerText = title;
-        addMsg(`Memutar musik: <b>${title}</b> 🎶`, 'system');
-      }).catch(err => {
-        alert("Klik mana saja di layar lalu coba putar lagi. (Aturan browser)");
+      // Perintahkan Firebase: "Putar lagu ini sekarang!"
+      db.ref("music_state").set({
+        action: "play",
+        title: title,
+        url: url,
+        sender: myName,
+        timestamp: Date.now() // Pakai waktu lokal agar tidak dobel putar
       });
     }
 
-    function stopMusic() {
-      audioPlayer.pause();
-      document.getElementById('musicBar').style.display = 'none';
-      addMsg(`Musik dihentikan.`, 'system');
+    function stopMusicBroadcast() {
+      db.ref("music_state").set({
+        action: "stop",
+        sender: myName,
+        timestamp: Date.now()
+      });
     }
 
-    function addMsg(txt, side) {
+    // ==============================================================
+    // LISTENER FIREBASE (MENDENGARKAN PERUBAHAN SECARA REALTIME)
+    // ==============================================================
+    function initFirebaseListeners() {
+      // 1. Dengarkan Chat Baru
+      db.ref("chats").limitToLast(20).on("child_added", (snapshot) => {
+        const data = snapshot.val();
+        renderChat(data.text, data.sender === myName ? 'me' : 'partner', data.sender);
+      });
+
+      // 2. Dengarkan Status Musik (Inilah yang bikin sinkron!)
+      db.ref("music_state").on("value", (snapshot) => {
+        const state = snapshot.val();
+        if(!state) return;
+
+        // Jangan eksekusi perintah yang sama berulang-ulang
+        if(state.timestamp === lastMusicTimestamp) return;
+        lastMusicTimestamp = state.timestamp;
+
+        if(state.action === "play") {
+          audioPlayer.src = state.url;
+          audioPlayer.play().then(() => {
+            document.getElementById('musicBar').style.display = 'flex';
+            document.getElementById('musicTitleDisplay').innerText = state.title;
+            // Jika yang mencet lagu adalah pasanganmu, beritahu di chat!
+            if(state.sender !== myName) renderChat(`${state.sender} menyalakan lagu: <b>${state.title}</b> 🎶`, 'system');
+          }).catch(() => {
+            renderChat(`[Gagal Putar Otomatis] Browser meminta kamu untuk ketuk layar sekali.`, 'system');
+          });
+        } 
+        else if(state.action === "stop") {
+          audioPlayer.pause();
+          document.getElementById('musicBar').style.display = 'none';
+          if(state.sender !== myName) renderChat(`${state.sender} mematikan musik.`, 'system');
+        }
+      });
+    }
+
+    // ==============================================================
+    // FUNGSI PENDUKUNG UI
+    // ==============================================================
+    function renderChat(text, side, senderName = "") {
       const b = document.getElementById('chatBox');
       const d = document.createElement('div');
       
       if(side === 'system') {
         d.className = `msg-system`;
+        d.innerHTML = text;
       } else {
         d.className = `message msg-${side}`;
+        // Jika yang kirim bukan kamu, tampilkan namanya kecil di atas chat
+        const senderTag = (side === 'partner') ? `<span class="msg-sender">${senderName}</span>` : '';
+        d.innerHTML = senderTag + text;
       }
       
-      d.innerHTML = txt;
       b.appendChild(d);
       b.scrollTop = b.scrollHeight;
+    }
+
+    function openPlaylist() {
+      const list = document.getElementById('playlistContainer');
+      list.innerHTML = "";
+      myPlaylist.forEach(song => {
+        const div = document.createElement('div');
+        div.className = "song-item";
+        // Saat diklik, tidak lagi play lokal, tapi langsung BROADCAST KE FIREBASE!
+        div.onclick = () => broadcastMusic(song.title, song.url);
+        div.innerHTML = `<div><b>${song.title}</b><br><small style="color:gray;">${song.artist}</small></div><span style="color:#075E54; font-size:18px;">▶</span>`;
+        list.appendChild(div);
+      });
+      document.getElementById('playlistModal').style.display = 'flex';
     }
 
     function closeModal() { document.getElementById('playlistModal').style.display = 'none'; }
