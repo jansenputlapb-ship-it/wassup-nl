@@ -723,6 +723,14 @@ contentHTML = `
     const b = document.getElementById('chatBox');
     setTimeout(() => b.scrollTop = b.scrollHeight, 100);
 
+    // Notifikasi "Ding" HANYA untuk chat biasa dari pasangan
+    if (data.sender !== myName && allowSfx) {
+      const notifSound = new Audio("https://www.myinstants.com/media/sounds/ding-sound-effect_2.mp3");
+      notifSound.play().catch(e => console.log("Gagal memutar notifikasi", e));
+    }
+  }
+}
+
     // --- LOGIKA PEMUTAR SUARA OTOMATIS (COMMAND /SUARA) ---
     if (data.type === 'suara' && data.audioUrl && allowSfx) {
       // Putar suara khas jika command /suara digunakan
@@ -1198,6 +1206,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
