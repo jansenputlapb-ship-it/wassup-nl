@@ -18,47 +18,61 @@
     .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; text-align: center; outline: none; }
     .login-box button { width: 100%; padding: 12px; background: #008069; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-    /* Header ala WhatsApp */
+    /* Header ala WhatsApp + Tombol Playlist */
     header { background: #008069; color: white; padding: 10px 15px; display: flex; align-items: center; gap: 12px; z-index: 1000; }
     #headerAvatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid rgba(255,255,255,0.3); }
     .header-info { display: flex; flex-direction: column; justify-content: center; flex: 1; }
     .header-name { font-size: 16px; font-weight: 600; line-height: 1.2; }
     .header-status { font-size: 12px; font-weight: 400; color: #d9fdd3; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
+    .header-actions { display: flex; align-items: center; gap: 15px; }
+    .action-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; transition: 0.2s; }
+    .action-btn:active { transform: scale(0.9); color: #d9fdd3; }
+
     /* =========================================
-       SUB-HEADER DYNAMIC (JADIAN & SPOTIFY BAR)
+       SUB-HEADER DYNAMIC (JADIAN & HYBRID PLAYER)
        ========================================= */
     #dynamicSubHeader {
       background: #ffffff;
-      min-height: 45px;
+      min-height: 55px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 15px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      padding: 0 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
       z-index: 950;
       transition: all 0.3s ease;
     }
 
-    /* Tampilan Jadian (Minimalis) */
+    /* Tampilan Jadian */
     #anniView { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #54656f; font-weight: 500; }
     .time-num { font-family: monospace; font-weight: bold; color: #008069; font-size: 14px; }
     .anni-heart { color: #e91e63; font-size: 12px; animation: heartbeat 1.5s infinite; }
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
-    /* Tampilan Music (Ala Spotify) */
-    #musicView { display: none; width: 100%; align-items: center; justify-content: space-between; }
-    .music-left { display: flex; align-items: center; gap: 12px; }
+    /* Tampilan Music Player (Hybrid Winamp/Spotify) */
+    #musicView { display: none; width: 100%; align-items: center; justify-content: space-between; gap: 5px; }
+    .music-left { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; }
     .music-cover { 
-      width: 32px; height: 32px; border-radius: 4px; background: #1ed760; 
-      display: flex; align-items: center; justify-content: center; color: white; font-size: 16px;
-      box-shadow: 0 2px 5px rgba(30,215,96,0.4);
+      min-width: 36px; height: 36px; border-radius: 6px; background: linear-gradient(135deg, #1ed760, #008069); 
+      display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;
+      box-shadow: 0 2px 5px rgba(30,215,96,0.4); animation: spinDisk 4s linear infinite; animation-play-state: paused;
     }
-    .music-text { display: flex; flex-direction: column; }
+    .music-cover.playing { animation-play-state: running; border-radius: 50%; }
+    @keyframes spinDisk { 100% { transform: rotate(360deg); } }
+
+    .music-text { display: flex; flex-direction: column; overflow: hidden; white-space: nowrap; }
     .music-label { font-size: 9px; font-weight: 800; color: #1ed760; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
-    .music-title { font-size: 13px; font-weight: bold; color: #111; line-height: 1.1; }
-    .btn-stop { background: none; border: none; color: #8696a0; font-size: 24px; cursor: pointer; padding: 0 5px; }
-    .btn-stop:hover { color: #d32f2f; }
+    .music-title { font-size: 13px; font-weight: bold; color: #111; text-overflow: ellipsis; overflow: hidden; }
+    
+    /* Tombol Kontrol Musik */
+    .player-controls { display: flex; align-items: center; gap: 8px; }
+    .ctrl-btn { background: none; border: none; color: #54656f; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; transition: 0.2s; }
+    .ctrl-btn:active { background: #eee; }
+    .play-pause-btn { background: #1ed760; color: white; font-size: 14px; }
+    .play-pause-btn:active { background: #1bc055; }
+    .stop-btn { color: #d32f2f; }
+    .active-repeat { color: #1ed760 !important; }
 
     /* Area Chat */
     main { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
@@ -73,9 +87,15 @@
     footer button { background: #008069; color: white; border: none; width: 42px; height: 42px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
 
     /* Modal Playlist */
-    #playlistModal { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 5000; }
-    .modal-content { background: white; width: 90%; max-width: 350px; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    .song-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; align-items: center; }
+    #playlistModal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; justify-content: center; z-index: 5000; }
+    .modal-content { background: white; width: 100%; max-width: 500px; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); max-height: 70vh; overflow-y: auto; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .song-item { display: flex; justify-content: space-between; padding: 12px 5px; border-bottom: 1px solid #eee; cursor: pointer; align-items: center; }
+    .song-item:active { background: #f9f9f9; }
+
+    /* Toast Info */
+    #customToast { visibility: hidden; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 8px 15px; border-radius: 20px; z-index: 10000; font-size: 12px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
+    #customToast.show { visibility: visible; opacity: 1; }
   </style>
 </head>
 <body>
@@ -97,6 +117,9 @@
         <div class="header-name" id="partnerNameDisplay">Si Doi</div>
         <div class="header-status" id="partnerStatusDisplay">menunggu...</div>
       </div>
+      <div class="header-actions">
+        <button class="action-btn" onclick="openPlaylist()" title="Buka Playlist">🎧</button>
+      </div>
     </header>
 
     <div id="dynamicSubHeader">
@@ -113,13 +136,20 @@
 
       <div id="musicView">
         <div class="music-left">
-          <div class="music-cover">🎵</div>
+          <div class="music-cover" id="diskCover">🎵</div>
           <div class="music-text">
             <span class="music-label">Now Playing</span>
             <span class="music-title" id="musicTitleDisplay">Judul Lagu</span>
           </div>
         </div>
-        <button class="btn-stop" onclick="stopMusicBroadcast()">×</button>
+        
+        <div class="player-controls">
+          <button class="ctrl-btn" id="btnRepeat" onclick="toggleRepeat()">🔁</button>
+          <button class="ctrl-btn" onclick="playPrev()">⏮</button>
+          <button class="ctrl-btn play-pause-btn" id="btnPlayPause" onclick="togglePlayPause()">⏸</button>
+          <button class="ctrl-btn" onclick="playNext()">⏭</button>
+          <button class="ctrl-btn stop-btn" onclick="stopMusicBroadcast()">✖</button>
+        </div>
       </div>
 
     </div>
@@ -127,22 +157,26 @@
     <audio id="audioPlayer" preload="auto"></audio>
 
     <main id="chatBox">
-      <div class="msg-system">Selamat datang! Ketik <b>/musik</b> untuk memutar lagu berdua secara sinkron.</div>
+      <div class="msg-system">Selamat datang! Klik ikon 🎧 di pojok kanan atas untuk memilih lagu.</div>
     </main>
 
     <footer>
-      <input type="text" id="chatInput" placeholder="Ketik pesan atau /musik..." onkeypress="if(event.key==='Enter') sendMessage()">
+      <input type="text" id="chatInput" placeholder="Ketik pesan di sini..." onkeypress="if(event.key==='Enter') sendMessage()">
       <button onclick="sendMessage()">➤</button>
     </footer>
   </div>
 
-  <div id="playlistModal">
-    <div class="modal-content">
-      <h3 style="margin-bottom:15px; color:#008069; text-align:center;">Playlist Kita 🎶</h3>
+  <div id="playlistModal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:#008069; margin:0;">Daftar Lagu 🎶</h3>
+        <button onclick="closeModal(null, true)" style="background:none; border:none; font-size:20px; font-weight:bold; color:#888; cursor:pointer;">✖</button>
+      </div>
       <div id="playlistContainer"></div>
-      <button onclick="closeModal()" style="width:100%; margin-top:15px; padding:10px; background:#f0f2f5; color:#008069; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Tutup</button>
     </div>
   </div>
+
+  <div id="customToast"></div>
 
   <script>
     // ==============================================================
@@ -162,18 +196,25 @@
     const db = firebase.database();
 
     // ==============================================================
-    // 2. TANGGAL JADIAN & PLAYLIST MP3
+    // 2. DATA UTAMA
     // ==============================================================
     const TANGGAL_JADIAN = "2025-07-30T00:00:00"; 
 
+    // Ganti dengan file mp3 kamu
     const myPlaylist = [
       { title: "Lagu Percobaan 1", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-      { title: "Lagu Percobaan 2", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
+      { title: "Lagu Percobaan 2", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+      { title: "Lagu Percobaan 3", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
     ];
 
     let myName = "";
     let partnerName = "";
     let lastMusicTimestamp = 0;
+    
+    // STATE PEMUTAR MUSIK
+    let isPlaying = false;
+    let currentSongIndex = -1;
+    let isRepeat = false;
     
     let isTyping = false;
     let typingTimer;
@@ -182,7 +223,7 @@
     const audioPlayer = document.getElementById('audioPlayer');
 
     // ==============================================================
-    // FUNGSI LOGIN & WIDGET JADIAN
+    // INISIALISASI
     // ==============================================================
     function doLogin() {
       const code = document.getElementById('inputCode').value;
@@ -205,43 +246,34 @@
         initFirebaseListeners();
         setupPresenceSystem(); 
         
+        // Trick untuk allow autoplay audio di browser modern
         audioPlayer.play().catch(()=>{}); setTimeout(()=>audioPlayer.pause(), 100);
       } else {
         document.getElementById('errorMsg').style.display = 'block';
       }
     }
 
+    // --- MENGHITUNG HARI ---
     function startAnniversaryCounter() {
       function update() {
-        const start = new Date(TANGGAL_JADIAN).getTime();
-        const now = new Date().getTime();
-        const diff = now - start;
+        const diff = new Date().getTime() - new Date(TANGGAL_JADIAN).getTime();
+        if (diff < 0) return; 
 
-        if (diff < 0) return; // Jika tanggal belum tiba
-
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        
-        document.getElementById('daysCount').innerText = days;
-        document.getElementById('hoursCount').innerText = hours.toString().padStart(2, '0');
-        document.getElementById('minutesCount').innerText = minutes.toString().padStart(2, '0');
-        document.getElementById('secondsCount').innerText = seconds.toString().padStart(2, '0');
+        document.getElementById('daysCount').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+        document.getElementById('hoursCount').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+        document.getElementById('minutesCount').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+        document.getElementById('secondsCount').innerText = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
       }
-      update();
-      setInterval(update, 1000); 
+      update(); setInterval(update, 1000); 
     }
 
-    // ==============================================================
-    // SISTEM PRESENCE (ONLINE/OFFLINE/TYPING)
-    // ==============================================================
+    // --- STATUS KEHADIRAN WA ---
     function setupPresenceSystem() {
       const myStatusRef = db.ref(`users/${myName}`);
       
-      db.ref('.info/connected').on('value', function(snapshot) {
-        if (snapshot.val() === false) return;
-        myStatusRef.onDisconnect().set({ state: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP }).then(function() {
+      db.ref('.info/connected').on('value', snap => {
+        if (snap.val() === false) return;
+        myStatusRef.onDisconnect().set({ state: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP }).then(() => {
           myStatusRef.set({ state: 'online', last_changed: firebase.database.ServerValue.TIMESTAMP });
         });
       });
@@ -250,14 +282,10 @@
         if(isTyping) return;
         myStatusRef.update({ state: 'online' });
         clearTimeout(idleTimer);
-        idleTimer = setTimeout(() => {
-          myStatusRef.update({ state: 'afk', last_changed: firebase.database.ServerValue.TIMESTAMP });
-        }, 60000);
+        idleTimer = setTimeout(() => { myStatusRef.update({ state: 'afk', last_changed: firebase.database.ServerValue.TIMESTAMP }); }, 60000);
       }
 
-      document.addEventListener('mousemove', resetIdle);
-      document.addEventListener('keypress', resetIdle);
-      document.addEventListener('touchstart', resetIdle);
+      document.addEventListener('mousemove', resetIdle); document.addEventListener('keypress', resetIdle); document.addEventListener('touchstart', resetIdle);
 
       document.getElementById('chatInput').addEventListener('input', () => {
         if(!isTyping) { isTyping = true; myStatusRef.update({ state: 'typing' }); }
@@ -265,7 +293,7 @@
         typingTimer = setTimeout(() => { isTyping = false; myStatusRef.update({ state: 'online' }); resetIdle(); }, 1500); 
       });
 
-      db.ref(`users/${partnerName}`).on('value', (snap) => {
+      db.ref(`users/${partnerName}`).on('value', snap => {
         const data = snap.val();
         const statusEl = document.getElementById('partnerStatusDisplay');
         if(!data) { statusEl.innerText = "offline"; return; }
@@ -284,7 +312,70 @@
     }
 
     // ==============================================================
-    // FUNGSI CHAT & MUSIK FIREBASE
+    // KONTROL PEMUTAR MUSIK (HYBRID WINAMP)
+    // ==============================================================
+    // Fungsi Master untuk mengirim perintah musik ke Firebase
+    function broadcastMusicAction(action, index = currentSongIndex) {
+      if(index < 0 || index >= myPlaylist.length) return;
+      const song = myPlaylist[index];
+      
+      db.ref("music_state").set({
+        action: action, // 'play', 'pause', 'resume', 'stop'
+        songIndex: index,
+        title: song.title,
+        url: song.url,
+        sender: myName,
+        timestamp: Date.now()
+      });
+    }
+
+    function togglePlayPause() {
+      if(currentSongIndex === -1) return;
+      if (isPlaying) { broadcastMusicAction("pause"); } 
+      else { broadcastMusicAction("resume"); }
+    }
+
+    function playNext() {
+      if(currentSongIndex === -1) return;
+      let nextIdx = currentSongIndex + 1;
+      if(nextIdx >= myPlaylist.length) nextIdx = 0; // Balik ke awal
+      broadcastMusicAction("play", nextIdx);
+    }
+
+    function playPrev() {
+      if(currentSongIndex === -1) return;
+      let prevIdx = currentSongIndex - 1;
+      if(prevIdx < 0) prevIdx = myPlaylist.length - 1; // Ke lagu terakhir
+      broadcastMusicAction("play", prevIdx);
+    }
+
+    function stopMusicBroadcast() {
+      db.ref("music_state").set({ action: "stop", sender: myName, timestamp: Date.now() });
+    }
+
+    function toggleRepeat() {
+      isRepeat = !isRepeat;
+      const btn = document.getElementById('btnRepeat');
+      if(isRepeat) { btn.classList.add('active-repeat'); showToast("Ulangi Lagu: ON"); } 
+      else { btn.classList.remove('active-repeat'); showToast("Ulangi Lagu: OFF"); }
+    }
+
+    // Auto-Next / Auto-Repeat saat lagu habis
+    audioPlayer.onended = () => {
+      if (isRepeat) {
+        audioPlayer.play(); // Putar ulang lokal
+      } else {
+        // Agar tidak bentrok (2 HP ngirim perintah barengan), 
+        // hanya HP yang pertama kali memutar lagu ini yang berhak ngirim perintah "Next"
+        db.ref("music_state").once("value", snap => {
+          const state = snap.val();
+          if(state && state.sender === myName) { playNext(); }
+        });
+      }
+    };
+
+    // ==============================================================
+    // LISTENER FIREBASE (Menerima Data)
     // ==============================================================
     function sendMessage() {
       const input = document.getElementById('chatInput');
@@ -294,23 +385,9 @@
       input.value = "";
       isTyping = false; clearTimeout(typingTimer); db.ref(`users/${myName}`).update({ state: 'online' });
 
-      if(text.toLowerCase() === '/musik') { openPlaylist(); return; }
-
       db.ref("chats").push({ sender: myName, text: text, timestamp: firebase.database.ServerValue.TIMESTAMP });
     }
 
-    function broadcastMusic(title, url) {
-      closeModal();
-      db.ref("music_state").set({ action: "play", title: title, url: url, sender: myName, timestamp: Date.now() });
-    }
-
-    function stopMusicBroadcast() {
-      db.ref("music_state").set({ action: "stop", sender: myName, timestamp: Date.now() });
-    }
-
-    // ==============================================================
-    // LISTENER FIREBASE
-    // ==============================================================
     function initFirebaseListeners() {
       db.ref("chats").limitToLast(30).on("child_added", (snapshot) => {
         const data = snapshot.val();
@@ -322,35 +399,49 @@
         if(!state || state.timestamp === lastMusicTimestamp) return;
         lastMusicTimestamp = state.timestamp;
 
-        // ANIMASI TRANSISI SUB-HEADER
         const anniView = document.getElementById('anniView');
         const musicView = document.getElementById('musicView');
+        const playBtn = document.getElementById('btnPlayPause');
+        const diskCover = document.getElementById('diskCover');
 
         if(state.action === "play") {
+          currentSongIndex = state.songIndex;
           audioPlayer.src = state.url;
           audioPlayer.play().then(() => {
-            // Sembunyikan Tanggal, Munculkan Player Spotify
-            anniView.style.display = 'none';
-            musicView.style.display = 'flex';
+            anniView.style.display = 'none'; musicView.style.display = 'flex';
             document.getElementById('musicTitleDisplay').innerText = state.title;
-            
+            playBtn.innerText = "⏸";
+            diskCover.classList.add('playing');
+            isPlaying = true;
             if(state.sender !== myName) renderChat(`<i>Doi memutar lagu: <b>${state.title}</b></i> 🎶`, 'system');
-          }).catch(() => {
-            renderChat(`Penyelarasan lagu tertunda. Sentuh layar agar musik berbunyi.`, 'system');
-          });
+          }).catch(() => { showToast("Sentuh layar sekali untuk mengizinkan audio."); });
         } 
+        else if(state.action === "pause") {
+          audioPlayer.pause();
+          playBtn.innerText = "▶";
+          diskCover.classList.remove('playing');
+          isPlaying = false;
+        }
+        else if(state.action === "resume") {
+          audioPlayer.play();
+          playBtn.innerText = "⏸";
+          diskCover.classList.add('playing');
+          isPlaying = true;
+        }
         else if(state.action === "stop") {
           audioPlayer.pause();
-          
-          // Sembunyikan Player Spotify, Kembalikan Tanggal
-          musicView.style.display = 'none';
-          anniView.style.display = 'flex';
-          
+          musicView.style.display = 'none'; anniView.style.display = 'flex';
+          diskCover.classList.remove('playing');
+          isPlaying = false;
+          currentSongIndex = -1;
           if(state.sender !== myName) renderChat(`<i>Doi mematikan musik.</i>`, 'system');
         }
       });
     }
 
+    // ==============================================================
+    // FUNGSI PENDUKUNG UI
+    // ==============================================================
     function renderChat(text, side) {
       const b = document.getElementById('chatBox');
       const d = document.createElement('div');
@@ -363,17 +454,33 @@
     function openPlaylist() {
       const list = document.getElementById('playlistContainer');
       list.innerHTML = "";
-      myPlaylist.forEach(song => {
+      myPlaylist.forEach((song, index) => {
         const div = document.createElement('div');
         div.className = "song-item";
-        div.onclick = () => broadcastMusic(song.title, song.url);
-        div.innerHTML = `<div><b>${song.title}</b><br><small style="color:gray;">${song.artist}</small></div><span style="color:#1ed760; font-size:18px;">▶</span>`;
+        div.onclick = () => { closeModal(null, true); broadcastMusicAction("play", index); }
+        
+        // Tanda kalau lagu ini sedang diputar
+        const isThisPlaying = (currentSongIndex === index);
+        const iconColor = isThisPlaying ? "#1ed760" : "#ccc";
+        const icon = isThisPlaying ? "🔊" : "▶";
+
+        div.innerHTML = `<div><b style="color:${isThisPlaying ? '#1ed760' : '#333'}">${song.title}</b><br><small style="color:gray;">${song.artist}</small></div><span style="color:${iconColor}; font-size:18px;">${icon}</span>`;
         list.appendChild(div);
       });
       document.getElementById('playlistModal').style.display = 'flex';
     }
 
-    function closeModal() { document.getElementById('playlistModal').style.display = 'none'; }
+    function closeModal(e, forceClose = false) { 
+      if(forceClose || e.target.id === 'playlistModal') {
+        document.getElementById('playlistModal').style.display = 'none'; 
+      }
+    }
+    
+    function showToast(msg) {
+      const t = document.getElementById('customToast');
+      t.innerText = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
   </script>
 </body>
 </html>
