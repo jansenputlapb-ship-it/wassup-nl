@@ -9,52 +9,52 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-    body { background-color: #ECE5DD; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    body { background-color: #EFE6DD; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
     
-    /* Login & Header */
-    #loginScreen { position: fixed; inset: 0; background: #ECE5DD; display: flex; align-items: center; justify-content: center; z-index: 10000; }
+    /* Login */
+    #loginScreen { position: fixed; inset: 0; background: #EFE6DD; display: flex; align-items: center; justify-content: center; z-index: 10000; }
     .login-box { background: white; padding: 30px; border-radius: 15px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .login-box input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
-    .login-box button { width: 100%; padding: 12px; background: #075E54; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; text-align: center; }
+    .login-box button { width: 100%; padding: 12px; background: #008069; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-    header { background: #075E54; color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-    #headerAvatar { width: 40px; height: 40px; border-radius: 50%; background: #eee; }
+    /* Header ala WhatsApp */
+    header { background: #008069; color: white; padding: 10px 15px; display: flex; align-items: center; gap: 12px; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    #headerAvatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid rgba(255,255,255,0.3); }
+    .header-info { display: flex; flex-direction: column; justify-content: center; flex: 1; }
+    .header-name { font-size: 16px; font-weight: 600; line-height: 1.2; }
+    .header-status { font-size: 12px; font-weight: 400; color: #d9fdd3; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    /* WIDGET MENGHITUNG HARI JADIAN */
+    /* Widget Menghitung Hari (Estetik & Minimalis) */
     #anniversaryWidget {
-      background: #DCF8C6; color: #075E54; text-align: center; padding: 10px 5px;
-      font-size: 13px; font-weight: bold; border-bottom: 2px solid #ccc; z-index: 950;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      text-align: center; padding: 12px 10px; background: transparent; 
+      z-index: 950; display: flex; flex-direction: column; gap: 4px;
     }
-    .time-box {
-      display: inline-block; background: #075E54; color: white; padding: 2px 6px; 
-      border-radius: 5px; margin: 0 2px; font-family: monospace; font-size: 14px;
-    }
+    .anni-title { font-size: 11px; font-weight: bold; color: #667781; letter-spacing: 1px; text-transform: uppercase; }
+    .anni-text { font-size: 15px; font-weight: 600; color: #008069; }
+    .anni-heart { color: #e91e63; font-size: 14px; display: inline-block; animation: heartbeat 1.5s infinite; }
+    @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
-    /* Bar Pemutar Musik */
+    /* Bar Musik */
     #musicBar { background: #fff; padding: 10px 15px; display: none; align-items: center; justify-content: space-between; border-bottom: 1px solid #ddd; z-index: 900; }
-    .music-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; color: #075E54; }
-    .music-info span { font-size: 20px; animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    .music-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; color: #008069; }
     .btn-stop { background: #d32f2f; color: white; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-size: 12px; font-weight: bold; }
 
     /* Area Chat */
-    main { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-    .message { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; line-height: 1.4; position: relative; }
-    .msg-me { background: #DCF8C6; align-self: flex-end; border-bottom-right-radius: 0; }
-    .msg-partner { background: white; align-self: flex-start; border-bottom-left-radius: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-    .msg-system { background: #e1f5fe; color: #0277bd; align-self: center; text-align: center; font-size: 12px; padding: 5px 15px; border-radius: 10px; }
-    .msg-sender { font-size: 10px; font-weight: bold; color: gray; margin-bottom: 3px; display: block; }
+    main { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+    .message { max-width: 80%; padding: 8px 12px; border-radius: 10px; font-size: 14px; line-height: 1.4; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+    .msg-me { background: #d9fdd3; align-self: flex-end; border-top-right-radius: 0; }
+    .msg-partner { background: white; align-self: flex-start; border-top-left-radius: 0; }
+    .msg-system { background: rgba(0,0,0,0.05); color: #555; align-self: center; text-align: center; font-size: 11px; padding: 5px 12px; border-radius: 10px; font-weight: bold; margin-top: 5px; }
 
-    /* Footer */
-    footer { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; }
-    footer input { flex: 1; padding: 12px 15px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
-    footer button { background: #075E54; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+    /* Footer / Input Chat */
+    footer { background: #f0f2f5; padding: 10px; display: flex; gap: 10px; align-items: center; }
+    footer input { flex: 1; padding: 12px 20px; border-radius: 25px; border: none; outline: none; font-size: 15px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+    footer button { background: #008069; color: white; border: none; width: 42px; height: 42px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
 
     /* Modal Playlist */
-    #playlistModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 5000; }
-    .modal-content { background: white; width: 90%; max-width: 350px; border-radius: 15px; padding: 20px; max-height: 80vh; overflow-y: auto; }
+    #playlistModal { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 5000; }
+    .modal-content { background: white; width: 90%; max-width: 350px; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
     .song-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; align-items: center; }
   </style>
 </head>
@@ -62,7 +62,7 @@
 
   <div id="loginScreen">
     <div class="login-box">
-      <h2>Portal Bucin 💖</h2>
+      <h2 style="color:#008069; margin-bottom: 20px;">Portal Bucin 💖</h2>
       <input type="password" id="inputCode" placeholder="Masukkan Kode Rahasia...">
       <button onclick="doLogin()">MASUK</button>
       <div id="errorMsg" style="color:red; font-size:12px; margin-top:10px; display:none;">Kode salah!</div>
@@ -73,15 +73,22 @@
     
     <header>
       <img id="headerAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-      <span><b id="partnerNameDisplay">Doi</b> (Online)</span>
+      <div class="header-info">
+        <div class="header-name" id="partnerNameDisplay">Si Doi</div>
+        <div class="header-status" id="partnerStatusDisplay">menunggu...</div>
+      </div>
     </header>
 
     <div id="anniversaryWidget">
-      ❤️ Bersama: 
-      <span class="time-box" id="daysCount">0</span> Hari, 
-      <span class="time-box" id="hoursCount">0</span> Jam, 
-      <span class="time-box" id="minutesCount">0</span> Menit, 
-      <span class="time-box" id="secondsCount">0</span> Detik ❤️
+      <div class="anni-title">Bersama Selama</div>
+      <div class="anni-text">
+        <span class="anni-heart">❤️</span>
+        <span id="daysCount">0</span> Hari, 
+        <span id="hoursCount">0</span> Jam, 
+        <span id="minutesCount">0</span> Menit, 
+        <span id="secondsCount">0</span> Detik
+        <span class="anni-heart">❤️</span>
+      </div>
     </div>
 
     <div id="musicBar">
@@ -103,21 +110,21 @@
 
     <footer>
       <input type="text" id="chatInput" placeholder="Ketik pesan atau /musik..." onkeypress="if(event.key==='Enter') sendMessage()">
-      <button onclick="sendMessage()">Kirim</button>
+      <button onclick="sendMessage()">➤</button>
     </footer>
   </div>
 
   <div id="playlistModal">
     <div class="modal-content">
-      <h3 style="margin-bottom:15px; color:#075E54; text-align:center;">Playlist Kita 🎶</h3>
+      <h3 style="margin-bottom:15px; color:#008069; text-align:center;">Playlist Kita 🎶</h3>
       <div id="playlistContainer"></div>
-      <button onclick="closeModal()" style="width:100%; margin-top:15px; padding:10px; background:#ccc; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Tutup</button>
+      <button onclick="closeModal()" style="width:100%; margin-top:15px; padding:10px; background:#f0f2f5; color:#008069; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Tutup</button>
     </div>
   </div>
 
   <script>
     // ==============================================================
-    // 1. FIREBASE CONFIG KAMU
+    // 1. FIREBASE CONFIG 
     // ==============================================================
     const firebaseConfig = {
       apiKey: "AIzaSyBiZ5Npq09AYDi9yTbYv5iYSrj9r5BCgxc",
@@ -135,10 +142,8 @@
     // ==============================================================
     // 2. TANGGAL JADIAN & PLAYLIST MP3
     // ==============================================================
-    // 30 Juli 2025 (Format: YYYY-MM-DDTHH:MM:SS)
     const TANGGAL_JADIAN = "2025-07-30T00:00:00"; 
 
-    // Ingat, ganti URL ini dengan nama file mp3 yang sudah kamu upload ke GitHub!
     const myPlaylist = [
       { title: "Lagu Percobaan 1", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
       { title: "Lagu Percobaan 2", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
@@ -147,10 +152,15 @@
     let myName = "";
     let partnerName = "";
     let lastMusicTimestamp = 0;
+    
+    let isTyping = false;
+    let typingTimer;
+    let idleTimer;
+
     const audioPlayer = document.getElementById('audioPlayer');
 
     // ==============================================================
-    // FUNGSI LOGIN & WIDGET JADIAN REALTIME
+    // FUNGSI LOGIN & WIDGET JADIAN
     // ==============================================================
     function doLogin() {
       const code = document.getElementById('inputCode').value;
@@ -171,8 +181,8 @@
         
         startAnniversaryCounter();
         initFirebaseListeners();
+        setupPresenceSystem(); // Jalankan sistem Online/Offline
         
-        // Pancingan Audio
         audioPlayer.play().catch(()=>{}); setTimeout(()=>audioPlayer.pause(), 100);
       } else {
         document.getElementById('errorMsg').style.display = 'block';
@@ -185,7 +195,6 @@
         const now = new Date().getTime();
         const diff = now - start;
 
-        // Jika tanggal jadian belum tiba (opsional, untuk mencegah error minus)
         if (diff < 0) return;
 
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -193,18 +202,108 @@
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
         
-        // Tambahkan angka 0 di depan jika di bawah 10 (biar estetik: 05 Detik)
         document.getElementById('daysCount').innerText = days;
         document.getElementById('hoursCount').innerText = hours.toString().padStart(2, '0');
         document.getElementById('minutesCount').innerText = minutes.toString().padStart(2, '0');
         document.getElementById('secondsCount').innerText = seconds.toString().padStart(2, '0');
       }
       update();
-      setInterval(update, 1000); // UPDATE SETIAP 1 DETIK!
+      setInterval(update, 1000); 
     }
 
     // ==============================================================
-    // FUNGSI CHAT KE FIREBASE
+    // SISTEM PRESENCE (ONLINE, OFFLINE, AFK, MENGETIK)
+    // ==============================================================
+    function setupPresenceSystem() {
+      const myStatusRef = db.ref(`users/${myName}`);
+      
+      // Saat berhasil terhubung ke server Firebase
+      db.ref('.info/connected').on('value', function(snapshot) {
+        if (snapshot.val() === false) return;
+        
+        // Atur saat koneksi putus (Close tab / mati inet) jadi offline + catat waktu
+        myStatusRef.onDisconnect().set({
+          state: 'offline',
+          last_changed: firebase.database.ServerValue.TIMESTAMP
+        }).then(function() {
+          // Set jadi online saat ini
+          myStatusRef.set({
+            state: 'online',
+            last_changed: firebase.database.ServerValue.TIMESTAMP
+          });
+        });
+      });
+
+      // Deteksi AFK (Tidak nyentuh layar 1 menit)
+      function resetIdle() {
+        if(isTyping) return; // Kalo lagi ngetik jgn afk
+        myStatusRef.update({ state: 'online' });
+        
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+          myStatusRef.update({ 
+            state: 'afk', 
+            last_changed: firebase.database.ServerValue.TIMESTAMP 
+          });
+        }, 60000); // 1 Menit AFK
+      }
+
+      document.addEventListener('mousemove', resetIdle);
+      document.addEventListener('keypress', resetIdle);
+      document.addEventListener('touchstart', resetIdle);
+
+      // Deteksi Mengetik
+      document.getElementById('chatInput').addEventListener('input', () => {
+        if(!isTyping) {
+          isTyping = true;
+          myStatusRef.update({ state: 'typing' });
+        }
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+          isTyping = false;
+          myStatusRef.update({ state: 'online' });
+          resetIdle();
+        }, 1500); // Kalo berhenti ngetik 1.5 detik, ubah jadi online lagi
+      });
+
+      // Dengarkan Status Partner
+      db.ref(`users/${partnerName}`).on('value', (snap) => {
+        const data = snap.val();
+        const statusEl = document.getElementById('partnerStatusDisplay');
+        
+        if(!data) {
+          statusEl.innerText = "offline";
+          return;
+        }
+
+        if(data.state === 'typing') {
+          statusEl.innerText = "sedang mengetik...";
+          statusEl.style.color = "#008069"; // Warna hijau lebih terang
+          statusEl.style.fontWeight = "bold";
+        } else if(data.state === 'online') {
+          statusEl.innerText = "Online";
+          statusEl.style.color = "#d9fdd3";
+          statusEl.style.fontWeight = "normal";
+        } else {
+          // Format waktu offline/afk
+          const date = new Date(data.last_changed);
+          const h = date.getHours().toString().padStart(2, '0');
+          const m = date.getMinutes().toString().padStart(2, '0');
+          
+          statusEl.style.color = "rgba(255,255,255,0.7)";
+          statusEl.style.fontWeight = "normal";
+          
+          if(data.state === 'afk') {
+            statusEl.innerText = `AFK sejak pukul ${h}:${m}`;
+          } else {
+            statusEl.innerText = `terakhir dilihat pukul ${h}:${m}`;
+          }
+        }
+      });
+    }
+
+    // ==============================================================
+    // FUNGSI CHAT & MUSIK KE FIREBASE
     // ==============================================================
     function sendMessage() {
       const input = document.getElementById('chatInput');
@@ -212,6 +311,11 @@
       if(!text) return;
 
       input.value = "";
+      
+      // Kalo kirim pesan, otomatis hapus status mengetik
+      isTyping = false;
+      clearTimeout(typingTimer);
+      db.ref(`users/${myName}`).update({ state: 'online' });
 
       if(text.toLowerCase() === '/musik') { openPlaylist(); return; }
 
@@ -222,42 +326,29 @@
       });
     }
 
-    // ==============================================================
-    // FUNGSI BROADCAST MUSIK KE FIREBASE
-    // ==============================================================
     function broadcastMusic(title, url) {
       closeModal();
       db.ref("music_state").set({
-        action: "play",
-        title: title,
-        url: url,
-        sender: myName,
-        timestamp: Date.now()
+        action: "play", title: title, url: url, sender: myName, timestamp: Date.now()
       });
     }
 
     function stopMusicBroadcast() {
-      db.ref("music_state").set({
-        action: "stop",
-        sender: myName,
-        timestamp: Date.now()
-      });
+      db.ref("music_state").set({ action: "stop", sender: myName, timestamp: Date.now() });
     }
 
     // ==============================================================
-    // LISTENER FIREBASE (REALTIME SINKRONISASI)
+    // LISTENER FIREBASE
     // ==============================================================
     function initFirebaseListeners() {
       db.ref("chats").limitToLast(30).on("child_added", (snapshot) => {
         const data = snapshot.val();
-        renderChat(data.text, data.sender === myName ? 'me' : 'partner', data.sender);
+        renderChat(data.text, data.sender === myName ? 'me' : 'partner');
       });
 
       db.ref("music_state").on("value", (snapshot) => {
         const state = snapshot.val();
-        if(!state) return;
-
-        if(state.timestamp === lastMusicTimestamp) return;
+        if(!state || state.timestamp === lastMusicTimestamp) return;
         lastMusicTimestamp = state.timestamp;
 
         if(state.action === "play") {
@@ -265,15 +356,15 @@
           audioPlayer.play().then(() => {
             document.getElementById('musicBar').style.display = 'flex';
             document.getElementById('musicTitleDisplay').innerText = state.title;
-            if(state.sender !== myName) renderChat(`${state.sender} menyalakan lagu: <b>${state.title}</b> 🎶`, 'system');
+            if(state.sender !== myName) renderChat(`<i>Doi memutar lagu: <b>${state.title}</b></i> 🎶`, 'system');
           }).catch(() => {
-            renderChat(`[Gagal Putar Otomatis] Sentuh layar sekali untuk mengizinkan audio masuk.`, 'system');
+            renderChat(`Penyelarasan lagu tertunda. Sentuh layar agar musik berbunyi.`, 'system');
           });
         } 
         else if(state.action === "stop") {
           audioPlayer.pause();
           document.getElementById('musicBar').style.display = 'none';
-          if(state.sender !== myName) renderChat(`${state.sender} mematikan musik.`, 'system');
+          if(state.sender !== myName) renderChat(`<i>Doi mematikan musik.</i>`, 'system');
         }
       });
     }
@@ -281,17 +372,14 @@
     // ==============================================================
     // FUNGSI PENDUKUNG UI
     // ==============================================================
-    function renderChat(text, side, senderName = "") {
+    function renderChat(text, side) {
       const b = document.getElementById('chatBox');
       const d = document.createElement('div');
       
       if(side === 'system') {
-        d.className = `msg-system`;
-        d.innerHTML = text;
+        d.className = `msg-system`; d.innerHTML = text;
       } else {
-        d.className = `message msg-${side}`;
-        const senderTag = (side === 'partner') ? `<span class="msg-sender">${senderName}</span>` : '';
-        d.innerHTML = senderTag + text;
+        d.className = `message msg-${side}`; d.innerHTML = text;
       }
       
       b.appendChild(d);
@@ -305,7 +393,7 @@
         const div = document.createElement('div');
         div.className = "song-item";
         div.onclick = () => broadcastMusic(song.title, song.url);
-        div.innerHTML = `<div><b>${song.title}</b><br><small style="color:gray;">${song.artist}</small></div><span style="color:#075E54; font-size:18px;">▶</span>`;
+        div.innerHTML = `<div><b>${song.title}</b><br><small style="color:gray;">${song.artist}</small></div><span style="color:#008069; font-size:18px;">▶</span>`;
         list.appendChild(div);
       });
       document.getElementById('playlistModal').style.display = 'flex';
