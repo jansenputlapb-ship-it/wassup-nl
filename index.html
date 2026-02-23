@@ -132,7 +132,29 @@
     .msg-system { background: rgba(0,0,0,0.06); color: var(--text-muted); align-self: center; text-align: center; font-size: 12px; padding: 6px 16px; border-radius: 16px; font-weight: 600; margin: 8px 0; max-width: 90%; }
     
     .msg-content { display: flex; flex-direction: column; }
-    .msg-text { word-wrap: break-word; white-space: pre-wrap; margin-bottom: 2px; }
+    /* Update CSS untuk Input Chat */
+#chatInput {
+  flex: 1;
+  border: none;
+  padding: 10px 14px;
+  font-size: 15px;
+  outline: none;
+  background: white;
+  border-radius: 20px;
+  resize: none; /* Hilangkan resize manual di pojok */
+  max-height: 120px; /* Batas tinggi maksimal input */
+  overflow-y: auto;
+  line-height: 1.4;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+}
+
+/* Pastikan teks pesan merender baris baru */
+.msg-text {
+  white-space: pre-wrap; /* Ini kunci agar \n atau enter terbaca sebagai baris baru */
+  word-break: break-word;
+}
     .msg-meta { display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: -2px; }
     .time-stamp { font-size: 10px; color: rgba(0,0,0,0.45); }
     .edited-label { font-size: 10px; color: rgba(0,0,0,0.45); font-style: italic; }
@@ -340,7 +362,7 @@
         <button class="icon-btn" onclick="document.getElementById('imageUpload').click()" title="Attach Image">📎</button>
         
         <div class="input-wrapper">
-          <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+          <textarea id="chatInput" placeholder="Type a message..." rows="1"></textarea>
         </div>
         <button class="send-btn" onclick="sendMessage()">➤</button>
       </div>
@@ -680,9 +702,9 @@
     }
 
     function sendMessage() {
-      const input = document.getElementById('chatInput'); 
-      const text = input.value.trim(); 
-      if(!text) return;
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text && !editingMsgId) return;
 
       isTyping = false; clearTimeout(typingTimer); db.ref(`users/${myName}`).update({ state: 'online' });
 
@@ -695,8 +717,10 @@
         db.ref("chats").push(payload);
         cancelReplyEdit();
       }
-      input.value = ""; 
-    }
+      input.value = "";
+  input.style.height = 'auto'; // Reset tinggi textarea setelah kirim
+  cancelReplyEdit();
+}
 
    // ==========================================
     // 6. IMAGE UPLOAD LOGIC
@@ -1015,9 +1039,31 @@ document.getElementById('chatBox').style.paddingBottom = "0";
     function showToast(msg) { const t = document.getElementById('customToast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
     
     const styleSheet = document.createElement("style"); styleSheet.innerText = "@keyframes bounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }"; document.head.appendChild(styleSheet);
+// Gunakan DOMContentLoaded agar tidak bentrok dengan login
+document.addEventListener('DOMContentLoaded', () => {
+    const inputEl = document.getElementById('chatInput');
+    
+    if (inputEl) {
+        // Logika Enter untuk kirim, Shift+Enter untuk baris baru
+        inputEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Mencegah baris baru saat enter biasa
+                sendMessage();      // Panggil fungsi kirim
+            }
+        });
+
+        // Logika Auto-height (tinggi otomatis saat mengetik atau paste)
+        inputEl.addEventListener('input', function() {
+            this.style.height = 'auto';
+            let newHeight = this.scrollHeight;
+            this.style.height = (newHeight > 120 ? 120 : newHeight) + 'px';
+        });
+    }
+}); 
   </script>
 </body>
 </html>
+
 
 
 
