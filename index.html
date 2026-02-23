@@ -651,7 +651,7 @@
     }
 
     // ==========================================
-    // 6. IMAGE UPLOAD LOGIC (ULTIMATE FIX)
+    // 6. IMAGE UPLOAD LOGIC
     // ==========================================
     const G_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwB0u554wQCWX7M_eaAo4pmCPoiz1fSZPLupmvWhCeuwCjHcFKww9Npy8neYZ_BV8JtIQ/exec";
 
@@ -667,24 +667,20 @@
         im.src = e.target.result;
         im.onload = async () => {
           
-          // Kompresi Canvas
+          // --- Kompresi Canvas agar ringan dikirim ---
           const c = document.createElement('canvas');
           const x = c.getContext('2d');
           let w = im.width, h = im.height;
           
-          if (w > 800) { 
-            h = Math.round(h * (800 / w)); 
-            w = 800; 
-          }
-          c.width = w; 
-          c.height = h; 
+          if (w > 800) { h = Math.round(h * (800 / w)); w = 800; }
+          c.width = w; c.height = h; 
           x.drawImage(im, 0, 0, w, h);
-          
           const compressedBase64 = c.toDataURL('image/jpeg', 0.7);
           
           showToast("Mengunggah ke Drive... 🚀");
           
-          // TRIK ANTI-ERROR: Menggunakan URLSearchParams agar dibaca sebagai Form Data
+          // --- BUNGKUS DATA DENGAN URLSearchParams ---
+          // Ini adalah trik utama menghindari "Connection Error" dari browser
           const formData = new URLSearchParams();
           formData.append("base64", compressedBase64);
           formData.append("name", "img_" + Date.now() + ".jpg");
@@ -692,8 +688,7 @@
           try {
             const res = await fetch(G_SCRIPT_URL, {
               method: "POST",
-              // Hapus headers Content-Type, biarkan browser yang mengatur otomatis untuk Form Data
-              body: formData
+              body: formData // Kirim sebagai Form Data biasa
             });
             
             const result = await res.json();
@@ -712,11 +707,11 @@
               showToast("Foto terkirim! 🖼️");
               cancelReplyEdit();
             } else {
-              showToast("Gagal (Server): " + result.error);
-              console.error("Server Error Detail:", result.error);
+              showToast("Error Server: " + result.error);
+              console.error("Error AppScript:", result.error);
             }
           } catch (err) {
-            showToast("Connection Error ❌");
+            showToast("Connection Error ❌ Cek Izin AppScript");
             console.error("Fetch Error:", err);
           }
         };
@@ -949,5 +944,6 @@
   </script>
 </body>
 </html>
+
 
 
