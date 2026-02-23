@@ -552,7 +552,7 @@
 
       if (data.isDeletedForEveryone) {
         contentHTML = `
-          <div class="message ${isMe ? 'msg-me' : 'msg-partner'}" onclick="openReactionPicker(event, '${id}')">
+          <div class="message ${isMe ? 'msg-me' : 'msg-partner'}">
             <div class="msg-content">
               <span class="deleted-text">🚫 This message was deleted</span>
               <div class="msg-meta"><span class="time-stamp">${data.time}</span></div>
@@ -576,6 +576,7 @@
 
         const editedStr = data.edited ? `<span class="edited-label">Edited</span>` : "";
 
+        // Tombol panah kanan ditiadakan secara visual, kita full fungsikan dari Klik Kanan
         contentHTML = `
           <div class="message ${isMe ? 'msg-me' : 'msg-partner'}">
             <div class="msg-content">
@@ -583,14 +584,22 @@
               <div class="msg-text">${data.text}</div>
               <div class="msg-meta">${editedStr}<span class="time-stamp">${data.time}</span></div>
             </div>
-            <div class="msg-arrow" onclick="openContextMenu(event, '${id}', ${isMe})">⌄</div>
             ${reactHTML}
           </div>
         `;
         
+        // --- KLIK KIRI (REACTION) ---
         wrapper.onclick = (e) => {
-          if (!e.target.classList.contains('msg-arrow') && !e.target.closest('.msg-quote')) {
+          if (!e.target.closest('.msg-quote')) {
             openReactionPicker(e, id);
+          }
+        };
+
+        // --- KLIK KANAN (CONTEXT MENU) ---
+        wrapper.oncontextmenu = (e) => {
+          e.preventDefault(); // Matikan menu klik kanan bawaan browser
+          if (!e.target.closest('.msg-quote')) {
+            openContextMenu(e, id, isMe);
           }
         };
       }
@@ -652,14 +661,20 @@
       const menuHeight = 160; 
       
       // SMART POSITIONING (Cegah terpotong di bawah)
-      if (rect.bottom + menuHeight > window.innerHeight - 60) {
-        menu.style.top = `${rect.top - menuHeight}px`;
-      } else {
-        menu.style.top = `${rect.bottom + 5}px`;
+      // Karena dipanggil dari body pesan, menggunakan posisi kursor mouse (clientX/Y) akan lebih akurat
+      let topPos = e.clientY;
+      if (topPos + menuHeight > window.innerHeight - 60) {
+        topPos = e.clientY - menuHeight;
       }
+      menu.style.top = `${topPos}px`;
       
-      if (isMe) { menu.style.right = `${window.innerWidth - rect.right}px`; menu.style.left = 'auto'; } 
-      else { menu.style.left = `${rect.left}px`; menu.style.right = 'auto'; }
+      if (isMe) { 
+        menu.style.right = `${window.innerWidth - e.clientX}px`; 
+        menu.style.left = 'auto'; 
+      } else { 
+        menu.style.left = `${e.clientX}px`; 
+        menu.style.right = 'auto'; 
+      }
 
       setTimeout(() => menu.classList.add('show'), 10);
     }
@@ -726,7 +741,7 @@
 
 
     // ==========================================
-    // MUSIC CONTROLS (Dari versi.txt yang disetujui)
+    // MUSIC CONTROLS
     // ==========================================
     function setSubView(mode) {
       const anni = document.getElementById('anniView'); const music = document.getElementById('musicView');
