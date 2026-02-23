@@ -47,60 +47,88 @@
 
     /* SUB-HEADER & MUSIC PLAYER */
     #dynamicSubHeader { position: relative; background: #ffffff; height: 52px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 950; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .sub-view { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0 12px; transition: var(--trans-smooth); opacity: 0; pointer-events: none; transform: translateY(10px); }
+    .sub-view { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; padding: 0 12px; transition: var(--trans-smooth); opacity: 0; pointer-events: none; transform: translateY(10px); }
     .sub-view.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
-    /* --- TATA LETAK BARU ANNIVERSARY VIEW --- */
-    #anniView { justify-content: space-between; align-items: center; }
+    /* --- TATA LETAK BARU ANNIVERSARY VIEW (KIRI: Timer, KANAN: Kalimat) --- */
+    #anniView { justify-content: flex-start; align-items: center; gap: 15px; }
     
-    /* Area Gombalan (Kiri) */
-    .quote-container { flex: 1; font-size: 11px; font-weight: 700; color: var(--love-pink); text-align: left; opacity: 1; transition: opacity 0.6s ease; z-index: 2; line-height: 1.2; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* Area Timer (Kanan) */
-    .timer-right { display: flex; align-items: center; gap: 3px; color: var(--text-muted); font-size: 12px; font-weight: 500; z-index: 2; flex-shrink: 0; }
+    /* Area Timer (Kiri) */
+    .timer-left { display: flex; align-items: center; gap: 3px; color: var(--text-muted); font-size: 12px; font-weight: 500; z-index: 2; flex-shrink: 0; }
     .time-badge { background: #f0f2f5; padding: 2px 5px; border-radius: 5px; color: var(--wa-dark); font-family: monospace; font-weight: 700; font-size: 13px; min-width: 24px; text-align: center; }
     .anni-heart { color: #e91e63; font-size: 12px; animation: heartbeat 1.5s infinite ease-in-out; margin: 0 2px; }
+
+    /* Area Kalimat (Kanan - Justified) */
+    .quote-right { flex: 1; font-size: 11px; font-weight: 600; color: var(--love-pink); text-align: justify; opacity: 1; transition: opacity 0.6s ease; z-index: 2; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     
-    /* --- ANIMASI KUPU-KUPU ALAMI --- */
+    /* --- ANIMASI KUPU-KUPU YANG HIDUP & BERAGAM --- */
     .butterfly-container { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
-    /* Wrapper untuk gerakan melayang jauh */
-    .bf-wrapper { position: absolute; top: 50%; left: 50%; animation: naturalDrift 18s infinite alternate ease-in-out; }
-    /* Elemen kupu-kupu untuk gerakan getar/flutter */
-    .butterfly { font-size: 14px; display: flex; animation: flutterJitter 3s infinite ease-in-out alternate, fadeInOut 12s infinite linear; }
-    /* Sayap mengepak */
-    .bf-flap { display: inline-block; animation: flapWings 0.15s infinite alternate; }
+    .bf-wrapper { position: absolute; will-change: transform; }
+    .butterfly { font-size: 14px; display: flex; animation: flutterJitter 3s infinite ease-in-out alternate; will-change: transform; }
+    .bf-flap { display: inline-block; animation: flapWings 0.15s infinite alternate; will-change: transform; }
 
-    /* Variasi setiap kupu-kupu agar tidak seragam */
-    .bf-1 .bf-wrapper { left: 20%; animation-duration: 23s; animation-delay: -5s; }
-    .bf-1 .butterfly { animation-duration: 4s, 15s; font-size: 12px; }
+    /* Warna-warni Kupu-kupu */
+    .bf-c1 { filter: hue-rotate(0deg); }   /* Biru asli */
+    .bf-c2 { filter: hue-rotate(45deg); }  /* Ungu */
+    .bf-c3 { filter: hue-rotate(90deg); }  /* Pink */
+    .bf-c4 { filter: hue-rotate(140deg); } /* Merah */
+    .bf-c5 { filter: hue-rotate(180deg); } /* Oranye */
+    .bf-c6 { filter: hue-rotate(220deg); } /* Kuning/Hijau */
 
-    .bf-2 .bf-wrapper { left: 70%; top: 30%; animation-duration: 19s; animation-delay: -2s; animation-direction: alternate-reverse; }
-    .bf-2 .butterfly { animation-duration: 2.5s, 10s; font-size: 15px; color: #ffb74d; /* Warna beda dikit */ }
+    /* Konfigurasi 8 Kupu-kupu dengan jalur terbang berbeda */
+    .bf-1 { top: 20%; left: -5%; animation: pathWideDrift 25s infinite linear; }
+    .bf-1 .butterfly { animation-duration: 2s; font-size: 12px; }
 
-    .bf-3 .bf-wrapper { left: 40%; top: 80%; animation-duration: 25s; animation-delay: -10s; }
-    .bf-3 .butterfly { animation-duration: 3.5s, 18s; }
+    .bf-2 { top: 60%; left: 110%; animation: pathWideDrift 28s infinite linear reverse; animation-delay: -5s; }
+    .bf-2 .butterfly { animation-duration: 2.5s; font-size: 15px; transform: scaleX(-1); }
+
+    .bf-3 { top: 40%; left: 30%; animation: pathLoop 18s infinite linear; animation-delay: -2s; }
+    .bf-3 .butterfly { animation-duration: 3s; }
+
+    .bf-4 { top: 70%; left: 80%; animation: pathLoop 22s infinite linear reverse; animation-delay: -8s; }
+    .bf-4 .butterfly { animation-duration: 3.5s; font-size: 13px; transform: scaleX(-1); }
+
+    .bf-5 { top: 10%; left: 50%; animation: pathErratic 15s infinite ease-in-out; }
+    .bf-5 .butterfly { animation-duration: 1.5s; font-size: 11px; }
+
+    .bf-6 { top: 80%; left: 20%; animation: pathWideDrift 30s infinite linear; animation-delay: -15s; }
+    .bf-6 .butterfly { animation-duration: 2.8s; font-size: 14px; }
+    
+    .bf-7 { top: 30%; left: 90%; animation: pathErratic 19s infinite ease-in-out reverse; animation-delay: -3s; }
+    .bf-7 .butterfly { animation-duration: 2.2s; font-size: 12px; transform: scaleX(-1); }
+    
+    .bf-8 { top: 50%; left: 40%; animation: pathLoop 24s infinite linear; animation-delay: -12s; }
+    .bf-8 .butterfly { animation-duration: 4s; font-size: 16px; }
+
 
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
     @keyframes flapWings { 0% { transform: scaleX(1); } 100% { transform: scaleX(0.3); } }
-    
-    /* Gerakan Melayang Alami (Drift) - Jalur melengkung acak */
-    @keyframes naturalDrift {
-      0% { transform: translate(0, 0) rotate(0deg); }
-      25% { transform: translate(60px, -25px) rotate(5deg); }
-      50% { transform: translate(-40px, 15px) rotate(-5deg); }
-      75% { transform: translate(30px, 35px) rotate(8deg); }
-      100% { transform: translate(-20px, -10px) rotate(-2deg); }
+    @keyframes flutterJitter { 0% { transform: translateY(0) rotateX(0); } 25% { transform: translateY(-3px) rotateX(10deg); } 50% { transform: translateY(2px) rotateX(-5deg); } 75% { transform: translateY(-2px) rotateX(5deg); } 100% { transform: translateY(0) rotateX(0); } }
+
+    /* Jalur Terbang 1: Melayang Jauh Kiri-Kanan */
+    @keyframes pathWideDrift {
+      0% { transform: translateX(0) translateY(0) rotate(5deg); }
+      25% { transform: translateX(40vw) translateY(-15px) rotate(-5deg); }
+      50% { transform: translateX(80vw) translateY(5px) rotate(5deg); }
+      75% { transform: translateX(120vw) translateY(-10px) rotate(0deg); }
+      100% { transform: translateX(160vw) translateY(0) rotate(-5deg); }
     }
-    /* Gerakan Getar (Flutter) - Simulasi angin */
-    @keyframes flutterJitter {
-       0% { transform: translateY(0) rotateX(0); }
-       25% { transform: translateY(-3px) rotateX(10deg); }
-       50% { transform: translateY(2px) rotateX(-5deg); }
-       75% { transform: translateY(-2px) rotateX(5deg); }
-       100% { transform: translateY(0) rotateX(0); }
+    /* Jalur Terbang 2: Berputar (Looping) */
+    @keyframes pathLoop {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(30px, -20px); }
+      50% { transform: translate(0, -40px); }
+      75% { transform: translate(-30px, -20px); }
+      100% { transform: translate(0,0); }
     }
-    /* Muncul dan Hilang Perlahan */
-    @keyframes fadeInOut { 0%, 100% { opacity: 0; } 20%, 80% { opacity: 0.8; } }
+    /* Jalur Terbang 3: Tidak Beraturan (Erratic) */
+    @keyframes pathErratic {
+      0%, 100% { transform: translate(0,0); }
+      20% { transform: translate(20px, 30px); }
+      40% { transform: translate(-15px, -20px); }
+      60% { transform: translate(25px, -10px); }
+      80% { transform: translate(-10px, 20px); }
+    }
 
 
     /* Music Elements */
@@ -197,21 +225,25 @@
       <div id="anniView" class="sub-view active">
         
         <div class="butterfly-container">
-          <div class="bf-1 bf-wrapper"><div class="butterfly"><span class="bf-flap">🦋</span></div></div>
-          <div class="bf-2 bf-wrapper"><div class="butterfly" style="color:#ffb74d;"><span class="bf-flap">🦋</span></div></div>
-          <div class="bf-3 bf-wrapper"><div class="butterfly"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-wrapper bf-1"><div class="butterfly bf-c1"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-wrapper bf-2"><div class="butterfly bf-c2"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-wrapper bf-3"><div class="butterfly bf-c3"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-wrapper bf-4"><div class="butterfly bf-c4"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-wrapper bf-5"><div class="butterfly bf-c5"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-wrapper bf-6"><div class="butterfly bf-c6"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-wrapper bf-7"><div class="butterfly bf-c2"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-wrapper bf-8"><div class="butterfly bf-c4"><span class="bf-flap">🦋</span></div></div>
         </div>
 
-        <div class="quote-container" id="dynamicQuote">Loading love...</div>
-
-        <div class="timer-right">
-          <span style="font-size:11px; margin-right:2px;">Together:</span>
+        <div class="timer-left">
+          <span class="anni-heart">❤️</span>
           <span class="time-badge" id="daysCount">0</span>
           <span class="time-badge" id="hoursCount">00</span>
           <span class="time-badge" id="minutesCount">00</span>
           <span class="time-badge" id="secondsCount">00</span>
-          <span class="anni-heart">❤️</span>
         </div>
+
+        <div class="quote-right" id="dynamicQuote">Loading love sentences...</div>
       </div>
 
       <div id="musicView" class="sub-view">
@@ -278,28 +310,29 @@
 
     const TANGGAL_JADIAN = "2025-07-30T00:00:00"; 
     
-    // KUMPULAN GOMBALAN ACAK
+    // KUMPULAN KALIMAT (Lebih Panjang untuk tes Justify)
     const romaticQuotes = [
-      "You're my ✨", "Cintaku 🚀", "Miss you everyday", "My only one 💖",
-      "Duniaku cuma kamu 🌍", "Senyummu = Candu", "Forever yours", "Lucky to have you",
-      "Tetap sama aku ya", "Love you 3000", "My favorite person", "Just you & me against world"
+      "Setiap detik bersamamu adalah petualangan indah yang tak ingin kuakhiri.",
+      "Kamu bukan hanya duniaku, tapi juga semesta tempatku pulang dan menetap selamanya.",
+      "Jarak mungkin memisahkan raga, tapi hati kita selalu bertaut dalam frekuensi yang sama.",
+      "Mencintaimu adalah hal termudah yang pernah kulakukan, dan hal terindah yang kurasakan.",
+      "Terima kasih telah menjadi alasan di balik senyumku setiap hari, my favorite human.",
+      "Tidak ada tempat yang lebih nyaman selain berada dalam dekapan hangat perhatianmu."
     ];
 
     function startRandomQuotes() {
       const quoteEl = document.getElementById('dynamicQuote');
       if(!quoteEl) return;
       
-      // Set awal
       quoteEl.innerText = romaticQuotes[Math.floor(Math.random() * romaticQuotes.length)];
 
       setInterval(() => {
-        quoteEl.style.opacity = 0; // Fade out
+        quoteEl.style.opacity = 0; 
         setTimeout(() => {
-          let r = Math.floor(Math.random() * romaticQuotes.length);
-          quoteEl.innerText = romaticQuotes[r];
-          quoteEl.style.opacity = 1; // Fade in
+          quoteEl.innerText = romaticQuotes[Math.floor(Math.random() * romaticQuotes.length)];
+          quoteEl.style.opacity = 1; 
         }, 600); 
-      }, 5000); // Ganti setiap 5 detik
+      }, 6000); // Ganti setiap 6 detik karena kalimat lebih panjang
     }
     
     // GENERATE 55 LAGU UNTUK SIMULASI UI
