@@ -669,6 +669,11 @@
         // Kirim ke Google Apps Script
         fetch(G_SCRIPT_URL, {
           method: "POST",
+          // 👇 INI YANG DIRUBAH: Tambahkan header ini agar tidak kena blokir CORS
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          // 👆 ===============================================================
           body: JSON.stringify({
             base64: base64Data,
             name: `${Date.now()}_${file.name}`
@@ -927,6 +932,7 @@
   </script>
 </body>
 </html>
+
 
 
 
