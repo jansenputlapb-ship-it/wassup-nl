@@ -7,6 +7,8 @@
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
+  <script type="module" src="https://unpkg.com/emoji-picker-element@1"></script>
 
   <style>
     :root {
@@ -50,57 +52,43 @@
     .sub-view { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; padding: 0 20px 0 16px; transition: var(--trans-smooth); opacity: 0; pointer-events: none; transform: translateY(10px); }
     .sub-view.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
-    /* --- TATA LETAK BARU ANNIVERSARY VIEW --- */
+    /* ANNIVERSARY VIEW */
     #anniView { justify-content: flex-start; align-items: center; gap: 15px; padding: 0 16px; } 
-    
     .timer-left { display: flex; align-items: center; gap: 5px; z-index: 2; flex-shrink: 0; }
     .anni-heart { color: #e91e63; font-size: 14px; animation: heartbeat 1.5s infinite ease-in-out; margin-right: 2px; }
-    
     .time-block { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
     .time-label { font-size: 8px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
     .time-badge { background: #f0f2f5; padding: 2px 4px; border-radius: 4px; color: var(--wa-dark); font-family: monospace; font-weight: 700; font-size: 13px; min-width: 22px; text-align: center; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
-
     .quote-right { flex: 1; font-size: 11px; font-weight: 600; color: var(--love-pink); text-align: justify; opacity: 1; transition: opacity 0.6s ease; z-index: 2; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; padding-left: 5px; border-left: 1px solid rgba(0,0,0,0.05); }
     
-    /* --- ANIMASI KUPU-KUPU --- */
+    /* ANIMASI KUPU-KUPU */
     .butterfly-container { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
     .bf-wrapper { position: absolute; will-change: transform; }
     .butterfly { font-size: 14px; display: flex; animation: flutterJitter 3s infinite ease-in-out alternate; will-change: transform; }
     .bf-flap { display: inline-block; animation: flapWings 0.15s infinite alternate; will-change: transform; }
-
     .bf-c1 { filter: hue-rotate(0deg); }   
     .bf-c2 { filter: hue-rotate(45deg); }  
     .bf-c3 { filter: hue-rotate(90deg); }  
     .bf-c4 { filter: hue-rotate(140deg); } 
     .bf-c5 { filter: hue-rotate(180deg); } 
     .bf-c6 { filter: hue-rotate(220deg); } 
-
-    .bf-1 { top: 20%; left: -5%; animation: pathWideDrift 25s infinite linear; }
-    .bf-1 .butterfly { animation-duration: 2s; font-size: 12px; }
-    .bf-2 { top: 60%; left: 110%; animation: pathWideDrift 28s infinite linear reverse; animation-delay: -5s; }
-    .bf-2 .butterfly { animation-duration: 2.5s; font-size: 15px; transform: scaleX(-1); }
-    .bf-3 { top: 40%; left: 30%; animation: pathLoop 18s infinite linear; animation-delay: -2s; }
-    .bf-3 .butterfly { animation-duration: 3s; }
-    .bf-4 { top: 70%; left: 80%; animation: pathLoop 22s infinite linear reverse; animation-delay: -8s; }
-    .bf-4 .butterfly { animation-duration: 3.5s; font-size: 13px; transform: scaleX(-1); }
-    .bf-5 { top: 10%; left: 50%; animation: pathErratic 15s infinite ease-in-out; }
-    .bf-5 .butterfly { animation-duration: 1.5s; font-size: 11px; }
-    .bf-6 { top: 80%; left: 20%; animation: pathWideDrift 30s infinite linear; animation-delay: -15s; }
-    .bf-6 .butterfly { animation-duration: 2.8s; font-size: 14px; }
-    .bf-7 { top: 30%; left: 90%; animation: pathErratic 19s infinite ease-in-out reverse; animation-delay: -3s; }
-    .bf-7 .butterfly { animation-duration: 2.2s; font-size: 12px; transform: scaleX(-1); }
-    .bf-8 { top: 50%; left: 40%; animation: pathLoop 24s infinite linear; animation-delay: -12s; }
-    .bf-8 .butterfly { animation-duration: 4s; font-size: 16px; }
+    .bf-1 { top: 20%; left: -5%; animation: pathWideDrift 25s infinite linear; } .bf-1 .butterfly { animation-duration: 2s; font-size: 12px; }
+    .bf-2 { top: 60%; left: 110%; animation: pathWideDrift 28s infinite linear reverse; animation-delay: -5s; } .bf-2 .butterfly { animation-duration: 2.5s; font-size: 15px; transform: scaleX(-1); }
+    .bf-3 { top: 40%; left: 30%; animation: pathLoop 18s infinite linear; animation-delay: -2s; } .bf-3 .butterfly { animation-duration: 3s; }
+    .bf-4 { top: 70%; left: 80%; animation: pathLoop 22s infinite linear reverse; animation-delay: -8s; } .bf-4 .butterfly { animation-duration: 3.5s; font-size: 13px; transform: scaleX(-1); }
+    .bf-5 { top: 10%; left: 50%; animation: pathErratic 15s infinite ease-in-out; } .bf-5 .butterfly { animation-duration: 1.5s; font-size: 11px; }
+    .bf-6 { top: 80%; left: 20%; animation: pathWideDrift 30s infinite linear; animation-delay: -15s; } .bf-6 .butterfly { animation-duration: 2.8s; font-size: 14px; }
+    .bf-7 { top: 30%; left: 90%; animation: pathErratic 19s infinite ease-in-out reverse; animation-delay: -3s; } .bf-7 .butterfly { animation-duration: 2.2s; font-size: 12px; transform: scaleX(-1); }
+    .bf-8 { top: 50%; left: 40%; animation: pathLoop 24s infinite linear; animation-delay: -12s; } .bf-8 .butterfly { animation-duration: 4s; font-size: 16px; }
 
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
     @keyframes flapWings { 0% { transform: scaleX(1); } 100% { transform: scaleX(0.3); } }
     @keyframes flutterJitter { 0% { transform: translateY(0) rotateX(0); } 25% { transform: translateY(-3px) rotateX(10deg); } 50% { transform: translateY(2px) rotateX(-5deg); } 75% { transform: translateY(-2px) rotateX(5deg); } 100% { transform: translateY(0) rotateX(0); } }
-
     @keyframes pathWideDrift { 0% { transform: translateX(0) translateY(0) rotate(5deg); } 25% { transform: translateX(40vw) translateY(-15px) rotate(-5deg); } 50% { transform: translateX(80vw) translateY(5px) rotate(5deg); } 75% { transform: translateX(120vw) translateY(-10px) rotate(0deg); } 100% { transform: translateX(160vw) translateY(0) rotate(-5deg); } }
     @keyframes pathLoop { 0% { transform: translate(0,0); } 25% { transform: translate(30px, -20px); } 50% { transform: translate(0, -40px); } 75% { transform: translate(-30px, -20px); } 100% { transform: translate(0,0); } }
     @keyframes pathErratic { 0%, 100% { transform: translate(0,0); } 20% { transform: translate(20px, 30px); } 40% { transform: translate(-15px, -20px); } 60% { transform: translate(25px, -10px); } 80% { transform: translate(-10px, 20px); } }
 
-    /* Music Elements */
+    /* MUSIC ELEMENTS */
     #musicView { justify-content: space-between; }
     .music-left { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; }
     .music-cover { min-width: 36px; height: 36px; border-radius: 6px; background: linear-gradient(135deg, var(--spot-green), var(--wa-dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; box-shadow: 0 3px 8px rgba(29, 185, 84, 0.3); transition: border-radius 0.5s ease; animation: spinDisk 5s linear infinite; animation-play-state: paused; }
@@ -114,7 +102,6 @@
     .music-title { font-size: 13px; font-weight: 700; color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
     
     .player-controls { display: flex; align-items: center; gap: 8px; }
-    
     .ctrl-btn { background: #f0f2f5; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: var(--trans-smooth); position: relative; padding: 0; line-height: 0; }
     .ctrl-btn:active { transform: scale(0.9); background: #e9edef; }
     .play-pause-btn { background: var(--spot-green); color: white; font-size: 14px; box-shadow: 0 3px 8px rgba(29, 185, 84, 0.3); }
@@ -125,22 +112,82 @@
     .spinner-icon { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; animation: spinLoader 1s linear infinite; font-size: 14px; line-height: 0; }
     @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
-    /* CHAT AREA */
-    main { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+    /* =========================================
+       CHAT AREA & WA FEATURES
+       ========================================= */
+    main { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; position: relative; }
     main::-webkit-scrollbar { width: 6px; } main::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
-    .message { max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    @keyframes popIn { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    .msg-me { background: var(--wa-chat-me); align-self: flex-end; border-bottom-right-radius: 4px; }
-    .msg-partner { background: var(--wa-chat-partner); align-self: flex-start; border-bottom-left-radius: 4px; }
+    
+    .msg-wrapper { display: flex; flex-direction: column; width: 100%; position: relative; }
+    .message { max-width: 82%; padding: 6px 8px 6px 10px; border-radius: 12px; font-size: 14.5px; line-height: 1.4; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .msg-me { background: var(--wa-chat-me); align-self: flex-end; border-top-right-radius: 0; }
+    .msg-partner { background: var(--wa-chat-partner); align-self: flex-start; border-top-left-radius: 0; }
+    
     .msg-system { background: rgba(0,0,0,0.06); color: var(--text-muted); align-self: center; text-align: center; font-size: 12px; padding: 6px 16px; border-radius: 16px; font-weight: 600; margin: 8px 0; max-width: 90%; }
-    .time-stamp { font-size: 10px; color: rgba(0,0,0,0.4); float: right; margin-top: 6px; margin-left: 10px; }
+    
+    .msg-content { display: flex; flex-direction: column; }
+    .msg-text { word-wrap: break-word; white-space: pre-wrap; margin-bottom: 2px; }
+    .msg-meta { display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: -2px; }
+    .time-stamp { font-size: 10px; color: rgba(0,0,0,0.45); }
+    .edited-label { font-size: 10px; color: rgba(0,0,0,0.45); font-style: italic; }
+    .deleted-text { font-style: italic; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+
+    /* QUOTE/REPLY UI DALAM CHAT */
+    .msg-quote { background: rgba(0,0,0,0.05); border-left: 4px solid var(--wa-light); padding: 6px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; }
+    .msg-me .msg-quote { background: rgba(0, 128, 105, 0.08); border-left-color: #006c5b; }
+    .quote-sender { font-weight: bold; color: var(--wa-light); font-size: 12px; margin-bottom: 2px; }
+    .msg-me .quote-sender { color: #006c5b; }
+    .quote-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+
+    /* MENU PANAH KANAN CHAT */
+    .msg-arrow { position: absolute; top: 0; right: 0; padding: 8px; opacity: 0; transition: opacity 0.2s; color: rgba(0,0,0,0.3); font-size: 16px; cursor: pointer; background: linear-gradient(90deg, transparent, var(--wa-chat-partner) 40%); border-top-right-radius: 12px; }
+    .msg-me .msg-arrow { background: linear-gradient(90deg, transparent, var(--wa-chat-me) 40%); }
+    .msg-wrapper:hover .msg-arrow { opacity: 1; }
+    
+    /* REACTION BADGE */
+    .reaction-badge { position: absolute; bottom: -12px; right: 10px; background: white; border: 1px solid #ddd; border-radius: 16px; padding: 2px 6px; font-size: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 2; display: flex; gap: 2px; }
+    .msg-me .reaction-badge { right: auto; left: 10px; }
+
+    /* OVERLAY CONTEXT MENU & REACTION PICKER */
+    #actionOverlay { position: fixed; inset: 0; z-index: 8000; display: none; }
+    .context-menu { position: absolute; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 8px; width: 160px; z-index: 8001; overflow: hidden; transform: scale(0.9); opacity: 0; transition: var(--trans-smooth); }
+    .context-menu.show { transform: scale(1); opacity: 1; }
+    .menu-item { padding: 12px 16px; font-size: 14px; color: var(--text-main); cursor: pointer; transition: background 0.2s; }
+    .menu-item:hover { background: #f0f2f5; }
+    .menu-item.danger { color: #e91e63; }
+
+    .reaction-picker { position: absolute; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 24px; padding: 8px 12px; display: flex; gap: 12px; z-index: 8001; transform: translateY(10px); opacity: 0; transition: var(--trans-smooth); }
+    .reaction-picker.show { transform: translateY(0); opacity: 1; }
+    .react-emoji { font-size: 22px; cursor: pointer; transition: transform 0.2s; line-height: 1; }
+    .react-emoji:hover { transform: scale(1.3); }
+    .react-plus { background: #f0f2f5; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: bold; font-size: 16px; cursor: pointer; }
+
+    /* FULL EMOJI PICKER CONTAINER */
+    #fullEmojiContainer { position: fixed; bottom: 80px; left: 10px; right: 10px; height: 350px; z-index: 9000; display: none; box-shadow: 0 5px 20px rgba(0,0,0,0.2); border-radius: 12px; overflow: hidden; background: white; }
+
+    /* REPLY PREVIEW DI ATAS INPUT */
+    #replyPreviewBox { background: #f0f2f5; border-left: 4px solid var(--wa-light); padding: 8px 12px; margin: 0 16px; border-top-left-radius: 8px; border-top-right-radius: 8px; display: none; position: relative; z-index: 900; box-shadow: 0 -2px 5px rgba(0,0,0,0.02); }
+    .reply-preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .reply-preview-name { font-weight: bold; font-size: 13px; color: var(--wa-light); }
+    .reply-preview-close { color: var(--text-muted); cursor: pointer; font-size: 16px; font-weight: bold; line-height: 1; }
+    .reply-preview-text { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .reply-preview-edit { font-weight: bold; font-size: 13px; color: var(--wa-dark); display: none; }
 
     /* FOOTER */
-    footer { background: var(--wa-bg); padding: 12px 16px; display: flex; gap: 10px; align-items: flex-end; z-index: 1000; }
+    footer { background: var(--wa-bg); padding: 8px 16px 12px 16px; display: flex; flex-direction: column; z-index: 1000; box-shadow: 0 -1px 2px rgba(0,0,0,0.05); }
+    .input-row { display: flex; gap: 10px; align-items: flex-end; }
     .input-wrapper { flex: 1; background: white; border-radius: 24px; padding: 10px 16px; display: flex; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); min-height: 48px; }
     .input-wrapper input { width: 100%; border: none; outline: none; font-size: 15px; background: transparent; color: var(--text-main); }
     .send-btn { background: var(--wa-dark); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 5px rgba(0,128,105,0.3); transition: var(--trans-smooth); flex-shrink: 0; padding: 0; }
     .send-btn:active { transform: scale(0.9) rotate(-10deg); background: var(--wa-light); }
+
+    /* DELETE MODAL (WA STYLE) */
+    #deleteModal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+    .del-modal-box { background: white; width: 85%; max-width: 320px; border-radius: 3px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.2s; display: flex; flex-direction: column; gap: 15px; }
+    .del-modal-box span { font-size: 15px; color: var(--text-main); }
+    .del-actions { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-top: 10px; }
+    .del-btn { background: transparent; border: none; padding: 10px 15px; font-size: 14px; font-weight: 600; color: var(--wa-dark); cursor: pointer; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; }
+    .del-btn:hover { background: rgba(0,0,0,0.05); }
 
     /* MODAL PLAYLIST */
     #playlistModal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 5000; opacity: 0; transition: opacity 0.3s ease; }
@@ -181,6 +228,7 @@
   </div>
 
   <div id="appScreen" style="display:none; flex-direction:column; height:100%;">
+    
     <header>
       <img id="headerAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
       <div class="header-info">
@@ -194,7 +242,6 @@
 
     <div id="dynamicSubHeader">
       <div id="anniView" class="sub-view active">
-        
         <div class="butterfly-container">
           <div class="bf-wrapper bf-1"><div class="butterfly bf-c1"><span class="bf-flap">🦋</span></div></div>
           <div class="bf-wrapper bf-2"><div class="butterfly bf-c2"><span class="bf-flap">🦋</span></div></div>
@@ -253,12 +300,57 @@
       <div class="msg-system">End-to-End Encrypted. No one outside of this chat can read your messages. 🔒</div>
     </main>
 
-    <footer>
-      <div class="input-wrapper">
-        <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+    <div id="replyPreviewBox">
+      <div class="reply-preview-header">
+        <span class="reply-preview-name" id="replyPreviewName">Name</span>
+        <span class="reply-preview-edit" id="editPreviewMode">✎ Edit Message</span>
+        <span class="reply-preview-close" onclick="cancelReplyEdit()">✖</span>
       </div>
-      <button class="send-btn" onclick="sendMessage()">➤</button>
+      <div class="reply-preview-text" id="replyPreviewText">Text...</div>
+    </div>
+
+    <footer>
+      <div class="input-row">
+        <div class="input-wrapper">
+          <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+        </div>
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+      </div>
     </footer>
+  </div>
+
+  <div id="actionOverlay" onclick="closeAllMenus()"></div>
+  
+  <div class="context-menu" id="msgContextMenu">
+    <div class="menu-item" onclick="handleMenuAction('reply')">↩️ Reply</div>
+    <div class="menu-item" id="menuEdit" onclick="handleMenuAction('edit')">✏️ Edit</div>
+    <div class="menu-item" onclick="handleMenuAction('copy')">📋 Copy</div>
+    <div class="menu-item danger" onclick="handleMenuAction('delete')">🗑️ Delete</div>
+  </div>
+
+  <div class="reaction-picker" id="msgReactionPicker">
+    <span class="react-emoji" onclick="sendReaction('👍')">👍</span>
+    <span class="react-emoji" onclick="sendReaction('❤️')">❤️</span>
+    <span class="react-emoji" onclick="sendReaction('😂')">😂</span>
+    <span class="react-emoji" onclick="sendReaction('😮')">😮</span>
+    <span class="react-emoji" onclick="sendReaction('😢')">😢</span>
+    <span class="react-emoji" onclick="sendReaction('🙏')">🙏</span>
+    <div class="react-plus" onclick="openFullEmoji()">+</div>
+  </div>
+
+  <div id="fullEmojiContainer">
+    <emoji-picker></emoji-picker>
+  </div>
+
+  <div id="deleteModal" onclick="closeDeleteModal()">
+    <div class="del-modal-box" onclick="event.stopPropagation()">
+      <span>Delete message?</span>
+      <div class="del-actions">
+        <button class="del-btn" onclick="executeDelete('me')">Delete for me</button>
+        <button class="del-btn" id="btnDeleteEveryone" onclick="executeDelete('everyone')">Delete for everyone</button>
+        <button class="del-btn" onclick="closeDeleteModal()">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <div id="playlistModal" onclick="closeModal(event)">
@@ -291,9 +383,17 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.database();
 
+    // VARIABEL GLOBAL
     const TANGGAL_JADIAN = "2025-07-30T00:00:00"; 
+    let myName = ""; let partnerName = ""; let lastMusicTimestamp = 0;
+    let isPlaying = false; let currentSongIndex = -1; let isRepeat = false;
+    let isTyping = false; let typingTimer; let idleTimer;
     
-    // ENGLISH QUOTES
+    let activeMsgId = null; let replyingTo = null; let editingMsgId = null;
+
+    const audioPlayer = document.getElementById('audioPlayer');
+
+    // KUMPULAN QUOTES
     const romaticQuotes = [
       "Every second with you is a beautiful adventure I never want to end.",
       "You are not just my world, but the universe where I belong forever.",
@@ -306,9 +406,7 @@
     function startRandomQuotes() {
       const quoteEl = document.getElementById('dynamicQuote');
       if(!quoteEl) return;
-      
       quoteEl.innerText = romaticQuotes[Math.floor(Math.random() * romaticQuotes.length)];
-
       setInterval(() => {
         quoteEl.style.opacity = 0; 
         setTimeout(() => {
@@ -318,6 +416,7 @@
       }, 6000); 
     }
     
+    // GENERATE PLAYLIST SIMULASI
     const baseSongs = [
       { title: "Sweet Memories", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
       { title: "Perfect For Us", artist: "Malam Indah", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
@@ -330,12 +429,9 @@
       baseSongs.forEach((song) => { myPlaylist.push({ title: `${song.title} Vol.${i+1}`, artist: song.artist, url: song.url }); });
     }
 
-    let myName = ""; let partnerName = ""; let lastMusicTimestamp = 0;
-    let isPlaying = false; let currentSongIndex = -1; let isRepeat = false;
-    let isTyping = false; let typingTimer; let idleTimer;
-
-    const audioPlayer = document.getElementById('audioPlayer');
-
+    // ==========================================
+    // LOGIN & INITIALIZATION
+    // ==========================================
     function doLogin() {
       const code = document.getElementById('inputCode').value.trim();
       const users = {
@@ -344,21 +440,21 @@
       };
 
       if(users[code]) {
-        try {
-          myName = users[code].name; partnerName = users[code].partner;
-          document.getElementById('partnerNameDisplay').innerText = partnerName;
-          document.getElementById('headerAvatar').src = (users[code].role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-          
-          const loginEl = document.getElementById('loginScreen'); loginEl.style.opacity = '0';
-          setTimeout(() => { loginEl.style.display = 'none'; document.getElementById('appScreen').style.display = 'flex'; }, 300);
-          
-          audioPlayer.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"; 
-          audioPlayer.play().then(() => { audioPlayer.pause(); }).catch(e => console.log("Unlock delayed"));
+        myName = users[code].name; partnerName = users[code].partner;
+        document.getElementById('partnerNameDisplay').innerText = partnerName;
+        document.getElementById('headerAvatar').src = (users[code].role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+        
+        const loginEl = document.getElementById('loginScreen'); loginEl.style.opacity = '0';
+        setTimeout(() => { loginEl.style.display = 'none'; document.getElementById('appScreen').style.display = 'flex'; }, 300);
+        
+        audioPlayer.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"; 
+        audioPlayer.play().then(() => { audioPlayer.pause(); }).catch(e => console.log("Unlock delayed"));
 
-          startAnniversaryCounter(); initFirebaseListeners(); setupPresenceSystem(); startRandomQuotes();
-        } catch (e) {
-          console.error("Initialization error:", e);
-        }
+        startAnniversaryCounter(); 
+        initChatSync(); 
+        setupPresenceSystem(); 
+        initMusicSync();
+        startRandomQuotes();
       } else {
         const err = document.getElementById('errorMsg'); 
         err.style.display = 'block'; 
@@ -366,6 +462,9 @@
       }
     }
 
+    // ==========================================
+    // PRESENCE & ANNIVERSARY
+    // ==========================================
     function startAnniversaryCounter() {
       function update() {
         const diff = new Date().getTime() - new Date(TANGGAL_JADIAN).getTime();
@@ -417,6 +516,218 @@
       });
     }
 
+    // ==========================================
+    // CHAT ENGINE (WA STYLE)
+    // ==========================================
+    function formatTime() { const d = new Date(); return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`; }
+
+    function initChatSync() {
+      db.ref("chats").limitToLast(100).on("child_added", snap => buildChatUI(snap.key, snap.val()));
+      db.ref("chats").on("child_changed", snap => buildChatUI(snap.key, snap.val()));
+    }
+
+    function buildChatUI(id, data) {
+      // PROTEKSI: Abaikan data undefined / chat lawas tanpa sender
+      if (!data || !data.sender) return; 
+
+      if (data.deletedForMe && data.deletedForMe[myName]) {
+        const el = document.getElementById(`msg-${id}`);
+        if(el) el.remove();
+        return;
+      }
+
+      let wrapper = document.getElementById(`msg-${id}`);
+      let isNew = false;
+      if (!wrapper) {
+        isNew = true;
+        wrapper = document.createElement('div');
+        wrapper.id = `msg-${id}`;
+        wrapper.className = 'msg-wrapper';
+        document.getElementById('chatBox').appendChild(wrapper);
+      }
+
+      // Pastikan presisi Kanan-Kiri
+      const isMe = (data.sender === myName);
+      let contentHTML = "";
+
+      if (data.isDeletedForEveryone) {
+        contentHTML = `
+          <div class="message ${isMe ? 'msg-me' : 'msg-partner'}" onclick="openReactionPicker(event, '${id}')">
+            <div class="msg-content">
+              <span class="deleted-text">🚫 This message was deleted</span>
+              <div class="msg-meta"><span class="time-stamp">${data.time}</span></div>
+            </div>
+          </div>`;
+      } else {
+        let quoteHTML = "";
+        if (data.replyTo) {
+          quoteHTML = `
+            <div class="msg-quote" onclick="scrollToMsg('${data.replyTo.id}')">
+              <div class="quote-sender">${data.replyTo.sender === myName ? 'You' : data.replyTo.sender}</div>
+              <div class="quote-text">${data.replyTo.text}</div>
+            </div>`;
+        }
+
+        let reactHTML = "";
+        if (data.reactions) {
+          let rIcons = Object.values(data.reactions).join("");
+          if(rIcons.length > 0) reactHTML = `<div class="reaction-badge">${rIcons}</div>`;
+        }
+
+        const editedStr = data.edited ? `<span class="edited-label">Edited</span>` : "";
+
+        contentHTML = `
+          <div class="message ${isMe ? 'msg-me' : 'msg-partner'}">
+            <div class="msg-content">
+              ${quoteHTML}
+              <div class="msg-text">${data.text}</div>
+              <div class="msg-meta">${editedStr}<span class="time-stamp">${data.time}</span></div>
+            </div>
+            <div class="msg-arrow" onclick="openContextMenu(event, '${id}', ${isMe})">⌄</div>
+            ${reactHTML}
+          </div>
+        `;
+        
+        wrapper.onclick = (e) => {
+          if (!e.target.classList.contains('msg-arrow') && !e.target.closest('.msg-quote')) {
+            openReactionPicker(e, id);
+          }
+        };
+      }
+
+      wrapper.innerHTML = contentHTML;
+      wrapper.dataset.sender = data.sender;
+      wrapper.dataset.text = data.text;
+      wrapper.dataset.isDeleted = data.isDeletedForEveryone ? "true" : "false";
+
+      if (isNew) {
+        const b = document.getElementById('chatBox');
+        b.scrollTop = b.scrollHeight;
+      }
+    }
+
+    function scrollToMsg(id) {
+      const el = document.getElementById(`msg-${id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.firstElementChild.style.background = "rgba(0,168,132,0.3)";
+        setTimeout(() => el.firstElementChild.style.background = "", 1000);
+      }
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('chatInput'); 
+      const text = input.value.trim(); 
+      if(!text) return;
+
+      isTyping = false; clearTimeout(typingTimer); db.ref(`users/${myName}`).update({ state: 'online' });
+
+      if (editingMsgId) {
+        db.ref(`chats/${editingMsgId}`).update({ text: text, edited: true });
+        cancelReplyEdit();
+      } else {
+        const payload = { sender: myName, text: text, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP };
+        if (replyingTo) payload.replyTo = replyingTo;
+        db.ref("chats").push(payload);
+        cancelReplyEdit();
+      }
+      input.value = ""; 
+    }
+
+    // ==========================================
+    // MENUS, REACTIONS & ACTIONS
+    // ==========================================
+    function openContextMenu(e, id, isMe) {
+      e.stopPropagation(); activeMsgId = id;
+      const overlay = document.getElementById('actionOverlay');
+      const menu = document.getElementById('msgContextMenu');
+      const wrapper = document.getElementById(`msg-${id}`);
+      if (wrapper.dataset.isDeleted === "true") return;
+
+      document.getElementById('menuEdit').style.display = isMe ? 'block' : 'none';
+      document.getElementById('btnDeleteEveryone').style.display = isMe ? 'block' : 'none';
+      overlay.style.display = 'block'; menu.style.display = 'block';
+      
+      const rect = e.target.getBoundingClientRect();
+      const menuHeight = 160; 
+      
+      // SMART POSITIONING (Cegah terpotong di bawah)
+      if (rect.bottom + menuHeight > window.innerHeight - 60) {
+        menu.style.top = `${rect.top - menuHeight}px`;
+      } else {
+        menu.style.top = `${rect.bottom + 5}px`;
+      }
+      
+      if (isMe) { menu.style.right = `${window.innerWidth - rect.right}px`; menu.style.left = 'auto'; } 
+      else { menu.style.left = `${rect.left}px`; menu.style.right = 'auto'; }
+
+      setTimeout(() => menu.classList.add('show'), 10);
+    }
+
+    function openReactionPicker(e, id) {
+      e.stopPropagation(); activeMsgId = id;
+      const wrapper = document.getElementById(`msg-${id}`);
+      if (wrapper.dataset.isDeleted === "true") return;
+
+      const overlay = document.getElementById('actionOverlay');
+      const picker = document.getElementById('msgReactionPicker');
+      overlay.style.display = 'block'; picker.style.display = 'flex';
+      
+      const rect = e.currentTarget.firstElementChild.getBoundingClientRect();
+      let pickerTop = rect.top - 50;
+      if(pickerTop < 70) pickerTop = rect.bottom + 10;
+      
+      picker.style.top = `${pickerTop}px`;
+      
+      if (wrapper.dataset.sender === myName) { picker.style.right = `20px`; picker.style.left = 'auto'; } 
+      else { picker.style.left = `20px`; picker.style.right = 'auto'; }
+
+      setTimeout(() => picker.classList.add('show'), 10);
+    }
+
+    function closeAllMenus() {
+      document.getElementById('actionOverlay').style.display = 'none';
+      document.getElementById('msgContextMenu').classList.remove('show');
+      document.getElementById('msgReactionPicker').classList.remove('show');
+      document.getElementById('fullEmojiContainer').style.display = 'none';
+      setTimeout(() => { document.getElementById('msgContextMenu').style.display = 'none'; document.getElementById('msgReactionPicker').style.display = 'none'; }, 200);
+    }
+
+    function handleMenuAction(action) {
+      closeAllMenus();
+      const wrapper = document.getElementById(`msg-${activeMsgId}`);
+      if(!wrapper) return;
+      if (action === 'reply') { replyingTo = { id: activeMsgId, sender: wrapper.dataset.sender, text: wrapper.dataset.text }; editingMsgId = null; showPreviewBox('reply'); } 
+      else if (action === 'edit') { editingMsgId = activeMsgId; replyingTo = null; document.getElementById('chatInput').value = wrapper.dataset.text; showPreviewBox('edit'); }
+      else if (action === 'copy') { navigator.clipboard.writeText(wrapper.dataset.text); showToast("Message copied"); }
+      else if (action === 'delete') { document.getElementById('deleteModal').style.display = 'flex'; setTimeout(() => { document.getElementById('deleteModal').style.opacity = '1'; document.querySelector('.del-modal-box').style.transform = 'scale(1)'; }, 10); }
+    }
+
+    function showPreviewBox(mode) {
+      const box = document.getElementById('replyPreviewBox'); const nameEl = document.getElementById('replyPreviewName');
+      const textEl = document.getElementById('replyPreviewText'); const editEl = document.getElementById('editPreviewMode');
+      if (mode === 'reply') { nameEl.style.display = 'block'; editEl.style.display = 'none'; nameEl.innerText = replyingTo.sender === myName ? 'You' : replyingTo.sender; textEl.innerText = replyingTo.text; } 
+      else { nameEl.style.display = 'none'; editEl.style.display = 'block'; textEl.innerText = document.getElementById(`msg-${editingMsgId}`).dataset.text; }
+      box.style.display = 'block'; document.getElementById('chatInput').focus();
+    }
+    function cancelReplyEdit() { replyingTo = null; editingMsgId = null; document.getElementById('replyPreviewBox').style.display = 'none'; document.getElementById('chatInput').value = ""; }
+
+    function closeDeleteModal() { document.getElementById('deleteModal').style.opacity = '0'; document.querySelector('.del-modal-box').style.transform = 'scale(0.9)'; setTimeout(() => document.getElementById('deleteModal').style.display = 'none', 200); }
+    function executeDelete(type) {
+      if(!activeMsgId) return;
+      if (type === 'everyone') db.ref(`chats/${activeMsgId}`).update({ isDeletedForEveryone: true, text: "", replyTo: null });
+      else if (type === 'me') db.ref(`chats/${activeMsgId}/deletedForMe/${myName}`).set(true);
+      closeDeleteModal(); activeMsgId = null;
+    }
+
+    function sendReaction(emoji) { if(!activeMsgId) return; db.ref(`chats/${activeMsgId}/reactions/${myName}`).set(emoji); closeAllMenus(); }
+    document.querySelector('emoji-picker').addEventListener('emoji-click', e => { sendReaction(e.detail.unicode); document.getElementById('fullEmojiContainer').style.display = 'none'; });
+    function openFullEmoji() { document.getElementById('msgReactionPicker').classList.remove('show'); setTimeout(() => document.getElementById('msgReactionPicker').style.display = 'none', 200); document.getElementById('fullEmojiContainer').style.display = 'block'; }
+
+
+    // ==========================================
+    // MUSIC CONTROLS (Dari versi.txt yang disetujui)
+    // ==========================================
     function setSubView(mode) {
       const anni = document.getElementById('anniView'); const music = document.getElementById('musicView');
       if(mode === 'music') { anni.classList.remove('active'); music.classList.add('active'); } 
@@ -450,24 +761,18 @@
       if(currentSongIndex === -1) return;
       if (isPlaying) broadcastMusicAction("pause"); else broadcastMusicAction("resume");
     }
-
     function playNext() {
       if(currentSongIndex === -1) return;
       let nextIdx = currentSongIndex + 1; if(nextIdx >= myPlaylist.length) nextIdx = 0;
       broadcastMusicAction("play", nextIdx);
     }
-
     function playPrev() {
       if(currentSongIndex === -1) return;
       let prevIdx = currentSongIndex - 1; if(prevIdx < 0) prevIdx = myPlaylist.length - 1;
       broadcastMusicAction("play", prevIdx);
     }
-
     function stopMusicBroadcast() { db.ref("music_state").set({ action: "stop", sender: myName, timestamp: Date.now() }); }
-
-    function toggleRepeat() {
-      db.ref("music_settings").set({ repeat: !isRepeat, sender: myName });
-    }
+    function toggleRepeat() { db.ref("music_settings").set({ repeat: !isRepeat, sender: myName }); }
 
     audioPlayer.onended = () => {
       if (isRepeat) { audioPlayer.play(); } 
@@ -478,19 +783,7 @@
       }
     };
 
-    function formatTime() { const d = new Date(); return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`; }
-
-    function sendMessage() {
-      const input = document.getElementById('chatInput'); const text = input.value.trim(); if(!text) return;
-      input.value = ""; isTyping = false; clearTimeout(typingTimer); db.ref(`users/${myName}`).update({ state: 'online' });
-      db.ref("chats").push({ sender: myName, text: text, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP });
-    }
-
-    function initFirebaseListeners() {
-      db.ref("chats").limitToLast(40).on("child_added", (snapshot) => {
-        const data = snapshot.val(); renderChat(data.text, data.sender === myName ? 'me' : 'partner', data.time || formatTime());
-      });
-
+    function initMusicSync() {
       db.ref("music_settings").on("value", (snapshot) => {
         const data = snapshot.val();
         if(data !== null) {
@@ -526,28 +819,14 @@
             const targetTime = state.seekTime + timePassed;
 
             if (Math.abs(audioPlayer.currentTime - targetTime) > 2) { audioPlayer.currentTime = targetTime; }
-
-            // PENTING: Simpan timestamp dari request 'play' ini
             const currentActionTimestamp = state.timestamp;
 
             audioPlayer.play().then(() => {
-              // CEGAH KEBOCORAN AUDIO: 
-              // Jika selama buffering berlangsung, user ternyata sudah memencet tombol lain (misal Stop / Pause),
-              // maka lastMusicTimestamp pasti sudah berubah. Jika begitu, batalkan pemutaran yang baru resolve ini.
-              if (lastMusicTimestamp !== currentActionTimestamp) {
-                audioPlayer.pause();
-                return;
-              }
-
+              if (lastMusicTimestamp !== currentActionTimestamp) { audioPlayer.pause(); return; }
               setPlayerLoadingState(false);
-              playBtn.innerHTML = "⏸"; 
-              diskCover.classList.add('playing'); 
-              isPlaying = true;
+              playBtn.innerHTML = "⏸"; diskCover.classList.add('playing'); isPlaying = true;
             }).catch(() => {
-              if (lastMusicTimestamp === currentActionTimestamp) {
-                setPlayerLoadingState(false);
-                showToast("System syncing audio playback.");
-              }
+              if (lastMusicTimestamp === currentActionTimestamp) { setPlayerLoadingState(false); showToast("System syncing audio playback."); }
             });
           };
 
@@ -567,14 +846,8 @@
       });
     }
 
-    function renderChat(text, side, timeStr) {
-      const b = document.getElementById('chatBox'); const d = document.createElement('div'); d.className = `message msg-${side}`;
-      d.innerHTML = text + `<span class="time-stamp">${timeStr}</span>`; b.appendChild(d); b.scrollTop = b.scrollHeight;
-    }
-
     function openPlaylist() {
-      document.getElementById('searchSong').value = ''; 
-      renderPlaylistItems(myPlaylist); 
+      document.getElementById('searchSong').value = ''; renderPlaylistItems(myPlaylist); 
       const modal = document.getElementById('playlistModal');
       modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
     }
@@ -585,7 +858,6 @@
 
       listToRender.forEach((song) => {
         const originalIndex = myPlaylist.findIndex(s => s.url === song.url && s.title === song.title);
-        
         const div = document.createElement('div'); div.className = "song-item";
         div.onclick = () => { closeModal(null, true); broadcastMusicAction("play", originalIndex); }
         
@@ -598,13 +870,7 @@
             <div style="width:3px; height:80%; background:var(--spot-green); animation: bounce 1s infinite 0.4s;"></div>
           </div>` : "▶";
 
-        div.innerHTML = `
-          <div class="song-item-info">
-            <span class="song-item-title" style="color:${titleColor}">${song.title}</span>
-            <span class="song-item-artist">${song.artist}</span>
-          </div>
-          <span style="color:${iconColor}; font-size:18px;">${icon}</span>
-        `;
+        div.innerHTML = `<div class="song-item-info"><span class="song-item-title" style="color:${titleColor}">${song.title}</span><span class="song-item-artist">${song.artist}</span></div><span style="color:${iconColor}; font-size:18px;">${icon}</span>`;
         list.appendChild(div);
       });
     }
@@ -614,12 +880,10 @@
       const filtered = myPlaylist.filter(song => song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query));
       renderPlaylistItems(filtered);
     }
-
     function closeModal(e, forceClose = false) { 
       const modal = document.getElementById('playlistModal');
       if(forceClose || e.target.id === 'playlistModal') { modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300); }
     }
-    
     function showToast(msg) { const t = document.getElementById('customToast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
     
     const styleSheet = document.createElement("style"); styleSheet.innerText = "@keyframes bounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }"; document.head.appendChild(styleSheet);
