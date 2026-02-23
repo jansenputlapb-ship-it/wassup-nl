@@ -650,7 +650,7 @@
       input.value = ""; 
     }
 
-    // ==========================================
+   // ==========================================
     // 6. IMAGE UPLOAD LOGIC
     // ==========================================
     const G_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwB0u554wQCWX7M_eaAo4pmCPoiz1fSZPLupmvWhCeuwCjHcFKww9Npy8neYZ_BV8JtIQ/exec";
@@ -667,7 +667,7 @@
         im.src = e.target.result;
         im.onload = async () => {
           
-          // --- Kompresi Canvas agar ringan dikirim ---
+          // --- Kompresi Canvas ---
           const c = document.createElement('canvas');
           const x = c.getContext('2d');
           let w = im.width, h = im.height;
@@ -678,17 +678,19 @@
           const compressedBase64 = c.toDataURL('image/jpeg', 0.7);
           
           showToast("Mengunggah ke Drive... 🚀");
-          
-          // --- BUNGKUS DATA DENGAN URLSearchParams ---
-          // Ini adalah trik utama menghindari "Connection Error" dari browser
-          const formData = new URLSearchParams();
-          formData.append("base64", compressedBase64);
-          formData.append("name", "img_" + Date.now() + ".jpg");
 
           try {
             const res = await fetch(G_SCRIPT_URL, {
               method: "POST",
-              body: formData // Kirim sebagai Form Data biasa
+              // TRIK ANTI-CORS: Mengirim sebagai text/plain agar tidak diblokir browser
+              headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+              },
+              // Data dikirim dalam format JSON string
+              body: JSON.stringify({ 
+                base64: compressedBase64, 
+                name: "img_" + Date.now() + ".jpg" 
+              })
             });
             
             const result = await res.json();
@@ -708,7 +710,7 @@
               cancelReplyEdit();
             } else {
               showToast("Error Server: " + result.error);
-              console.error("Error AppScript:", result.error);
+              console.error("AppScript Error:", result.error);
             }
           } catch (err) {
             showToast("Connection Error ❌ Cek Izin AppScript");
@@ -944,6 +946,7 @@
   </script>
 </body>
 </html>
+
 
 
 
