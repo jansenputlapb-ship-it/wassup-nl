@@ -656,6 +656,15 @@
       }
 
       const isMe = (data.sender === myName);
+
+// 1. Cek apakah ini pesan hasil command bucin
+const isBucin = (data.type === 'bucin');
+const bucinClass = isBucin ? 'msg-bucin' : '';
+
+// 2. Pasang class-nya di sini
+contentHTML = `
+  <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}">
+    <div class="msg-content">
       let contentHTML = "";
 
       if (data.isDeletedForEveryone) {
@@ -1148,6 +1157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
