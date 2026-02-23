@@ -12,23 +12,23 @@
   <script type="module" src="https://unpkg.com/emoji-picker-element@1"></script>
 
   <style>
-/* Style Khusus Pesan Bucin */
+/* Mode Bucin: Mengubah warna bubble ijo/putih jadi Pink */
 .msg-bucin .msg-content {
-  background-color: #fce4ec !important; /* Pink muda */
-  border: 1.5px solid #f8bbd0;
-  color: #880e4f !important;
-  font-style: italic;
-  font-weight: 500;
+    background-color: #fce4ec !important; /* Pink lembut untuk lawan chat */
+    color: #880e4f !important;
+    border: 1px solid #f8bbd0;
 }
 
-/* Jika pesan bucin berasal dari saya (sisi kanan) */
+/* Jika pesan bucin dari sisi saya (kanan) */
 .msg-me.msg-bucin .msg-content {
-  background-color: #f8bbd0 !important; /* Pink sedikit lebih gelap */
+    background-color: #f8bbd0 !important; /* Pink lebih terang untuk saya */
+    color: #880e4f !important;
 }
 
-/* Efek sedikit bercahaya untuk pesan bucin */
-.msg-bucin .msg-content {
-  box-shadow: 0 0 10px rgba(240, 98, 146, 0.3);
+/* Variasi teks dalam bubble pink agar lebih manis */
+.msg-bucin .msg-text {
+    font-style: italic;
+    font-weight: 500;
 }
     
     /* CSS untuk Link Biru */
@@ -1137,6 +1137,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
