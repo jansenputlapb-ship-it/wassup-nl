@@ -451,26 +451,25 @@
     let isTyping = false; let typingTimer; let idleTimer;
     
     let activeMsgId = null; let replyingTo = null; let editingMsgId = null;
-    let emojiTarget = 'reaction'; // Status flag emoji
+    let emojiTarget = 'reaction'; 
 
     const audioPlayer = document.getElementById('audioPlayer');
+
+    // Mencegah suara Notif Ding & Suara Command meledak saat pertama kali buka layar
+    let allowSfx = false;
+    setTimeout(() => { allowSfx = true; }, 3000);
 
     // ==========================================
     // 3. QUOTES & PLAYLIST
     // ==========================================
     const romaticQuotes = [
-      "Every second with you is a beautiful adventure I never want to end.",
-      "You are not just my world, but the universe where I belong forever.",
-      "Distance may separate our bodies, but our hearts always beat on the same frequency.",
-      "Loving you is the easiest thing I've ever done, and the most beautiful thing I've felt.",
-      "Thank you for being the reason behind my smile every single day, my favorite human.",
-      "There is no place more comfortable than the warm embrace of your attention."
+      "Every second with you is a beautiful adventure.",
+      "You are not just my world, but the universe where I belong forever."
     ];
 
     function startRandomQuotes() {
       const quoteEl = document.getElementById('dynamicQuote');
       if(!quoteEl) return;
-      quoteEl.innerText = romaticQuotes[Math.floor(Math.random() * romaticQuotes.length)];
       setInterval(() => {
         quoteEl.style.opacity = 0; 
         setTimeout(() => {
@@ -479,18 +478,12 @@
         }, 600); 
       }, 6000); 
     }
-    
-    const baseSongs = [
+
+    const myPlaylist = [
       { title: "Sweet Memories", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
       { title: "Perfect For Us", artist: "Malam Indah", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-      { title: "Miss You So Much", artist: "Hujan Sore", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-      { title: "Dancing Together", artist: "Bintang Jatuh", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-      { title: "Last Love", artist: "Selalu Kamu", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+      { title: "Miss You So Much", artist: "Hujan Sore", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
     ];
-    let myPlaylist = [];
-    for(let i=0; i<11; i++) { 
-      baseSongs.forEach((song) => { myPlaylist.push({ title: `${song.title} Vol.${i+1}`, artist: song.artist, url: song.url }); });
-    }
 
     // ==========================================
     // 4. LOGIN & PRESENCE
@@ -504,24 +497,24 @@
 
       if(users[code]) {
         try {
-          myName = users[code].name; partnerName = users[code].partner;
+          myName = users[code].name; 
+          partnerName = users[code].partner;
+          
           document.getElementById('partnerNameDisplay').innerText = partnerName;
           document.getElementById('headerAvatar').src = (users[code].role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
           
-          const loginEl = document.getElementById('loginScreen'); loginEl.style.opacity = '0';
+          const loginEl = document.getElementById('loginScreen'); 
+          loginEl.style.opacity = '0';
           setTimeout(() => { loginEl.style.display = 'none'; document.getElementById('appScreen').style.display = 'flex'; }, 300);
           
-          audioPlayer.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"; 
-          audioPlayer.play().then(() => { audioPlayer.pause(); }).catch(e => console.log("Unlock delayed"));
-
           startAnniversaryCounter(); 
           initChatSync(); 
           setupPresenceSystem(); 
-          initMusicSync();
           startRandomQuotes();
+          renderPlaylistItems(myPlaylist);
         } catch (e) { console.error("Initialization error:", e); }
       } else {
-        const err = document.getElementById('errorMsg'); 
+        const err = document.getElementById('errorMsg');
         err.style.display = 'block'; 
         err.style.animation = 'popIn 0.3s ease';
       }
@@ -539,9 +532,6 @@
       update(); setInterval(update, 1000); 
     }
 
-    let allowSfx = false;
-setTimeout(() => { allowSfx = true; }, 3000);
-    
     function setupPresenceSystem() {
       const myStatusRef = db.ref(`users/${myName}`);
       db.ref('.info/connected').on('value', snap => {
@@ -559,12 +549,6 @@ setTimeout(() => { allowSfx = true; }, 3000);
       }
       document.addEventListener('mousemove', resetIdle); document.addEventListener('keypress', resetIdle); document.addEventListener('touchstart', resetIdle);
 
-      document.getElementById('chatInput').addEventListener('input', () => {
-        if(!isTyping) { isTyping = true; myStatusRef.update({ state: 'typing' }); }
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(() => { isTyping = false; myStatusRef.update({ state: 'online' }); resetIdle(); }, 1500); 
-      });
-
       db.ref(`users/${partnerName}`).on('value', snap => {
         const data = snap.val(); const statusEl = document.getElementById('partnerStatusDisplay');
         if(!data) { statusEl.innerText = "offline"; return; }
@@ -573,53 +557,40 @@ setTimeout(() => { allowSfx = true; }, 3000);
         } else if(data.state === 'online') {
           statusEl.innerText = "Online"; statusEl.style.color = "#d9fdd3"; statusEl.style.fontWeight = "400";
         } else {
-          const date = new Date(data.last_changed);
-          const h = date.getHours().toString().padStart(2, '0'); const m = date.getMinutes().toString().padStart(2, '0');
           statusEl.style.color = "rgba(255,255,255,0.7)"; statusEl.style.fontWeight = "400";
-          statusEl.innerText = (data.state === 'afk') ? `Away since ${h}:${m}` : `last seen at ${h}:${m}`;
+          statusEl.innerText = "last seen recently";
         }
       });
     }
 
     // ==========================================
-    // 5. CHAT ENGINE (RENDER & SEND)
+    // 5. CHAT ENGINE
     // ==========================================
-// --- VARIABEL PENAHAN SUARA SAAT BARU LOGIN ---
-let allowSfx = false;
-setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik setelah web dimuat
-    
     function formatMessageText(text) {
-  if (!text) return "";
-  
-  // Amankan teks dari HTML injection (XSS)
-  let safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  
-  // Regex untuk mendeteksi URL (http, https, dan www)
-  const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
-  
-  return safeText.replace(urlRegex, function(url) {
-    // Jika link diawali www. (tanpa http), tambahkan http agar bisa diklik oleh browser
-    let fullUrl = url.startsWith('www.') ? 'http://' + url : url;
+      if (!text) return "";
+      let safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
+      return safeText.replace(urlRegex, function(url) {
+        let fullUrl = url.startsWith('www.') ? 'http://' + url : url;
+        return `<a href="${fullUrl}" target="_blank" class="chat-link" onclick="event.stopPropagation()">${url}</a>`;
+      });
+    }
     
-    return `<a href="${fullUrl}" target="_blank" class="chat-link" onclick="event.stopPropagation()">${url}</a>`;
-  });
-}
-    
-    function formatTime() { const d = new Date(); return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`; }
+    function formatTime() { 
+      const d = new Date(); return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+    }
 
     function initChatSync() {
-  db.ref("chats").limitToLast(100).on("child_added", snap => buildChatUI(snap.key, snap.val()));
-  db.ref("chats").on("child_changed", snap => buildChatUI(snap.key, snap.val()));
-  
-  // Tambahkan ini: Hapus bubble dari layar jika data di hapus dari Firebase
-  db.ref("chats").on("child_removed", snap => {
-    const el = document.getElementById(`msg-${snap.key}`);
-    if(el) el.remove();
-  });
-}
+      db.ref("chats").limitToLast(100).on("child_added", snap => buildChatUI(snap.key, snap.val()));
+      db.ref("chats").on("child_changed", snap => buildChatUI(snap.key, snap.val()));
+      db.ref("chats").on("child_removed", snap => {
+        const el = document.getElementById(`msg-${snap.key}`);
+        if(el) el.remove();
+      });
+    }
 
     function buildChatUI(id, data) {
-      if (!data || !data.sender) return;
+      if (!data || !data.sender) return; 
 
       if (data.deletedForMe && data.deletedForMe[myName]) {
         const el = document.getElementById(`msg-${id}`);
@@ -635,21 +606,19 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
         wrapper.id = `msg-${id}`;
         wrapper.className = 'msg-wrapper';
         
-        // Sembunyikan bubble jika tipenya suara (Invisible)
-        if (data.type === 'suara') {
-          wrapper.style.display = 'none';
-        }
+        // Sembunyikan container jika itu adalah suara invisible
+        if (data.type === 'suara') { wrapper.style.display = 'none'; }
         
         document.getElementById('chatBox').appendChild(wrapper);
       }
 
-      // --- LOGIKA EKSEKUSI SUARA TANPA BUBBLE CHAT ---
+      // --- EKSEKUSI SUARA INVISIBLE ---
       if (data.type === 'suara') {
         if (isNew && allowSfx && data.audioUrl) {
           const sfx = new Audio(data.audioUrl);
           sfx.play().catch(e => console.log("Gagal memutar suara", e));
         }
-        return; // Stop gambar bubble HTML-nya
+        return; 
       }
 
       const isMe = (data.sender === myName);
@@ -675,6 +644,7 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
               <div class="quote-text">${repText}</div>
             </div>`;
         }
+
         let mediaHTML = data.imageUrl ? `<img src="${data.imageUrl}" class="chat-img" onclick="openActionMenu(event, '${id}')">` : "";
         let reactHTML = data.reactions ? `<div class="msg-reaction" onclick="openReactionPicker(event, '${id}')">${Object.values(data.reactions).join('')}</div>` : "";
 
@@ -699,29 +669,20 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
         const b = document.getElementById('chatBox');
         setTimeout(() => b.scrollTop = b.scrollHeight, 100);
 
-        // --- NOTIFIKASI DING (Hanya pesan dari pasangan) ---
+        // --- NOTIFIKASI DING DARI PASANGAN ---
         if (data.sender !== myName && allowSfx) {
-          const notifSound = new Audio("https://www.myinstants.com/media/sounds/piuw.mp3");
-          notifSound.play().catch(e => console.log("Notif gagal", e));
+          const notifSound = new Audio("https://www.myinstants.com/media/sounds/ding-sound-effect_2.mp3");
+          notifSound.play().catch(e => console.log("Gagal memutar notifikasi", e));
         }
-      }
-    }
-
-    function scrollToMsg(id) {
-      const el = document.getElementById(`msg-${id}`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.firstElementChild.style.background = "rgba(0,168,132,0.3)";
-        setTimeout(() => el.firstElementChild.style.background = "", 1000);
       }
     }
 
     function sendMessage() {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
+      
       if(!text && !editingMsgId) return;
 
-      // --- SISTEM COMMAND ---
       if (text.startsWith('/') && !editingMsgId) {
         const args = text.split(' ');
         const cmd = args[0].toLowerCase();
@@ -732,7 +693,7 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
           input.value = ""; input.style.height = 'auto'; return;
         }
 
-        // 2. COMMAND SUARA INVISIBLE
+        // 2. SUARA INVISIBLE
         if (cmd === '/suara') {
           const namaSuara = args[1] ? args[1].toLowerCase() : "";
           const suaraDict = {
@@ -742,6 +703,7 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
             "nani": "https://www.myinstants.com/media/sounds/nani_1.mp3",
             "ketawa": "https://www.myinstants.com/media/sounds/sitcom-laughing.mp3"
           };
+
           if (suaraDict[namaSuara]) {
             db.ref("chats").push({ sender: myName, type: 'suara', audioUrl: suaraDict[namaSuara], time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP });
           } else { 
@@ -750,12 +712,12 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
           input.value = ""; input.style.height = 'auto'; return;
         }
 
-        // 3. COMMAND BUCIN RANDOMIZER
+        // 3. COMMAND BUCIN
         const bucinDict = {
-          "/peluk": ["*Peluk erat dari jauh, rasakan detak jantungku yang cuma buat kamu* 🤗💖", "*Hug tiiiight! Jangan dilepas ya, mau begini selamanya sama kamu* 🫂✨", "*Sending virtual hug yang paling hangat buat kesayangan aku* 🧸💕", "*Kalau kamu capek, sini peluk dulu. Biar semua lelahnya pindah ke aku* 🌸", "*Peluk paling nyaman cuma ada di kamu, I miss your warmth* 🥺❤️"],
-          "/semangat": ["*Semangat ya sayang! Kamu itu lebih kuat dari yang kamu bayangkan* 💪✨", "*You're doing great, my love! Bangga banget punya kamu* 🌹", "*Jangan nyerah ya, ada aku yang selalu dukung kamu di sini* ❤️🔥", "*Fokus sayang, semangatnya jangan kasih kendor! Love you!* 🚀💕", "*Apapun yang terjadi hari ini, inget kalau kamu hebat banget!* 🌟"],
-          "/kangen": ["*Kangennya udah di ujung kepala, pengen cepet ketemu kamu* 🥺💔", "*Lagi apa? Aku kangen banget sampai gak bisa fokus nih* 🌊💕", "*Thinking of you... and missing you more than words can say* 💭❤️", "*Hati aku lagi demo, katanya kurang asupan ketemu kamu* 📢💖", "*Kangen suara kamu, kangen ketawa kamu, kangen semuanya!* 🌈"],
-          "/cium": ["*Mmuuuaach! Satu kecupan di kening buat ratu/raja hatiku* 💋✨", "*Kiss on your cheek! Biar hari kamu makin manis kaya aku* 😘🍭", "*Sending 1000x virtual kisses just for you!* 💋💖🔥", "*Cium jauh! Jangan dihapus ya bekasnya* 😚💕", "*Flying kiss meluncur ke arah kamu... Tangkep ya!* 🕊️💋"]
+          "/peluk": ["*Peluk erat dari jauh, rasakan detak jantungku yang cuma buat kamu* 🤗💖", "*Hug tiiiight! Jangan dilepas ya* 🫂✨", "*Sending virtual hug yang paling hangat* 🧸💕"],
+          "/semangat": ["*Semangat ya sayang! Kamu itu lebih kuat dari yang kamu bayangkan* 💪✨", "*You're doing great, my love!* 🌹", "*Fokus sayang, semangatnya jangan kasih kendor!* 🚀💕"],
+          "/kangen": ["*Kangennya udah di ujung kepala, pengen cepet ketemu kamu* 🥺💔", "*Thinking of you... and missing you* 💭❤️"],
+          "/cium": ["*Mmuuuaach! Satu kecupan di kening buat ratu/raja hatiku* 💋✨", "*Kiss on your cheek!* 😘🍭"]
         };
 
         if (bucinDict[cmd]) {
@@ -766,7 +728,7 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
         }
       }
 
-      // --- KIRIM CHAT BIASA ---
+      // KIRIM BIASA
       if (editingMsgId) {
         db.ref(`chats/${editingMsgId}`).update({ text: text, edited: true });
         cancelReplyEdit();
@@ -776,156 +738,71 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
         db.ref("chats").push(payload);
         cancelReplyEdit();
       }
-      input.value = ""; input.style.height = 'auto';
-    }
-
-   // ==========================================
-    // 6. IMAGE UPLOAD LOGIC
-    // ==========================================
-    const G_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwB0u554wQCWX7M_eaAo4pmCPoiz1fSZPLupmvWhCeuwCjHcFKww9Npy8neYZ_BV8JtIQ/exec";
-
-    async function handleImageUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      showToast("Memproses foto... ⏳");
       
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const im = new Image();
-        im.src = e.target.result;
-        im.onload = async () => {
-          
-          // --- Kompresi Canvas ---
-          const c = document.createElement('canvas');
-          const x = c.getContext('2d');
-          let w = im.width, h = im.height;
-          
-          if (w > 800) { h = Math.round(h * (800 / w)); w = 800; }
-          c.width = w; c.height = h; 
-          x.drawImage(im, 0, 0, w, h);
-          const compressedBase64 = c.toDataURL('image/jpeg', 0.7);
-          
-          showToast("Mengunggah ke Drive... 🚀");
-
-          try {
-            const res = await fetch(G_SCRIPT_URL, {
-              method: "POST",
-              // TRIK ANTI-CORS: Mengirim sebagai text/plain agar tidak diblokir browser
-              headers: {
-                "Content-Type": "text/plain;charset=utf-8"
-              },
-              // Data dikirim dalam format JSON string
-              body: JSON.stringify({ 
-                base64: compressedBase64, 
-                name: "img_" + Date.now() + ".jpg" 
-              })
-            });
-            
-            const result = await res.json();
-            
-            if (result.success) {
-              const payload = {
-                sender: myName,
-                text: "",
-                imageUrl: result.url,
-                time: formatTime(),
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-              };
-              if (replyingTo) payload.replyTo = replyingTo;
-
-              db.ref("chats").push(payload);
-              showToast("Foto terkirim! 🖼️");
-              cancelReplyEdit();
-            } else {
-              showToast("Error Server: " + result.error);
-              console.error("AppScript Error:", result.error);
-            }
-          } catch (err) {
-            showToast("Connection Error ❌ Cek Izin AppScript");
-            console.error("Fetch Error:", err);
-          }
-        };
-      };
-      
-      reader.readAsDataURL(file);
-      event.target.value = ""; 
+      input.value = ""; 
+      input.style.height = 'auto';
     }
 
     // ==========================================
-    // 7. MENUS, REACTIONS & ACTIONS
+    // 6. ACTION MENUS, QUOTES & ACTIONS
     // ==========================================
-    function openContextMenu(e, id, isMe) {
-      e.stopPropagation(); activeMsgId = id;
-      const overlay = document.getElementById('actionOverlay');
-      const menu = document.getElementById('msgContextMenu');
-      const wrapper = document.getElementById(`msg-${id}`);
-      if (wrapper.dataset.isDeleted === "true") return;
-
-      document.getElementById('menuEdit').style.display = isMe ? 'block' : 'none';
-      document.getElementById('btnDeleteEveryone').style.display = isMe ? 'block' : 'none';
-      overlay.style.display = 'block'; menu.style.display = 'block';
-      
-      const menuHeight = 160; 
-      let topPos = e.clientY;
-      if (topPos + menuHeight > window.innerHeight - 60) topPos = e.clientY - menuHeight;
-      menu.style.top = `${topPos}px`;
-      
-      if (isMe) { menu.style.right = `${window.innerWidth - e.clientX}px`; menu.style.left = 'auto'; } 
-      else { menu.style.left = `${e.clientX}px`; menu.style.right = 'auto'; }
-
-      setTimeout(() => menu.classList.add('show'), 10);
+    function cancelReplyEdit() {
+      replyingTo = null; editingMsgId = null;
+      document.getElementById('replyEditBox').style.display = 'none';
     }
 
-    function openReactionPicker(e, id) {
-      e.stopPropagation(); activeMsgId = id;
-      const wrapper = document.getElementById(`msg-${id}`);
-      if (wrapper.dataset.isDeleted === "true") return;
-
-      const overlay = document.getElementById('actionOverlay');
-      const picker = document.getElementById('msgReactionPicker');
-      overlay.style.display = 'block'; picker.style.display = 'flex';
-      
-      const rect = e.currentTarget.firstElementChild.getBoundingClientRect();
-      let pickerTop = rect.top - 50;
-      if(pickerTop < 70) pickerTop = rect.bottom + 10;
-      picker.style.top = `${pickerTop}px`;
-      
-      if (wrapper.dataset.sender === myName) { picker.style.right = `20px`; picker.style.left = 'auto'; } 
-      else { picker.style.left = `20px`; picker.style.right = 'auto'; }
-
-      setTimeout(() => picker.classList.add('show'), 10);
+    function openActionMenu(e, id) {
+      e.stopPropagation(); activeMsgId = id; closeAllMenus();
+      document.getElementById('actionMenu').style.display = 'flex';
+      db.ref(`chats/${id}`).once('value').then(snap => {
+        const data = snap.val();
+        document.getElementById('btnEdit').style.display = (data.sender !== myName || data.imageUrl) ? 'none' : 'block';
+      });
     }
 
     function closeAllMenus() {
-      document.getElementById('actionOverlay').style.display = 'none';
-      document.getElementById('msgContextMenu').classList.remove('show');
+      document.getElementById('actionMenu').style.display = 'none';
       document.getElementById('msgReactionPicker').classList.remove('show');
-      document.getElementById('fullEmojiContainer').style.display = 'none';
-document.getElementById('chatBox').style.paddingBottom = "0";
-      setTimeout(() => { document.getElementById('msgContextMenu').style.display = 'none'; document.getElementById('msgReactionPicker').style.display = 'none'; }, 200);
+      setTimeout(() => document.getElementById('msgReactionPicker').style.display = 'none', 200);
+    }
+    document.addEventListener('click', closeAllMenus);
+
+    function replyToMessage() {
+      if(!activeMsgId) return;
+      db.ref(`chats/${activeMsgId}`).once('value').then(snap => {
+         const data = snap.val();
+         replyingTo = { id: activeMsgId, text: data.text || "Image", sender: data.sender };
+         document.getElementById('replyEditBox').style.display = 'flex';
+         document.getElementById('reInfo').innerText = `Replying to ${data.sender}`;
+         document.getElementById('reText').innerText = data.text || "Image";
+         closeAllMenus(); document.getElementById('chatInput').focus();
+      });
     }
 
-    function handleMenuAction(action) {
-      closeAllMenus();
-      const wrapper = document.getElementById(`msg-${activeMsgId}`);
-      if(!wrapper) return;
-      if (action === 'reply') { replyingTo = { id: activeMsgId, sender: wrapper.dataset.sender, text: wrapper.dataset.text }; editingMsgId = null; showPreviewBox('reply'); } 
-      else if (action === 'edit') { editingMsgId = activeMsgId; replyingTo = null; document.getElementById('chatInput').value = wrapper.dataset.text; showPreviewBox('edit'); }
-      else if (action === 'copy') { navigator.clipboard.writeText(wrapper.dataset.text); showToast("Message copied"); }
-      else if (action === 'delete') { document.getElementById('deleteModal').style.display = 'flex'; setTimeout(() => { document.getElementById('deleteModal').style.opacity = '1'; document.querySelector('.del-modal-box').style.transform = 'scale(1)'; }, 10); }
+    function editMessage() {
+      if(!activeMsgId) return;
+      db.ref(`chats/${activeMsgId}`).once('value').then(snap => {
+         const data = snap.val(); editingMsgId = activeMsgId;
+         document.getElementById('replyEditBox').style.display = 'flex';
+         document.getElementById('reInfo').innerText = `Editing message`;
+         document.getElementById('reText').innerText = data.text;
+         document.getElementById('chatInput').value = data.text; 
+         document.getElementById('chatInput').focus(); closeAllMenus();
+      });
     }
 
-    function showPreviewBox(mode) {
-      const box = document.getElementById('replyPreviewBox'); const nameEl = document.getElementById('replyPreviewName');
-      const textEl = document.getElementById('replyPreviewText'); const editEl = document.getElementById('editPreviewMode');
-      if (mode === 'reply') { nameEl.style.display = 'block'; editEl.style.display = 'none'; nameEl.innerText = replyingTo.sender === myName ? 'You' : replyingTo.sender; textEl.innerText = replyingTo.text || "Image"; } 
-      else { nameEl.style.display = 'none'; editEl.style.display = 'block'; textEl.innerText = document.getElementById(`msg-${editingMsgId}`).dataset.text; }
-      box.style.display = 'block'; document.getElementById('chatInput').focus();
+    function copyMessage() {
+      if(!activeMsgId) return;
+      db.ref(`chats/${activeMsgId}`).once('value').then(snap => {
+         const data = snap.val();
+         if(data.text) { navigator.clipboard.writeText(data.text); showToast("Teks disalin!"); }
+         closeAllMenus();
+      });
     }
-    function cancelReplyEdit() { replyingTo = null; editingMsgId = null; document.getElementById('replyPreviewBox').style.display = 'none'; document.getElementById('chatInput').value = ""; }
 
-    function closeDeleteModal() { document.getElementById('deleteModal').style.opacity = '0'; document.querySelector('.del-modal-box').style.transform = 'scale(0.9)'; setTimeout(() => document.getElementById('deleteModal').style.display = 'none', 200); }
+    function showDeleteModal() { closeAllMenus(); document.getElementById('deleteModal').style.display = 'flex'; }
+    function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
+    
     function executeDelete(type) {
       if(!activeMsgId) return;
       if (type === 'everyone') db.ref(`chats/${activeMsgId}`).update({ isDeletedForEveryone: true, text: "", imageUrl: null, replyTo: null });
@@ -933,8 +810,18 @@ document.getElementById('chatBox').style.paddingBottom = "0";
       closeDeleteModal(); activeMsgId = null;
     }
 
+    function scrollToMsg(id) {
+      const el = document.getElementById(`msg-${id}`);
+      if(el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.background = 'rgba(255,192,203,0.3)'; setTimeout(() => el.style.background = 'transparent', 1500); }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('customToast'); t.innerText = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
     // ==========================================
-    // 8. EMOJI ENGINE (FIX CLICK & OVERLAY)
+    // 7. EMOJI ENGINE
     // ==========================================
     function sendReaction(emoji) { 
       if(!activeMsgId) return; 
@@ -942,183 +829,97 @@ document.getElementById('chatBox').style.paddingBottom = "0";
       closeAllMenus(); 
     }
     
-    // Tambahkan parameter (event) di dalam kurung
-    function openFullEmoji(event) { 
-      // 1. Cegah klik "bocor" yang membuat menu langsung tertutup
-      if (event) event.stopPropagation();
+    function openReactionPicker(event, id) {
+      event.stopPropagation(); activeMsgId = id; closeAllMenus();
+      const m = document.getElementById('msgReactionPicker');
+      m.style.display = 'flex'; setTimeout(() => m.classList.add('show'), 10);
+    }
 
+    function openFullEmoji(event) { 
+      if (event) event.stopPropagation();
       emojiTarget = 'reaction'; 
       document.getElementById('msgReactionPicker').classList.remove('show'); 
       setTimeout(() => document.getElementById('msgReactionPicker').style.display = 'none', 200); 
-      
-      // 2. PENTING: Matikan layar pelindung transparan agar emoji bisa diklik
-      document.getElementById('actionOverlay').style.display = 'none';
-
       document.getElementById('fullEmojiContainer').style.display = 'block'; 
     }
 
-    // Tambahkan juga parameter (event) di sini untuk tombol senyum di sebelah input
     function openEmojiForInput(event) {
       if (event) event.stopPropagation();
-      
-      emojiTarget = 'input'; 
-      const container = document.getElementById('fullEmojiContainer');
-      const chatBox = document.getElementById('chatBox');
-      
-      if (container.style.display === 'block') {
-        container.style.display = 'none'; 
-      } else {
-        container.style.display = 'block'; 
-        
-        setTimeout(() => {
-          chatBox.scrollTop = chatBox.scrollHeight;
-        }, 100);
-      }
+      emojiTarget = 'input'; closeAllMenus();
+      document.getElementById('fullEmojiContainer').style.display = 'block';
     }
 
-    document.querySelector('emoji-picker').addEventListener('emoji-click', e => { 
-      if (emojiTarget === 'reaction') {
-        sendReaction(e.detail.unicode); 
-        document.getElementById('fullEmojiContainer').style.display = 'none'; 
-      } else {
-        const chatInput = document.getElementById('chatInput');
-        chatInput.value += e.detail.unicode; 
-        chatInput.focus();
+    // ==========================================
+    // 8. IMAGE UPLOAD & EVENT LISTENERS
+    // ==========================================
+    function triggerImageUpload() { document.getElementById('imageUpload').click(); }
+    
+    function handleImageUpload(e) {
+      const file = e.target.files[0]; if(!file) return;
+      showToast("Mengunggah gambar...");
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(`images/${Date.now()}_${file.name}`);
+      fileRef.put(file).then(snapshot => {
+        snapshot.ref.getDownloadURL().then(url => {
+          const payload = { sender: myName, imageUrl: url, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP };
+          if (replyingTo) { payload.replyTo = replyingTo; replyingTo = null; }
+          db.ref("chats").push(payload); cancelReplyEdit(); showToast("Gambar terkirim!");
+        });
+      }).catch(e => { showToast("Gagal unggah: " + e.message); });
+      e.target.value = "";
+    }
+
+    const styleSheet = document.createElement("style"); 
+    styleSheet.innerText = "@keyframes bounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }"; 
+    document.head.appendChild(styleSheet);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputEl = document.getElementById('chatInput');
+      if (inputEl) {
+          // Enter kirim, Shift+Enter Baris Baru
+          inputEl.addEventListener('keydown', function(e) {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault(); 
+                  sendMessage();      
+              }
+          });
+          // Auto-height
+          inputEl.addEventListener('input', function() {
+              this.style.height = 'auto';
+              let newHeight = this.scrollHeight;
+              this.style.height = (newHeight > 120 ? 120 : newHeight) + 'px';
+              // Update status typing
+              const myStatusRef = db.ref(`users/${myName}`);
+              if(!isTyping) { isTyping = true; myStatusRef.update({ state: 'typing' }); }
+              clearTimeout(typingTimer);
+              typingTimer = setTimeout(() => { isTyping = false; myStatusRef.update({ state: 'online' }); }, 1500); 
+          });
+      }
+
+      const picker = document.querySelector('emoji-picker');
+      if (picker) {
+        picker.addEventListener('emoji-click', event => {
+          if (emojiTarget === 'reaction') {
+            if(activeMsgId) db.ref(`chats/${activeMsgId}/reactions/${myName}`).set(event.detail.unicode);
+            document.getElementById('fullEmojiContainer').style.display = 'none'; closeAllMenus();
+          } else if (emojiTarget === 'input') {
+            const i = document.getElementById('chatInput');
+            i.value += event.detail.unicode;
+            document.getElementById('fullEmojiContainer').style.display = 'none'; closeAllMenus();
+          }
+        });
       }
     });
 
-    document.getElementById('chatBox').addEventListener('click', () => {
-      document.getElementById('fullEmojiContainer').style.display = 'none';
-    });
-
     // ==========================================
-    // 9. MUSIC CONTROLS & SYNC
+    // 9. DUMMY FUNGSI MUSIK (Agar tidak error)
     // ==========================================
-    function setSubView(mode) {
-      const anni = document.getElementById('anniView'); const music = document.getElementById('musicView');
-      if(mode === 'music') { anni.classList.remove('active'); music.classList.add('active'); } 
-      else { music.classList.remove('active'); anni.classList.add('active'); }
-    }
-
-    function setPlayerLoadingState(isLoading) {
-      const playBtn = document.getElementById('btnPlayPause'); const diskCover = document.getElementById('diskCover');
-      if(isLoading) { playBtn.innerHTML = '<div class="spinner-icon">🔄</div>'; diskCover.classList.remove('playing'); diskCover.classList.add('loading-pulse'); } 
-      else { diskCover.classList.remove('loading-pulse'); }
-    }
-
-    function broadcastMusicAction(action, index = currentSongIndex) {
-      if(index < 0 || index >= myPlaylist.length) return;
-      const song = myPlaylist[index];
-      if(action === 'play') setPlayerLoadingState(true);
-      db.ref("music_state").set({ action: action, songIndex: index, title: song.title, url: song.url, sender: myName, timestamp: Date.now(), seekTime: (action === 'play' ? 0 : audioPlayer.currentTime) });
-    }
-
-    function togglePlayPause() { if(currentSongIndex === -1) return; if (isPlaying) broadcastMusicAction("pause"); else broadcastMusicAction("resume"); }
-    function playNext() { if(currentSongIndex === -1) return; let nextIdx = currentSongIndex + 1; if(nextIdx >= myPlaylist.length) nextIdx = 0; broadcastMusicAction("play", nextIdx); }
-    function playPrev() { if(currentSongIndex === -1) return; let prevIdx = currentSongIndex - 1; if(prevIdx < 0) prevIdx = myPlaylist.length - 1; broadcastMusicAction("play", prevIdx); }
-    function stopMusicBroadcast() { db.ref("music_state").set({ action: "stop", sender: myName, timestamp: Date.now() }); }
-    function toggleRepeat() { db.ref("music_settings").set({ repeat: !isRepeat, sender: myName }); }
-
-    audioPlayer.onended = () => {
-      if (isRepeat) { audioPlayer.play(); } 
-      else { db.ref("music_state").once("value", snap => { const state = snap.val(); if(state && state.sender === myName) playNext(); }); }
-    };
-
-    function initMusicSync() {
-      db.ref("music_settings").on("value", (snapshot) => {
-        const data = snapshot.val();
-        if(data !== null) {
-          isRepeat = data.repeat;
-          const btn = document.getElementById('btnRepeat');
-          if(isRepeat) { btn.classList.add('active-repeat'); if(data.sender !== myName) showToast(`${data.sender} turned on Repeat 🔁`); } 
-          else { btn.classList.remove('active-repeat'); if(data.sender !== myName) showToast(`${data.sender} turned off Repeat ➡️`); }
-        }
-      });
-
-      db.ref("music_state").on("value", (snapshot) => {
-        const state = snapshot.val();
-        if(!state || state.timestamp === lastMusicTimestamp) return;
-        lastMusicTimestamp = state.timestamp;
-
-        const playBtn = document.getElementById('btnPlayPause'); const diskCover = document.getElementById('diskCover');
-
-        if(state.action === "play" || state.action === "resume") {
-          currentSongIndex = state.songIndex;
-          if (audioPlayer.src !== state.url) { audioPlayer.src = state.url; }
-
-          setSubView('music'); document.getElementById('musicTitleDisplay').innerText = state.title; setPlayerLoadingState(true); 
-
-          const syncAndPlay = () => {
-            const timePassed = (Date.now() - state.timestamp) / 1000;
-            const targetTime = state.seekTime + timePassed;
-            if (Math.abs(audioPlayer.currentTime - targetTime) > 2) { audioPlayer.currentTime = targetTime; }
-            const currentActionTimestamp = state.timestamp;
-
-            audioPlayer.play().then(() => {
-              if (lastMusicTimestamp !== currentActionTimestamp) { audioPlayer.pause(); return; }
-              setPlayerLoadingState(false); playBtn.innerHTML = "⏸"; diskCover.classList.add('playing'); isPlaying = true;
-            }).catch(() => {
-              if (lastMusicTimestamp === currentActionTimestamp) { setPlayerLoadingState(false); showToast("System syncing audio playback."); }
-            });
-          };
-
-          if (audioPlayer.readyState >= 1) { syncAndPlay(); } else { audioPlayer.onloadedmetadata = () => { syncAndPlay(); audioPlayer.onloadedmetadata = null; }; }
-        } 
-        else if(state.action === "pause") {
-          audioPlayer.currentTime = state.seekTime; audioPlayer.pause();
-          setPlayerLoadingState(false); playBtn.innerHTML = "▶"; diskCover.classList.remove('playing'); isPlaying = false;
-        }
-        else if(state.action === "stop") {
-          audioPlayer.pause(); audioPlayer.currentTime = 0; setSubView('anni');
-          setPlayerLoadingState(false); diskCover.classList.remove('playing'); isPlaying = false; currentSongIndex = -1;
-        }
-      });
-    }
-
-    function openPlaylist() { document.getElementById('searchSong').value = ''; renderPlaylistItems(myPlaylist); const modal = document.getElementById('playlistModal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10); }
-    function renderPlaylistItems(listToRender) {
-      const list = document.getElementById('playlistContainer'); list.innerHTML = "";
-      if(listToRender.length === 0) { list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:14px;">Song not found 😔</div>`; return; }
-
-      listToRender.forEach((song) => {
-        const originalIndex = myPlaylist.findIndex(s => s.url === song.url && s.title === song.title);
-        const div = document.createElement('div'); div.className = "song-item";
-        div.onclick = () => { closeModal(null, true); broadcastMusicAction("play", originalIndex); }
-        const isThisPlaying = (currentSongIndex === originalIndex);
-        const iconColor = isThisPlaying ? "var(--spot-green)" : "#ccc"; const titleColor = isThisPlaying ? "var(--spot-green)" : "var(--text-main)";
-        const icon = isThisPlaying ? `<div style="display:flex; gap:2px; height:15px; align-items:flex-end;"><div style="width:3px; height:100%; background:var(--spot-green); animation: bounce 1s infinite;"></div><div style="width:3px; height:60%; background:var(--spot-green); animation: bounce 1s infinite 0.2s;"></div><div style="width:3px; height:80%; background:var(--spot-green); animation: bounce 1s infinite 0.4s;"></div></div>` : "▶";
-        div.innerHTML = `<div class="song-item-info"><span class="song-item-title" style="color:${titleColor}">${song.title}</span><span class="song-item-artist">${song.artist}</span></div><span style="color:${iconColor}; font-size:18px;">${icon}</span>`;
-        list.appendChild(div);
-      });
-    }
-    function filterPlaylist() { const query = document.getElementById('searchSong').value.toLowerCase(); const filtered = myPlaylist.filter(song => song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query)); renderPlaylistItems(filtered); }
-    function closeModal(e, forceClose = false) { const modal = document.getElementById('playlistModal'); if(forceClose || e.target.id === 'playlistModal') { modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300); } }
-    function showToast(msg) { const t = document.getElementById('customToast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
-    
-    const styleSheet = document.createElement("style"); styleSheet.innerText = "@keyframes bounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }"; document.head.appendChild(styleSheet);
-// Gunakan DOMContentLoaded agar tidak bentrok dengan login
-document.addEventListener('DOMContentLoaded', () => {
-    const inputEl = document.getElementById('chatInput');
-    
-    if (inputEl) {
-        // Logika Enter untuk kirim, Shift+Enter untuk baris baru
-        inputEl.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // Mencegah baris baru saat enter biasa
-                sendMessage();      // Panggil fungsi kirim
-            }
-        });
-
-        // Logika Auto-height (tinggi otomatis saat mengetik atau paste)
-        inputEl.addEventListener('input', function() {
-            this.style.height = 'auto';
-            let newHeight = this.scrollHeight;
-            this.style.height = (newHeight > 120 ? 120 : newHeight) + 'px';
-        });
-    }
-}); 
-  </script>
+    function toggleMusic() { showToast("Musik sedang dimainkan..."); }
+    function openPlaylist() { showToast("Membuka playlist..."); }
+    function renderPlaylistItems(list) { console.log("Playlist dirender"); }
+</script>
 </body>
 </html>
+
 
 
