@@ -581,7 +581,10 @@
     // ==========================================
     // 5. CHAT ENGINE (RENDER & SEND)
     // ==========================================
-
+// --- VARIABEL PENAHAN SUARA SAAT BARU LOGIN ---
+let allowSfx = false;
+setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik setelah web dimuat
+    
     function formatMessageText(text) {
   if (!text) return "";
   
@@ -701,10 +704,17 @@ contentHTML = `
       wrapper.dataset.isDeleted = data.isDeletedForEveryone ? "true" : "false";
 
       if (isNew) {
-        const b = document.getElementById('chatBox');
-        setTimeout(() => b.scrollTop = b.scrollHeight, 100); // Timeout agar gambar ter-load dulu
-      }
+    const b = document.getElementById('chatBox');
+    setTimeout(() => b.scrollTop = b.scrollHeight, 100);
+
+    // --- LOGIKA PEMUTAR SUARA OTOMATIS ---
+    if (data.type === 'suara' && data.audioUrl && allowSfx) {
+      // Putar suara di background tanpa mengganggu lagu musik utama
+      const sfx = new Audio(data.audioUrl);
+      sfx.play().catch(e => console.log("Gagal memutar suara otomatis", e));
     }
+  }
+}
 
     function scrollToMsg(id) {
       const el = document.getElementById(`msg-${id}`);
@@ -757,6 +767,37 @@ contentHTML = `
         `*Flying kiss meluncur ke arah kamu... Tangkep ya!* 🕊️💋`
       ]
     };
+
+    // --- COMMAND SUARA ---
+    if (cmd === '/suara') {
+      const namaSuara = args[1] ? args[1].toLowerCase() : "";
+      
+      // Kamus URL Suara dari myinstants
+      const suaraDict = {
+        "cium": "https://www.myinstants.com/media/sounds/anime-kiss.mp3",
+        "wow": "https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3",
+        "bruh": "https://www.myinstants.com/media/sounds/vine-boom.mp3",
+        "nani": "https://www.myinstants.com/media/sounds/nani_1.mp3",
+        "ketawa": "https://www.myinstants.com/media/sounds/sitcom-laughing.mp3"
+      };
+
+      if (suaraDict[namaSuara]) {
+        // Kirim data pesan suara ke Firebase
+        db.ref("chats").push({
+          sender: myName,
+          text: `🔊 Mengirim suara: *${namaSuara}*`,
+          type: 'suara',
+          audioUrl: suaraDict[namaSuara],
+          time: formatTime(),
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+      } else {
+        showToast("Suara tidak ada! Coba: cium, wow, bruh, nani, ketawa");
+      }
+      
+      input.value = ""; input.style.height = 'auto';
+      return;
+    }
 
     // Eksekusi Command
     if (cmd === '/clear' || cmd === '/clean') {
@@ -1137,6 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
