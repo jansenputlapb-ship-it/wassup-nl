@@ -12,26 +12,25 @@
   <script type="module" src="https://unpkg.com/emoji-picker-element@1"></script>
 
   <style>
-
-    /* Mode Bucin: Mengubah warna bubble ijo/putih jadi Pink */
+/* Style Khusus Pesan Bucin */
 .msg-bucin .msg-content {
-    background-color: #fce4ec !important; /* Pink lembut untuk lawan chat */
-    color: #880e4f !important;
-    border: 1px solid #f8bbd0;
+  background-color: #fce4ec !important; /* Pink muda */
+  border: 1.5px solid #f8bbd0;
+  color: #880e4f !important;
+  font-style: italic;
+  font-weight: 500;
 }
 
-/* Jika pesan bucin dari sisi saya (kanan) */
+/* Jika pesan bucin berasal dari saya (sisi kanan) */
 .msg-me.msg-bucin .msg-content {
-    background-color: #f8bbd0 !important; /* Pink lebih terang untuk saya */
-    color: #880e4f !important;
+  background-color: #f8bbd0 !important; /* Pink sedikit lebih gelap */
 }
 
-/* Variasi teks dalam bubble pink agar lebih manis */
-.msg-bucin .msg-text {
-    font-style: italic;
-    font-weight: 500;
+/* Efek sedikit bercahaya untuk pesan bucin */
+.msg-bucin .msg-content {
+  box-shadow: 0 0 10px rgba(240, 98, 146, 0.3);
 }
-
+    
     /* CSS untuk Link Biru */
 .chat-link {
   color: #039be5; /* Warna biru link */
@@ -619,7 +618,7 @@
   db.ref("chats").limitToLast(100).on("child_added", snap => buildChatUI(snap.key, snap.val()));
   db.ref("chats").on("child_changed", snap => buildChatUI(snap.key, snap.val()));
   
-  // Tambahkan ini:
+  // Tambahkan ini: Hapus bubble dari layar jika data di hapus dari Firebase
   db.ref("chats").on("child_removed", snap => {
     const el = document.getElementById(`msg-${snap.key}`);
     if(el) el.remove();
@@ -684,9 +683,6 @@
         // Tambahkan class msg-bucin jika data.type adalah bucin
 const bucinClass = data.type === 'bucin' ? 'msg-bucin' : '';
 
-// Cek apakah pesan bertipe bucin
-const bucinClass = data.type === 'bucin' ? 'msg-bucin' : '';
-
 contentHTML = `
   <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}">
             <div class="msg-content">
@@ -737,58 +733,67 @@ contentHTML = `
   const text = input.value.trim();
   if(!text && !editingMsgId) return;
 
-  // --- LOGIKA COMMAND MIRC ---
+  // --- FITUR COMMAND /MIRC ---
   if (text.startsWith('/') && !editingMsgId) {
-    const cmd = text.split(' ')[0].toLowerCase();
+    const args = text.split(' ');
+    const cmd = args[0].toLowerCase();
 
-    // Command Hapus Chat (/clear atau /clean)
+    // 1. Command Clear/Clean (Hapus Database)
     if (cmd === '/clear' || cmd === '/clean') {
-      if(confirm("Hapus semua chat selamanya?")) {
+      if(confirm("Hapus semua riwayat chat selamanya?")) {
         db.ref("chats").remove();
-        showToast("Chat dibersihkan ✨");
+        showToast("Database dibersihkan ✨");
       }
       input.value = ""; input.style.height = 'auto';
       return;
     }
 
-    // Command Bucin Peluk
+    // 2. Command Bucin Peluk
     if (cmd === '/peluk') {
-      sendBucinMessage(`*Memeluk ${partnerName} erat-erat, jangan sedih lagi yaa.. I'm here!* 🤗💖`);
+      const payload = { 
+        sender: myName, 
+        text: `*Memberikan pelukan yang sabaaaar dan erat sekali untuk ${partnerName}* 🤗💖✨`, 
+        type: 'bucin',
+        time: formatTime(), 
+        timestamp: firebase.database.ServerValue.TIMESTAMP 
+      };
+      db.ref("chats").push(payload);
       input.value = ""; input.style.height = 'auto';
       return;
     }
 
-    // Command Bucin Semangat
+    // 3. Command Bucin Semangat
     if (cmd === '/semangat') {
-      sendBucinMessage(`*Semangat terus buat hari ini ${partnerName}! You are doing great!* 💪🌹✨`);
+      const payload = { 
+        sender: myName, 
+        text: `*Membisikkan kata semangat: "Kamu hebat banget hari ini, aku bangga punya kamu!"* 💪💕🌹`, 
+        type: 'bucin',
+        time: formatTime(), 
+        timestamp: firebase.database.ServerValue.TIMESTAMP 
+      };
+      db.ref("chats").push(payload);
       input.value = ""; input.style.height = 'auto';
       return;
     }
   }
 
-  // Pengiriman Biasa
+  // --- LOGIKA KIRIM BIASA (Jika bukan command) ---
   if (editingMsgId) {
     db.ref(`chats/${editingMsgId}`).update({ text: text, edited: true });
     cancelReplyEdit();
   } else {
-    const payload = { sender: myName, text: text, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP };
+    const payload = { 
+      sender: myName, 
+      text: text, 
+      time: formatTime(), 
+      timestamp: firebase.database.ServerValue.TIMESTAMP 
+    };
     if (replyingTo) payload.replyTo = replyingTo;
     db.ref("chats").push(payload);
     cancelReplyEdit();
   }
   input.value = "";
   input.style.height = 'auto';
-}
-
-// Fungsi pembantu agar kode lebih rapi
-function sendBucinMessage(bucinText) {
-  db.ref("chats").push({
-    sender: myName,
-    text: bucinText,
-    type: 'bucin', // Ini kunci agar CSS pink aktif
-    time: formatTime(),
-    timestamp: firebase.database.ServerValue.TIMESTAMP
-  });
 }
 
    // ==========================================
@@ -1132,7 +1137,6 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
-
 
 
 
