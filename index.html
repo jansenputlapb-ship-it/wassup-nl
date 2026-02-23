@@ -711,24 +711,28 @@ contentHTML = `
       wrapper.dataset.isDeleted = data.isDeletedForEveryone ? "true" : "false";
 
       if (isNew) {
-    const b = document.getElementById('chatBox');
-    setTimeout(() => b.scrollTop = b.scrollHeight, 100);
+    if (isNew) {
+        const b = document.getElementById('chatBox');
+        setTimeout(() => b.scrollTop = b.scrollHeight, 100);
 
-    // --- LOGIKA PEMUTAR SUARA OTOMATIS (COMMAND /SUARA) ---
-    if (data.type === 'suara' && data.audioUrl && allowSfx) {
-      // Putar suara khas jika command /suara digunakan
-      const sfx = new Audio(data.audioUrl);
-      sfx.play().catch(e => console.log("Gagal memutar suara otomatis", e));
-    } 
-    // --- LOGIKA NOTIFIKASI MESEJ MASUK BIASA ---
-    else if (data.sender !== myName && allowSfx) {
-      // Hanya berbunyi jika mesej dihantar oleh pasangan (bukan diri sendiri)
-      // Menggunakan bunyi 'Ding' dari myinstants
-      const notifSound = new Audio("https://www.myinstants.com/media/sounds/piuw.mp3");
-      notifSound.play().catch(e => console.log("Gagal memutar notifikasi", e));
-    }
-  }
-} // <--- Penutup fungsi buildChatUI
+        // --- HITUNG UMUR PESAN ---
+        // Jika data.timestamp tidak ada (pesan sangat lama), anggap saja 0
+        const umurPesan = Date.now() - (data.timestamp || 0);
+
+        // --- HANYA PUTAR SUARA JIKA PESAN BARU (KURANG DARI 5 DETIK) ---
+        if (umurPesan < 5000) {
+            // --- LOGIKA PEMUTAR SUARA OTOMATIS (COMMAND /SUARA) ---
+            if (data.type === 'suara' && data.audioUrl && allowSfx) {
+              const sfx = new Audio(data.audioUrl);
+              sfx.play().catch(e => console.log("Gagal memutar suara otomatis", e));
+            } 
+            // --- LOGIKA NOTIFIKASI MESEJ MASUK BIASA ---
+            else if (data.sender !== myName && allowSfx) {
+              const notifSound = new Audio("https://www.myinstants.com/media/sounds/piuw.mp3");
+              notifSound.play().catch(e => console.log("Gagal memutar notifikasi", e));
+            }
+        }
+      }
 
     function scrollToMsg(id) {
       const el = document.getElementById(`msg-${id}`);
@@ -1251,6 +1255,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
