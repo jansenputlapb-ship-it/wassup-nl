@@ -47,39 +47,61 @@
 
     /* SUB-HEADER & MUSIC PLAYER */
     #dynamicSubHeader { position: relative; background: #ffffff; height: 52px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 950; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .sub-view { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0 16px; transition: var(--trans-smooth); opacity: 0; pointer-events: none; transform: translateY(10px); }
+    .sub-view { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0 12px; transition: var(--trans-smooth); opacity: 0; pointer-events: none; transform: translateY(10px); }
     .sub-view.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
-    /* ANNIVERSARY VIEW DENGAN GOMBALAN & KUPU-KUPU */
-    #anniView { position: relative; display: flex; justify-content: center; align-items: center; width: 100%; overflow: hidden; }
+    /* --- TATA LETAK BARU ANNIVERSARY VIEW --- */
+    #anniView { justify-content: space-between; align-items: center; }
     
-    .timer-center { display: flex; align-items: center; gap: 4px; color: var(--text-muted); font-size: 13px; font-weight: 500; z-index: 2; }
-    .time-badge { background: #f0f2f5; padding: 2px 6px; border-radius: 6px; color: var(--wa-dark); font-family: monospace; font-weight: 700; font-size: 14px; min-width: 28px; text-align: center; }
-    .anni-heart { color: #e91e63; font-size: 13px; animation: heartbeat 1.5s infinite ease-in-out; }
-    
-    .quote-side { position: absolute; top: 0; bottom: 0; width: 22%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--love-pink); text-align: center; opacity: 1; transition: opacity 0.8s ease; z-index: 2; padding: 0 5px; line-height: 1.2; text-transform: capitalize; }
-    .quote-left { left: 0; }
-    .quote-right { right: 0; }
+    /* Area Gombalan (Kiri) */
+    .quote-container { flex: 1; font-size: 11px; font-weight: 700; color: var(--love-pink); text-align: left; opacity: 1; transition: opacity 0.6s ease; z-index: 2; line-height: 1.2; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* ANIMASI KUPU-KUPU */
-    .butterfly-container { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
-    .butterfly { position: absolute; font-size: 14px; opacity: 0; display: flex; align-items: center; justify-content: center; animation: flyPath 6s linear infinite; }
+    /* Area Timer (Kanan) */
+    .timer-right { display: flex; align-items: center; gap: 3px; color: var(--text-muted); font-size: 12px; font-weight: 500; z-index: 2; flex-shrink: 0; }
+    .time-badge { background: #f0f2f5; padding: 2px 5px; border-radius: 5px; color: var(--wa-dark); font-family: monospace; font-weight: 700; font-size: 13px; min-width: 24px; text-align: center; }
+    .anni-heart { color: #e91e63; font-size: 12px; animation: heartbeat 1.5s infinite ease-in-out; margin: 0 2px; }
+    
+    /* --- ANIMASI KUPU-KUPU ALAMI --- */
+    .butterfly-container { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    /* Wrapper untuk gerakan melayang jauh */
+    .bf-wrapper { position: absolute; top: 50%; left: 50%; animation: naturalDrift 18s infinite alternate ease-in-out; }
+    /* Elemen kupu-kupu untuk gerakan getar/flutter */
+    .butterfly { font-size: 14px; display: flex; animation: flutterJitter 3s infinite ease-in-out alternate, fadeInOut 12s infinite linear; }
+    /* Sayap mengepak */
     .bf-flap { display: inline-block; animation: flapWings 0.15s infinite alternate; }
-    .bf-1 { bottom: -5px; left: 15%; animation-duration: 7s; animation-delay: 0s; }
-    .bf-2 { top: 2px; right: 25%; animation-duration: 8s; animation-delay: 2s; }
-    .bf-3 { bottom: 0px; left: 50%; animation-duration: 6s; animation-delay: 4s; }
+
+    /* Variasi setiap kupu-kupu agar tidak seragam */
+    .bf-1 .bf-wrapper { left: 20%; animation-duration: 23s; animation-delay: -5s; }
+    .bf-1 .butterfly { animation-duration: 4s, 15s; font-size: 12px; }
+
+    .bf-2 .bf-wrapper { left: 70%; top: 30%; animation-duration: 19s; animation-delay: -2s; animation-direction: alternate-reverse; }
+    .bf-2 .butterfly { animation-duration: 2.5s, 10s; font-size: 15px; color: #ffb74d; /* Warna beda dikit */ }
+
+    .bf-3 .bf-wrapper { left: 40%; top: 80%; animation-duration: 25s; animation-delay: -10s; }
+    .bf-3 .butterfly { animation-duration: 3.5s, 18s; }
 
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
-    @keyframes flapWings { 0% { transform: scaleX(1); } 100% { transform: scaleX(0.2); } }
-    @keyframes flyPath {
-      0% { transform: translate(0, 0) rotate(15deg); opacity: 0; }
-      10% { opacity: 0.6; }
-      25% { transform: translate(20px, -15px) rotate(-10deg); }
-      50% { transform: translate(40px, 5px) rotate(20deg); }
-      75% { transform: translate(60px, -10px) rotate(-15deg); }
-      90% { opacity: 0.6; }
-      100% { transform: translate(80px, -20px) rotate(10deg); opacity: 0; }
+    @keyframes flapWings { 0% { transform: scaleX(1); } 100% { transform: scaleX(0.3); } }
+    
+    /* Gerakan Melayang Alami (Drift) - Jalur melengkung acak */
+    @keyframes naturalDrift {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(60px, -25px) rotate(5deg); }
+      50% { transform: translate(-40px, 15px) rotate(-5deg); }
+      75% { transform: translate(30px, 35px) rotate(8deg); }
+      100% { transform: translate(-20px, -10px) rotate(-2deg); }
     }
+    /* Gerakan Getar (Flutter) - Simulasi angin */
+    @keyframes flutterJitter {
+       0% { transform: translateY(0) rotateX(0); }
+       25% { transform: translateY(-3px) rotateX(10deg); }
+       50% { transform: translateY(2px) rotateX(-5deg); }
+       75% { transform: translateY(-2px) rotateX(5deg); }
+       100% { transform: translateY(0) rotateX(0); }
+    }
+    /* Muncul dan Hilang Perlahan */
+    @keyframes fadeInOut { 0%, 100% { opacity: 0; } 20%, 80% { opacity: 0.8; } }
+
 
     /* Music Elements */
     #musicView { justify-content: space-between; }
@@ -100,11 +122,7 @@
     .play-pause-btn { background: var(--spot-green); color: white; font-size: 14px; box-shadow: 0 3px 8px rgba(29, 185, 84, 0.3); }
     .play-pause-btn:active { background: #189c46; }
     .stop-btn { color: #e91e63; background: #fce4ec; }
-    
-    /* REPEAT BUTTON AKTIF */
     .active-repeat { color: var(--spot-green) !important; background: rgba(29, 185, 84, 0.15) !important; box-shadow: inset 0 0 0 1px var(--spot-green); }
-
-    /* SPINNER ANIMATION */
     .spinner-icon { display: inline-block; animation: spinLoader 1s linear infinite; font-size: 12px; }
     @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
@@ -130,20 +148,15 @@
     #playlistModal.show { opacity: 1; display: flex; }
     .modal-content { background: white; width: 100%; max-width: 500px; border-top-left-radius: 28px; border-top-right-radius: 28px; padding: 24px 20px; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); max-height: 85vh; display: flex; flex-direction: column; gap: 15px; }
     #playlistModal.show .modal-content { transform: translateY(0); }
-    
     .modal-header { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .modal-header h3 { color: var(--text-main); font-size: 20px; font-weight: 800; }
     .close-modal-btn { background: #f0f2f5; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; color: var(--text-muted); cursor: pointer; transition: var(--trans-smooth); }
-    
-    /* SEARCH BAR DI PLAYLIST */
     .search-bar-wrapper { flex-shrink: 0; position: sticky; top: 0; background: white; z-index: 10; padding-bottom: 10px; border-bottom: 1px solid #f0f2f5; }
     .search-input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e9edef; background: #f9f9f9; font-size: 14px; outline: none; transition: var(--trans-smooth); }
     .search-input:focus { border-color: var(--spot-green); background: white; }
-
     #playlistContainer { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-bottom: 20px; padding-right: 5px; }
     #playlistContainer::-webkit-scrollbar { width: 5px; }
     #playlistContainer::-webkit-scrollbar-thumb { background: #d1d7db; border-radius: 5px; }
-
     .song-item { display: flex; justify-content: space-between; padding: 14px 16px; border-radius: 12px; cursor: pointer; align-items: center; background: white; border: 1px solid transparent; transition: var(--trans-smooth); }
     .song-item:hover { background: #f8f9fa; }
     .song-item:active { transform: scale(0.98); background: #f0f2f5; }
@@ -182,25 +195,23 @@
 
     <div id="dynamicSubHeader">
       <div id="anniView" class="sub-view active">
-        <div class="quote-side quote-left" id="quoteLeft">Miss you</div>
         
         <div class="butterfly-container">
-          <div class="butterfly bf-1"><span class="bf-flap">🦋</span></div>
-          <div class="butterfly bf-2"><span class="bf-flap">🦋</span></div>
-          <div class="butterfly bf-3"><span class="bf-flap">🦋</span></div>
+          <div class="bf-1 bf-wrapper"><div class="butterfly"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-2 bf-wrapper"><div class="butterfly" style="color:#ffb74d;"><span class="bf-flap">🦋</span></div></div>
+          <div class="bf-3 bf-wrapper"><div class="butterfly"><span class="bf-flap">🦋</span></div></div>
         </div>
 
-        <div class="timer-center">
-          <span class="anni-heart">❤️</span>
-          <span style="font-weight:600; font-size:12px; margin-right:2px;">Together:</span>
+        <div class="quote-container" id="dynamicQuote">Loading love...</div>
+
+        <div class="timer-right">
+          <span style="font-size:11px; margin-right:2px;">Together:</span>
           <span class="time-badge" id="daysCount">0</span>
           <span class="time-badge" id="hoursCount">00</span>
           <span class="time-badge" id="minutesCount">00</span>
           <span class="time-badge" id="secondsCount">00</span>
           <span class="anni-heart">❤️</span>
         </div>
-
-        <div class="quote-side quote-right" id="quoteRight">Love You</div>
       </div>
 
       <div id="musicView" class="sub-view">
@@ -269,27 +280,26 @@
     
     // KUMPULAN GOMBALAN ACAK
     const romaticQuotes = [
-      "You're my ✨", "Cintaku 🚀", "Miss you!", "My only 💖",
-      "Duniaku 🌍", "Senyummu = Candu", "Forever yours", "Lucky 2 have u",
-      "Tetap sama aku", "Love u 3000", "My favorite", "Just you & me"
+      "You're my ✨", "Cintaku 🚀", "Miss you everyday", "My only one 💖",
+      "Duniaku cuma kamu 🌍", "Senyummu = Candu", "Forever yours", "Lucky to have you",
+      "Tetap sama aku ya", "Love you 3000", "My favorite person", "Just you & me against world"
     ];
 
     function startRandomQuotes() {
-      const qLeft = document.getElementById('quoteLeft');
-      const qRight = document.getElementById('quoteRight');
-      if(!qLeft || !qRight) return;
+      const quoteEl = document.getElementById('dynamicQuote');
+      if(!quoteEl) return;
       
+      // Set awal
+      quoteEl.innerText = romaticQuotes[Math.floor(Math.random() * romaticQuotes.length)];
+
       setInterval(() => {
-        qLeft.style.opacity = 0; qRight.style.opacity = 0;
+        quoteEl.style.opacity = 0; // Fade out
         setTimeout(() => {
-          let r1 = Math.floor(Math.random() * romaticQuotes.length);
-          let r2 = Math.floor(Math.random() * romaticQuotes.length);
-          while(r1 === r2) r2 = Math.floor(Math.random() * romaticQuotes.length); 
-          
-          qLeft.innerText = romaticQuotes[r1]; qRight.innerText = romaticQuotes[r2];
-          qLeft.style.opacity = 1; qRight.style.opacity = 1;
-        }, 800); 
-      }, 4000); 
+          let r = Math.floor(Math.random() * romaticQuotes.length);
+          quoteEl.innerText = romaticQuotes[r];
+          quoteEl.style.opacity = 1; // Fade in
+        }, 600); 
+      }, 5000); // Ganti setiap 5 detik
     }
     
     // GENERATE 55 LAGU UNTUK SIMULASI UI
