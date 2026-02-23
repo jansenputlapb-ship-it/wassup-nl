@@ -12,6 +12,22 @@
   <script type="module" src="https://unpkg.com/emoji-picker-element@1"></script>
 
   <style>
+
+    #chatInput {
+  flex: 1;
+  border: none;
+  padding: 10px 14px;
+  font-size: 15px;
+  outline: none;
+  background: white;
+  border-radius: 20px;
+  resize: none; /* Menghilangkan handle resize manual */
+  max-height: 120px; /* Batas tinggi maksimal input */
+  overflow-y: auto;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+}
     :root {
       --wa-dark: #008069;
       --wa-light: #00a884;
@@ -339,7 +355,7 @@
         <button class="icon-btn" onclick="document.getElementById('imageUpload').click()" title="Attach Image">📎</button>
         
         <div class="input-wrapper">
-          <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+          <textarea id="chatInput" placeholder="Type a message..." rows="1" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
         </div>
         <button class="send-btn" onclick="sendMessage()">➤</button>
       </div>
@@ -678,9 +694,9 @@ function formatMessageText(text) {
     }
 
     function sendMessage() {
-      const input = document.getElementById('chatInput'); 
-      const text = input.value.trim(); 
-      if(!text) return;
+      const input = document.getElementById('chatInput');
+  const text = input.value.trim(); // Ini akan mengambil semua baris teks
+  if(!text) return;
 
       isTyping = false; clearTimeout(typingTimer); db.ref(`users/${myName}`).update({ state: 'online' });
 
@@ -693,8 +709,21 @@ function formatMessageText(text) {
         db.ref("chats").push(payload);
         cancelReplyEdit();
       }
-      input.value = ""; 
-    }
+      input.value = "";
+  input.style.height = 'auto'; // Reset tinggi textarea setelah kirim
+}
+``` [cite: 1475, 1476]
+
+### Tip Tambahan: Kirim dengan Tombol "Enter"
+Jika ingin menekan **Enter** untuk mengirim dan **Shift + Enter** untuk baris baru (seperti WhatsApp Web), tambahkan kode ini di bagian bawah file **2. tambah cmd.txt**:
+
+```javascript
+document.getElementById('chatInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault(); // Mencegah baris baru saat tekan Enter biasa
+    sendMessage();      // Panggil fungsi kirim
+  }
+});
 
    // ==========================================
     // 6. IMAGE UPLOAD LOGIC
@@ -1016,3 +1045,4 @@ document.getElementById('chatBox').style.paddingBottom = "0";
   </script>
 </body>
 </html>
+
