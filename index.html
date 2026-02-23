@@ -11,77 +11,64 @@
 
   <style>
     :root {
-      --wa-dark: #008069;
-      --wa-light: #00a884;
-      --wa-bg: #efeae2;
-      --wa-chat-me: #d9fdd3;
-      --wa-chat-partner: #ffffff;
-      --spot-green: #1db954;
-      --text-main: #111b21;
-      --text-muted: #667781;
-      --love-pink: #d81b60;
-      --trans-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --wa-dark: #008069; --wa-light: #00a884; --wa-bg: #efeae2;
+      --wa-chat-me: #d9fdd3; --wa-chat-partner: #ffffff;
+      --spot-green: #1db954; --text-main: #111b21; --text-muted: #667781;
+      --love-pink: #d81b60; --trans-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--wa-bg); display: flex; flex-direction: column; height: 100vh; overflow: hidden; color: var(--text-main); }
     
-    /* LOGIN & HEADER (Tetap sama seperti sebelumnya) */
+    /* LOGIN */
     #loginScreen { position: fixed; inset: 0; background: var(--wa-bg); display: flex; align-items: center; justify-content: center; z-index: 10000; transition: var(--trans-smooth); }
     .login-box { background: white; padding: 40px 30px; border-radius: 24px; text-align: center; width: 90%; max-width: 360px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 15px; }
-    .login-box h2 { color: var(--wa-dark); font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .login-box h2 { color: var(--wa-dark); font-size: 26px; font-weight: 800; }
     .login-box p { color: var(--text-muted); font-size: 14px; margin-top: -10px; margin-bottom: 10px; }
-    .login-box input { width: 100%; padding: 16px; border-radius: 14px; border: 2px solid #e9edef; text-align: center; outline: none; font-size: 16px; font-weight: bold; letter-spacing: 2px; transition: var(--trans-smooth); color: var(--wa-dark); background: #f0f2f5; }
+    .login-box input { width: 100%; padding: 16px; border-radius: 14px; border: 2px solid #e9edef; text-align: center; outline: none; font-size: 16px; font-weight: bold; letter-spacing: 2px; background: #f0f2f5; }
     .login-box input:focus { border-color: var(--wa-light); background: #fff; box-shadow: 0 0 0 4px rgba(0,168,132,0.1); }
-    .login-box button { width: 100%; padding: 16px; background: var(--wa-dark); color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 16px; cursor: pointer; transition: var(--trans-smooth); }
-    .login-box button:active { transform: scale(0.97); background: var(--wa-light); }
-    #errorMsg { color:#e91e63; font-size:13px; font-weight:bold; display:none; padding-top: 5px; }
+    .login-box button { width: 100%; padding: 16px; background: var(--wa-dark); color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 16px; cursor: pointer; }
+    #errorMsg { color:#e91e63; font-size:13px; font-weight:bold; display:none; }
 
+    /* HEADER & STATUS */
     header { background: var(--wa-dark); color: white; padding: 12px 16px; display: flex; align-items: center; gap: 14px; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    #headerAvatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #fff; border: 2px solid rgba(255,255,255,0.2); }
-    .header-info { display: flex; flex-direction: column; justify-content: center; flex: 1; overflow: hidden; }
-    .header-name { font-size: 17px; font-weight: 600; line-height: 1.2; letter-spacing: 0.2px; }
-    .header-status { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.8); line-height: 1.4; padding-bottom: 2px; }
-    .action-btn { background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 50%; border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--trans-smooth); }
+    #headerAvatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #fff; }
+    .header-info { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+    .header-name { font-size: 17px; font-weight: 600; }
+    .header-status { font-size: 13px; color: rgba(255,255,255,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .action-btn { background: rgba(255,255,255,0.15); width: 40px; height: 40px; border-radius: 50%; border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--trans-smooth); }
+    .action-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.9); }
 
-    /* SUB-HEADER (Timer & Music - Tetap presisi) */
+    /* SUB-HEADER (Timer & Music) */
     #dynamicSubHeader { position: relative; background: #ffffff; height: 52px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 950; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .sub-view { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; padding: 0 20px 0 16px; transition: var(--trans-smooth); opacity: 0; pointer-events: none; transform: translateY(10px); }
     .sub-view.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
     
-    #anniView { justify-content: flex-start; align-items: center; gap: 15px; padding: 0 16px; } 
-    .timer-left { display: flex; align-items: center; gap: 5px; z-index: 2; flex-shrink: 0; }
-    .anni-heart { color: #e91e63; font-size: 14px; animation: heartbeat 1.5s infinite ease-in-out; margin-right: 2px; }
-    .time-block { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+    #anniView { justify-content: flex-start; gap: 15px; } 
+    .timer-left { display: flex; align-items: center; gap: 5px; }
+    .time-block { display: flex; flex-direction: column; align-items: center; gap: 1px; }
     .time-label { font-size: 8px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-    .time-badge { background: #f0f2f5; padding: 2px 4px; border-radius: 4px; color: var(--wa-dark); font-family: monospace; font-weight: 700; font-size: 13px; min-width: 22px; text-align: center; }
-    .quote-right { flex: 1; font-size: 11px; font-weight: 600; color: var(--love-pink); text-align: justify; z-index: 2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding-left: 5px; border-left: 1px solid rgba(0,0,0,0.05); transition: opacity 0.6s ease; }
+    .time-badge { background: #f0f2f5; padding: 2px 4px; border-radius: 4px; color: var(--wa-dark); font-weight: 700; font-size: 13px; min-width: 22px; text-align: center; }
     
-    /* MUSIC VIEW */
     #musicView { justify-content: space-between; }
     .music-left { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; }
-    .music-cover { min-width: 36px; height: 36px; border-radius: 6px; background: linear-gradient(135deg, var(--spot-green), var(--wa-dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; transition: border-radius 0.5s ease; animation: spinDisk 5s linear infinite; animation-play-state: paused; }
-    .music-cover.playing { border-radius: 50%; animation-play-state: running; }
-    .music-cover.loading-pulse { animation: bufferingPulse 1s infinite alternate; border-radius: 6px; }
+    .music-cover { min-width: 36px; height: 36px; border-radius: 6px; background: linear-gradient(135deg, var(--spot-green), var(--wa-dark)); display: flex; align-items: center; justify-content: center; color: white; transition: border-radius 0.5s ease; }
+    .music-cover.playing { border-radius: 50%; animation: spinDisk 4s linear infinite; }
     .music-text { display: flex; flex-direction: column; overflow: hidden; justify-content: center; }
-    .music-label { font-size: 9px; font-weight: 800; color: var(--spot-green); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1px; }
-    .music-title { font-size: 13px; font-weight: 700; color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-    .player-controls { display: flex; align-items: center; gap: 8px; }
-    .ctrl-btn { background: #f0f2f5; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; line-height: 0; }
-    .play-pause-btn { background: var(--spot-green); color: white; font-size: 14px; }
-    .stop-btn { color: #e91e63; background: #fce4ec; }
-    .active-repeat { color: var(--spot-green) !important; background: rgba(29, 185, 84, 0.15) !important; }
-    .spinner-icon { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; animation: spinLoader 1s linear infinite; }
-    
-    @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
-    @keyframes spinDisk { 100% { transform: rotate(360deg); } }
-    @keyframes spinLoader { 100% { transform: rotate(360deg); } }
-    @keyframes bufferingPulse { 0% { opacity: 0.5; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
+    .music-label { font-size: 9px; font-weight: 800; color: var(--spot-green); letter-spacing: 1px; text-transform: uppercase; }
+    .music-title { font-size: 13px; font-weight: 700; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+    .player-controls { display: flex; gap: 8px; }
+    .ctrl-btn { background: #f0f2f5; border: none; color: var(--text-muted); cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .play-pause-btn { background: var(--spot-green); color: white; }
 
-    /* CHAT AREA WA STYLE */
+    @keyframes spinDisk { 100% { transform: rotate(360deg); } }
+
+    /* CHAT AREA */
     main { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; position: relative; }
     .msg-wrapper { display: flex; flex-direction: column; width: 100%; position: relative; }
-    .message { max-width: 82%; padding: 6px 8px 6px 10px; border-radius: 12px; font-size: 14.5px; line-height: 1.4; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .message { max-width: 82%; padding: 6px 8px 6px 10px; border-radius: 12px; font-size: 14.5px; line-height: 1.4; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); cursor: pointer; }
+    
+    /* ALIGNMENT FIXES */
     .msg-me { background: var(--wa-chat-me); align-self: flex-end; border-top-right-radius: 0; }
     .msg-partner { background: var(--wa-chat-partner); align-self: flex-start; border-top-left-radius: 0; }
     .msg-system { background: rgba(0,0,0,0.06); color: var(--text-muted); align-self: center; text-align: center; font-size: 12px; padding: 6px 16px; border-radius: 16px; font-weight: 600; margin: 8px 0; }
@@ -91,43 +78,40 @@
     .msg-meta { display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: -2px; }
     .time-stamp { font-size: 10px; color: rgba(0,0,0,0.45); }
     .edited-label { font-size: 10px; color: rgba(0,0,0,0.45); font-style: italic; }
-    .deleted-text { font-style: italic; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+    .deleted-text { font-style: italic; color: var(--text-muted); }
 
-    /* QUOTE/REPLY UI DALAM CHAT */
-    .msg-quote { background: rgba(0,0,0,0.05); border-left: 4px solid var(--wa-light); padding: 6px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; }
+    /* QUOTE/REPLY UI */
+    .msg-quote { background: rgba(0,0,0,0.05); border-left: 4px solid var(--wa-light); padding: 6px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); }
     .msg-me .msg-quote { background: rgba(0, 128, 105, 0.08); border-left-color: #006c5b; }
     .quote-sender { font-weight: bold; color: var(--wa-light); font-size: 12px; margin-bottom: 2px; }
     .msg-me .quote-sender { color: #006c5b; }
-    .quote-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+    .quote-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    /* MENU PANAH KANAN CHAT */
+    /* ARROW & REACTION BADGE */
     .msg-arrow { position: absolute; top: 0; right: 0; padding: 8px; opacity: 0; transition: opacity 0.2s; color: rgba(0,0,0,0.3); font-size: 16px; cursor: pointer; background: linear-gradient(90deg, transparent, var(--wa-chat-partner) 40%); border-top-right-radius: 12px; }
     .msg-me .msg-arrow { background: linear-gradient(90deg, transparent, var(--wa-chat-me) 40%); }
     .msg-wrapper:hover .msg-arrow { opacity: 1; }
-    
-    /* REACTION BADGE */
-    .reaction-badge { position: absolute; bottom: -12px; right: 10px; background: white; border: 1px solid #ddd; border-radius: 16px; padding: 2px 6px; font-size: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 2; display: flex; gap: 2px; }
+    .reaction-badge { position: absolute; bottom: -12px; right: 10px; background: white; border: 1px solid #ddd; border-radius: 16px; padding: 2px 6px; font-size: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 2; }
     .msg-me .reaction-badge { right: auto; left: 10px; }
 
     /* OVERLAY CONTEXT MENU & REACTION PICKER */
     #actionOverlay { position: fixed; inset: 0; z-index: 8000; display: none; }
     .context-menu { position: absolute; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 8px; width: 160px; z-index: 8001; overflow: hidden; transform: scale(0.9); opacity: 0; transition: var(--trans-smooth); }
     .context-menu.show { transform: scale(1); opacity: 1; }
-    .menu-item { padding: 12px 16px; font-size: 14px; color: var(--text-main); cursor: pointer; transition: background 0.2s; }
+    .menu-item { padding: 12px 16px; font-size: 14px; cursor: pointer; }
     .menu-item:hover { background: #f0f2f5; }
     .menu-item.danger { color: #e91e63; }
 
-    .reaction-picker { position: absolute; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 24px; padding: 8px 12px; display: flex; gap: 12px; z-index: 8001; transform: translateY(10px); opacity: 0; transition: var(--trans-smooth); }
-    .reaction-picker.show { transform: translateY(0); opacity: 1; }
-    .react-emoji { font-size: 22px; cursor: pointer; transition: transform 0.2s; line-height: 1; }
+    .reaction-picker { position: absolute; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 24px; padding: 8px 12px; display: flex; gap: 12px; z-index: 8001; opacity: 0; transition: var(--trans-smooth); }
+    .reaction-picker.show { opacity: 1; }
+    .react-emoji { font-size: 22px; cursor: pointer; transition: transform 0.2s; }
     .react-emoji:hover { transform: scale(1.3); }
-    .react-plus { background: #f0f2f5; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: bold; font-size: 16px; cursor: pointer; }
+    .react-plus { background: #f0f2f5; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
 
-    /* FULL EMOJI PICKER CONTAINER */
     #fullEmojiContainer { position: fixed; bottom: 80px; left: 10px; right: 10px; height: 350px; z-index: 9000; display: none; box-shadow: 0 5px 20px rgba(0,0,0,0.2); border-radius: 12px; overflow: hidden; background: white; }
 
     /* REPLY PREVIEW DI ATAS INPUT */
-    #replyPreviewBox { background: #f0f2f5; border-left: 4px solid var(--wa-light); padding: 8px 12px 8px 12px; margin: 0 16px 0 16px; border-top-left-radius: 8px; border-top-right-radius: 8px; display: none; position: relative; z-index: 900; box-shadow: 0 -2px 5px rgba(0,0,0,0.02); }
+    #replyPreviewBox { background: #f0f2f5; border-left: 4px solid var(--wa-light); padding: 8px 12px; margin: 0 16px; border-top-left-radius: 8px; border-top-right-radius: 8px; display: none; position: relative; z-index: 900; box-shadow: 0 -2px 5px rgba(0,0,0,0.02); }
     .reply-preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .reply-preview-name { font-weight: bold; font-size: 13px; color: var(--wa-light); }
     .reply-preview-close { color: var(--text-muted); cursor: pointer; font-size: 16px; font-weight: bold; line-height: 1; }
@@ -138,34 +122,31 @@
     footer { background: var(--wa-bg); padding: 8px 16px 12px 16px; display: flex; flex-direction: column; z-index: 1000; box-shadow: 0 -1px 2px rgba(0,0,0,0.05); }
     .input-row { display: flex; gap: 10px; align-items: flex-end; }
     .input-wrapper { flex: 1; background: white; border-radius: 24px; padding: 10px 16px; display: flex; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); min-height: 48px; }
-    .input-wrapper input { width: 100%; border: none; outline: none; font-size: 15px; background: transparent; color: var(--text-main); }
-    .send-btn { background: var(--wa-dark); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 5px rgba(0,128,105,0.3); flex-shrink: 0; transition: var(--trans-smooth); }
+    .input-wrapper input { width: 100%; border: none; outline: none; font-size: 15px; background: transparent; }
+    .send-btn { background: var(--wa-dark); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 18px; box-shadow: 0 2px 5px rgba(0,128,105,0.3); flex-shrink: 0; transition: var(--trans-smooth); }
     .send-btn:active { transform: scale(0.9); }
 
-    /* DELETE MODAL (WA STYLE) */
+    /* DELETE & PLAYLIST MODALS */
     #deleteModal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
-    .del-modal-box { background: white; width: 85%; max-width: 320px; border-radius: 3px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.2s; display: flex; flex-direction: column; gap: 15px; }
-    .del-modal-box span { font-size: 15px; color: var(--text-main); }
+    .del-modal-box { background: white; width: 85%; max-width: 320px; border-radius: 3px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 15px; }
     .del-actions { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-top: 10px; }
-    .del-btn { background: transparent; border: none; padding: 10px 15px; font-size: 14px; font-weight: 600; color: var(--wa-dark); cursor: pointer; text-align: right; text-transform: uppercase; letter-spacing: 0.5px; }
-    .del-btn:hover { background: rgba(0,0,0,0.05); }
+    .del-btn { background: transparent; border: none; padding: 10px 15px; font-size: 14px; font-weight: 600; color: var(--wa-dark); cursor: pointer; text-align: right; text-transform: uppercase; }
 
-    /* PLAYLIST MODAL */
-    #playlistModal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); display: none; align-items: flex-end; justify-content: center; z-index: 5000; opacity: 0; transition: opacity 0.3s ease; }
+    #playlistModal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: flex-end; justify-content: center; z-index: 5000; opacity: 0; transition: opacity 0.3s ease; }
     #playlistModal.show { opacity: 1; display: flex; }
-    .modal-content { background: white; width: 100%; max-width: 500px; border-top-left-radius: 28px; border-top-right-radius: 28px; padding: 24px 20px; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); max-height: 85vh; display: flex; flex-direction: column; gap: 15px; }
+    .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 28px 28px 0 0; padding: 24px 20px; transform: translateY(100%); transition: transform 0.4s; height: 80vh; display: flex; flex-direction: column; gap: 15px; }
     #playlistModal.show .modal-content { transform: translateY(0); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; }
     .modal-header h3 { font-size: 20px; font-weight: 800; }
-    .close-modal-btn { background: #f0f2f5; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .search-input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e9edef; background: #f9f9f9; font-size: 14px; outline: none; }
-    #playlistContainer { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-bottom: 20px; }
-    .song-item { display: flex; justify-content: space-between; padding: 14px 16px; border-radius: 12px; cursor: pointer; background: white; }
+    .close-modal-btn { background: #f0f2f5; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
+    .song-item { display: flex; justify-content: space-between; padding: 14px 16px; border-radius: 12px; cursor: pointer; background: #f9f9f9; margin-bottom: 6px; }
     .song-item-title { font-size: 15px; font-weight: 700; }
-    .song-item-artist { font-size: 12px; color: var(--text-muted); }
 
-    #customToast { visibility: hidden; position: fixed; top: 80px; left: 50%; transform: translate(-50%, -20px); background: rgba(17, 27, 33, 0.9); color: white; padding: 10px 20px; border-radius: 30px; z-index: 10000; font-size: 13px; opacity: 0; transition: var(--trans-smooth); }
-    #customToast.show { visibility: visible; opacity: 1; transform: translate(-50%, 0); }
+    /* BUTTERFLIES */
+    #butterflies { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; display: none; }
+    .butterfly { position: absolute; bottom: -50px; font-size: 24px; animation: flyUp 6s linear forwards, flutter 0.4s infinite alternate; opacity: 0.8; }
+    @keyframes flyUp { to { transform: translateY(-120vh) translateX(50px) rotate(15deg); opacity: 0; } }
+    @keyframes flutter { from { transform: scaleX(1); } to { transform: scaleX(0.3); } }
   </style>
 </head>
 <body>
@@ -176,7 +157,7 @@
       <p>Enter our private space</p>
       <input type="password" id="inputCode" placeholder="Secret Code" onkeypress="if(event.key==='Enter') doLogin()">
       <button onclick="doLogin()">Enter Now</button>
-      <div id="errorMsg">Oops! Wrong code. Try 123456 or 654321!</div>
+      <div id="errorMsg">Wrong code!</div>
     </div>
   </div>
 
@@ -185,34 +166,33 @@
       <img id="headerAvatar" src="">
       <div class="header-info">
         <div class="header-name" id="partnerNameDisplay">Partner</div>
-        <div class="header-status" id="partnerStatusDisplay">waiting...</div>
+        <div class="header-status" id="partnerStatusDisplay">Menunggu...</div>
       </div>
-      <button class="action-btn" onclick="openPlaylist()">🎧</button>
+      <button class="action-btn" onclick="openPlaylist()">🎵</button>
     </header>
 
     <div id="dynamicSubHeader">
       <div id="anniView" class="sub-view active">
         <div class="timer-left">
-          <span class="anni-heart">❤️</span>
+          <span style="color:#e91e63">❤️</span>
           <div class="time-block"><span class="time-label">Days</span><span class="time-badge" id="daysCount">0</span></div>
           <div class="time-block"><span class="time-label">Hrs</span><span class="time-badge" id="hoursCount">00</span></div>
           <div class="time-block"><span class="time-label">Mins</span><span class="time-badge" id="minutesCount">00</span></div>
           <div class="time-block"><span class="time-label">Secs</span><span class="time-badge" id="secondsCount">00</span></div>
         </div>
-        <div class="quote-right" id="dynamicQuote">Loading love sentences...</div>
       </div>
       <div id="musicView" class="sub-view">
         <div class="music-left">
           <div class="music-cover" id="diskCover">🎵</div>
-          <div class="music-text"><span class="music-label">Now Playing</span><span class="music-title" id="musicTitleDisplay">Title</span></div>
+          <div class="music-text"><span class="music-label">Now Playing</span><span class="music-title" id="musicTitleDisplay">Loading...</span></div>
         </div>
         <div class="player-controls">
-          <button class="ctrl-btn" id="btnPlayPause" onclick="togglePlayPause()">⏸</button>
-          <button class="ctrl-btn stop-btn" onclick="stopMusicBroadcast()">✖</button>
+          <button class="ctrl-btn play-pause-btn" id="btnPlayPause" onclick="togglePlayPause()">▶</button>
+          <button class="ctrl-btn" onclick="stopMusicBroadcast()" style="color:#e91e63">✖</button>
         </div>
       </div>
     </div>
-    <audio id="audioPlayer" preload="auto"></audio>
+    <audio id="audioPlayer"></audio>
 
     <main id="chatBox">
       <div class="msg-system">🔒 End-to-End Encrypted</div>
@@ -230,7 +210,7 @@
     <footer>
       <div class="input-row">
         <div class="input-wrapper">
-          <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+          <input type="text" id="chatInput" placeholder="Ketik pesan..." onkeypress="handleTyping(); if(event.key==='Enter') sendMessage();">
         </div>
         <button class="send-btn" onclick="sendMessage()">➤</button>
       </div>
@@ -238,14 +218,12 @@
   </div>
 
   <div id="actionOverlay" onclick="closeAllMenus()"></div>
-  
   <div class="context-menu" id="msgContextMenu">
     <div class="menu-item" onclick="handleMenuAction('reply')">↩️ Reply</div>
     <div class="menu-item" id="menuEdit" onclick="handleMenuAction('edit')">✏️ Edit</div>
     <div class="menu-item" onclick="handleMenuAction('copy')">📋 Copy</div>
     <div class="menu-item danger" onclick="handleMenuAction('delete')">🗑️ Delete</div>
   </div>
-
   <div class="reaction-picker" id="msgReactionPicker">
     <span class="react-emoji" onclick="sendReaction('👍')">👍</span>
     <span class="react-emoji" onclick="sendReaction('❤️')">❤️</span>
@@ -255,30 +233,34 @@
     <span class="react-emoji" onclick="sendReaction('🙏')">🙏</span>
     <div class="react-plus" onclick="openFullEmoji()">+</div>
   </div>
-
-  <div id="fullEmojiContainer">
-    <emoji-picker></emoji-picker>
-  </div>
+  <div id="fullEmojiContainer"><emoji-picker></emoji-picker></div>
 
   <div id="deleteModal" onclick="closeDeleteModal()">
     <div class="del-modal-box" onclick="event.stopPropagation()">
-      <span>Delete message?</span>
+      <span>Hapus pesan ini?</span>
       <div class="del-actions">
-        <button class="del-btn" onclick="executeDelete('me')">Delete for me</button>
-        <button class="del-btn" id="btnDeleteEveryone" onclick="executeDelete('everyone')">Delete for everyone</button>
-        <button class="del-btn" onclick="closeDeleteModal()">Cancel</button>
+        <button class="del-btn" onclick="executeDelete('me')">Hapus untuk Saya</button>
+        <button class="del-btn" id="btnDeleteEveryone" onclick="executeDelete('everyone')">Hapus untuk Semua</button>
+        <button class="del-btn" onclick="closeDeleteModal()">Batal</button>
       </div>
     </div>
   </div>
 
-  <div id="playlistModal" onclick="closeModal(event)">
+  <div id="playlistModal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header"><h3>Playlist 🎶</h3><button class="close-modal-btn" onclick="closeModal(null, true)">✖</button></div>
-      <input type="text" id="searchSong" class="search-input" placeholder="Search song..." onkeyup="filterPlaylist()">
-      <div id="playlistContainer"></div>
+      <div class="modal-header"><h3>Playlist 🎶</h3><button class="close-modal-btn" onclick="closeModal()">✖</button></div>
+      <div style="flex:1; overflow-y:auto; margin-top:10px;">
+        <div class="song-item" onclick="playMusic('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Kenangan Kita Vol.1')">
+          <div class="song-item-title">Kenangan Kita Vol.1</div><div>▶️</div>
+        </div>
+        <div class="song-item" onclick="playMusic('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Lagu Spesial')">
+          <div class="song-item-title">Lagu Spesial</div><div>▶️</div>
+        </div>
+      </div>
     </div>
   </div>
-  <div id="customToast"></div>
+
+  <div id="butterflies"></div>
 
   <script>
     // FIREBASE SETUP
@@ -286,18 +268,15 @@
       apiKey: "AIzaSyBiZ5Npq09AYDi9yTbYv5iYSrj9r5BCgxc", authDomain: "wassup-nl.firebaseapp.com",
       databaseURL: "https://wassup-nl-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "wassup-nl"
     };
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let myName = ""; let partnerName = "";
-    let activeMsgId = null; // ID pesan yg sedang dipilih (di-klik/hover menu)
-    let replyingTo = null;  // Objek pesan yg akan dibalas
-    let editingMsgId = null; // ID pesan yg sedang diedit
+    let activeMsgId = null; let replyingTo = null; let editingMsgId = null;
+    let typingTimer;
 
-    // WAKTU JADIAN
-    const TANGGAL_JADIAN = "2025-07-30T00:00:00"; 
-    
-    // LOGIN
+    const TANGGAL_JADIAN = "2025-07-30T00:00:00";
+
     function doLogin() {
       const code = document.getElementById('inputCode').value.trim();
       const users = { "123456": { name: "BoyName", partner: "GirlName", role: "cowok" }, "654321": { name: "GirlName", partner: "BoyName", role: "cewek" } };
@@ -310,40 +289,129 @@
         document.getElementById('loginScreen').style.opacity = '0';
         setTimeout(() => { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('appScreen').style.display = 'flex'; }, 300);
         
-        startAnniversaryCounter(); initChatSync();
+        startAnniversaryCounter(); 
+        initPresence(); // Kembalikan Presence
+        initMusicSync(); // Kembalikan Musik
+        initChatSync();
       } else {
         document.getElementById('errorMsg').style.display = 'block';
       }
     }
 
-    // UTILS
-    function formatTime() { const d = new Date(); return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`; }
-    function showToast(msg) { const t = document.getElementById('customToast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+    // ==========================================
+    // PRESENCE (ONLINE/OFFLINE/TYPING) KEMBALI
+    // ==========================================
+    function initPresence() {
+      const myStatusRef = db.ref('presence/' + myName);
+      const partnerStatusRef = db.ref('presence/' + partnerName);
 
-    // ANNIVERSARY
-    function startAnniversaryCounter() {
-      function update() {
-        const diff = new Date().getTime() - new Date(TANGGAL_JADIAN).getTime();
-        if (diff < 0) return; 
-        document.getElementById('daysCount').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
-        document.getElementById('hoursCount').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
-        document.getElementById('minutesCount').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-        document.getElementById('secondsCount').innerText = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
-      }
-      update(); setInterval(update, 1000); 
+      db.ref('.info/connected').on('value', snap => {
+        if (snap.val() === false) return;
+        myStatusRef.onDisconnect().set({ status: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP });
+        myStatusRef.set({ status: 'online', last_changed: firebase.database.ServerValue.TIMESTAMP });
+      });
+
+      // AFK logic
+      let afkTimer;
+      document.onmousemove = document.onkeypress = document.ontouchstart = () => {
+        myStatusRef.update({ status: 'online' });
+        clearTimeout(afkTimer);
+        afkTimer = setTimeout(() => myStatusRef.update({ status: 'afk' }), 60000); // 1 Menit diam = AFK
+      };
+
+      // Pantau Partner
+      partnerStatusRef.on('value', snap => {
+        const data = snap.val();
+        const display = document.getElementById('partnerStatusDisplay');
+        if (!data) { display.innerText = "offline"; return; }
+        
+        if (data.status === 'typing') display.innerText = "sedang mengetik...";
+        else if (data.status === 'online') display.innerText = "Online";
+        else if (data.status === 'afk') {
+          const time = new Date(data.last_changed).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          display.innerText = "AFK sejak pukul " + time;
+        } else {
+          display.innerText = "Offline";
+        }
+      });
+    }
+
+    function handleTyping() {
+      db.ref('presence/' + myName).update({ status: 'typing' });
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => { db.ref('presence/' + myName).update({ status: 'online' }); }, 2000);
     }
 
     // ==========================================
-    // CHAT ENGINE (RENDER REAL-TIME)
+    // MUSIC & BUTTERFLIES KEMBALI
+    // ==========================================
+    const audio = document.getElementById('audioPlayer');
+    
+    function initMusicSync() {
+      db.ref('music_sync').on('value', snap => {
+        const data = snap.val();
+        if (data && data.isPlaying) {
+          document.getElementById('anniView').classList.remove('active');
+          document.getElementById('musicView').classList.add('active');
+          document.getElementById('musicTitleDisplay').innerText = data.title || "Lagu Kenangan";
+          
+          if (audio.src !== data.url) { audio.src = data.url; audio.currentTime = data.timestamp; }
+          audio.play().catch(e => console.log("Auto-play diblokir browser, ketuk layar untuk play"));
+          
+          document.getElementById('btnPlayPause').innerText = "⏸";
+          document.getElementById('diskCover').classList.add('playing');
+          showButterflies(true);
+        } else {
+          document.getElementById('musicView').classList.remove('active');
+          document.getElementById('anniView').classList.add('active');
+          audio.pause();
+          document.getElementById('diskCover').classList.remove('playing');
+          showButterflies(false);
+        }
+      });
+    }
+
+    function playMusic(url, title) {
+      db.ref('music_sync').set({ url: url, title: title, isPlaying: true, timestamp: 0 });
+      closeModal();
+    }
+    function togglePlayPause() {
+      const isPlaying = !audio.paused;
+      db.ref('music_sync').update({ isPlaying: !isPlaying, timestamp: audio.currentTime });
+    }
+    function stopMusicBroadcast() { db.ref('music_sync').set({ isPlaying: false }); }
+    
+    function showButterflies(show) {
+      const container = document.getElementById('butterflies');
+      container.style.display = show ? 'block' : 'none';
+      if(show && container.innerHTML === "") {
+        setInterval(() => {
+          if(container.style.display === 'none') return;
+          const b = document.createElement('div');
+          b.className = 'butterfly';
+          b.innerText = ['🦋','✨','💖'][Math.floor(Math.random()*3)];
+          b.style.left = Math.random() * 90 + 'vw';
+          container.appendChild(b);
+          setTimeout(() => b.remove(), 6000);
+        }, 1500);
+      }
+    }
+
+    function openPlaylist() { document.getElementById('playlistModal').classList.add('show'); }
+    function closeModal() { document.getElementById('playlistModal').classList.remove('show'); }
+
+    // ==========================================
+    // CHAT ENGINE DENGAN PERBAIKAN ALIGNMENT & MENU POTONG
     // ==========================================
     function initChatSync() {
       db.ref("chats").limitToLast(100).on("child_added", snap => buildChatUI(snap.key, snap.val()));
       db.ref("chats").on("child_changed", snap => buildChatUI(snap.key, snap.val()));
     }
 
+    function formatTime() { const d = new Date(); return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`; }
+
     function buildChatUI(id, data) {
-      if (!data) return;
-      // Cek Delete For Me
+      if (!data || !data.sender) return; // Lindungi dari data undefined lawas
       if (data.deletedForMe && data.deletedForMe[myName]) {
         const el = document.getElementById(`msg-${id}`);
         if(el) el.remove();
@@ -360,38 +428,19 @@
         document.getElementById('chatBox').appendChild(wrapper);
       }
 
+      // Fix Alignment: Selalu bandingkan dengan myName persis
       const isMe = data.sender === myName;
       let contentHTML = "";
 
-      // Cek Delete For Everyone
       if (data.isDeletedForEveryone) {
         contentHTML = `
           <div class="message ${isMe ? 'msg-me' : 'msg-partner'}" onclick="openReactionPicker(event, '${id}')">
-            <div class="msg-content">
-              <span class="deleted-text">🚫 This message was deleted</span>
-              <div class="msg-meta"><span class="time-stamp">${data.time}</span></div>
-            </div>
+            <div class="msg-content"><span class="deleted-text">🚫 Pesan ini telah dihapus</span><div class="msg-meta"><span class="time-stamp">${data.time}</span></div></div>
           </div>`;
       } else {
-        // Build Reply Quote Block
-        let quoteHTML = "";
-        if (data.replyTo) {
-          quoteHTML = `
-            <div class="msg-quote" onclick="scrollToMsg('${data.replyTo.id}')">
-              <div class="quote-sender">${data.replyTo.sender === myName ? 'You' : data.replyTo.sender}</div>
-              <div class="quote-text">${data.replyTo.text}</div>
-            </div>`;
-        }
-
-        // Build Reactions
-        let reactHTML = "";
-        if (data.reactions) {
-          let rIcons = Object.values(data.reactions).join("");
-          if(rIcons.length > 0) reactHTML = `<div class="reaction-badge">${rIcons}</div>`;
-        }
-
-        // Edited Label
-        const editedStr = data.edited ? `<span class="edited-label">Edited</span>` : "";
+        let quoteHTML = data.replyTo ? `<div class="msg-quote" onclick="scrollToMsg('${data.replyTo.id}')"><div class="quote-sender">${data.replyTo.sender === myName ? 'You' : data.replyTo.sender}</div><div class="quote-text">${data.replyTo.text}</div></div>` : "";
+        let reactHTML = data.reactions ? `<div class="reaction-badge">${Object.values(data.reactions).join("")}</div>` : "";
+        const editedStr = data.edited ? `<span class="edited-label">Diedit</span>` : "";
 
         contentHTML = `
           <div class="message ${isMe ? 'msg-me' : 'msg-partner'}">
@@ -402,14 +451,10 @@
             </div>
             <div class="msg-arrow" onclick="openContextMenu(event, '${id}', ${isMe})">⌄</div>
             ${reactHTML}
-          </div>
-        `;
+          </div>`;
         
-        // Klik di manapun di area message untuk REACTION
         wrapper.onclick = (e) => {
-          if (!e.target.classList.contains('msg-arrow') && !e.target.closest('.msg-quote')) {
-            openReactionPicker(e, id);
-          }
+          if (!e.target.classList.contains('msg-arrow') && !e.target.closest('.msg-quote')) openReactionPicker(e, id);
         };
       }
 
@@ -424,18 +469,6 @@
       }
     }
 
-    function scrollToMsg(id) {
-      const el = document.getElementById(`msg-${id}`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.firstElementChild.style.background = "rgba(0,168,132,0.3)";
-        setTimeout(() => el.firstElementChild.style.background = "", 1000);
-      }
-    }
-
-    // ==========================================
-    // SEND / EDIT PESAN
-    // ==========================================
     function sendMessage() {
       const input = document.getElementById('chatInput'); 
       const text = input.value.trim(); 
@@ -446,7 +479,7 @@
         cancelReplyEdit();
       } else {
         const payload = { sender: myName, text: text, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP };
-        if (replyingTo) { payload.replyTo = replyingTo; }
+        if (replyingTo) payload.replyTo = replyingTo;
         db.ref("chats").push(payload);
         cancelReplyEdit();
       }
@@ -454,25 +487,28 @@
     }
 
     // ==========================================
-    // MENUS & ACTIONS (REPLY, EDIT, DELETE)
+    // FIX MENU TERPOTONG (SMART POSITIONING)
     // ==========================================
     function openContextMenu(e, id, isMe) {
-      e.stopPropagation();
-      activeMsgId = id;
+      e.stopPropagation(); activeMsgId = id;
       const overlay = document.getElementById('actionOverlay');
       const menu = document.getElementById('msgContextMenu');
       const wrapper = document.getElementById(`msg-${id}`);
-      
-      if (wrapper.dataset.isDeleted === "true") return; // Gak bisa diapa2in klo udah dihapus
+      if (wrapper.dataset.isDeleted === "true") return;
 
       document.getElementById('menuEdit').style.display = isMe ? 'block' : 'none';
       document.getElementById('btnDeleteEveryone').style.display = isMe ? 'block' : 'none';
-
-      overlay.style.display = 'block';
-      menu.style.display = 'block';
+      overlay.style.display = 'block'; menu.style.display = 'block';
       
       const rect = e.target.getBoundingClientRect();
-      menu.style.top = `${rect.bottom + 5}px`;
+      const menuHeight = 160; // Estimasi tinggi menu
+      
+      // Jika di bawah layar, buka ke atas
+      if (rect.bottom + menuHeight > window.innerHeight - 60) {
+        menu.style.top = `${rect.top - menuHeight}px`;
+      } else {
+        menu.style.top = `${rect.bottom + 5}px`;
+      }
       
       if (isMe) { menu.style.right = `${window.innerWidth - rect.right}px`; menu.style.left = 'auto'; } 
       else { menu.style.left = `${rect.left}px`; menu.style.right = 'auto'; }
@@ -481,19 +517,21 @@
     }
 
     function openReactionPicker(e, id) {
-      e.stopPropagation();
-      activeMsgId = id;
+      e.stopPropagation(); activeMsgId = id;
       const wrapper = document.getElementById(`msg-${id}`);
       if (wrapper.dataset.isDeleted === "true") return;
 
       const overlay = document.getElementById('actionOverlay');
       const picker = document.getElementById('msgReactionPicker');
-      
-      overlay.style.display = 'block';
-      picker.style.display = 'flex';
+      overlay.style.display = 'block'; picker.style.display = 'flex';
       
       const rect = e.currentTarget.firstElementChild.getBoundingClientRect();
-      picker.style.top = `${rect.top - 50}px`;
+      let pickerTop = rect.top - 50;
+      
+      // Jika nyangkut di header atas, taruh di bawah bubble
+      if(pickerTop < 70) pickerTop = rect.bottom + 10;
+      
+      picker.style.top = `${pickerTop}px`;
       
       if (wrapper.dataset.sender === myName) { picker.style.right = `20px`; picker.style.left = 'auto'; } 
       else { picker.style.left = `20px`; picker.style.right = 'auto'; }
@@ -506,103 +544,51 @@
       document.getElementById('msgContextMenu').classList.remove('show');
       document.getElementById('msgReactionPicker').classList.remove('show');
       document.getElementById('fullEmojiContainer').style.display = 'none';
-      setTimeout(() => {
-        document.getElementById('msgContextMenu').style.display = 'none';
-        document.getElementById('msgReactionPicker').style.display = 'none';
-      }, 200);
+      setTimeout(() => { document.getElementById('msgContextMenu').style.display = 'none'; document.getElementById('msgReactionPicker').style.display = 'none'; }, 200);
     }
 
     function handleMenuAction(action) {
       closeAllMenus();
       const wrapper = document.getElementById(`msg-${activeMsgId}`);
       if(!wrapper) return;
-
-      if (action === 'reply') {
-        replyingTo = { id: activeMsgId, sender: wrapper.dataset.sender, text: wrapper.dataset.text };
-        editingMsgId = null;
-        showPreviewBox('reply');
-      } 
-      else if (action === 'edit') {
-        editingMsgId = activeMsgId;
-        replyingTo = null;
-        document.getElementById('chatInput').value = wrapper.dataset.text;
-        showPreviewBox('edit');
-      }
-      else if (action === 'copy') {
-        navigator.clipboard.writeText(wrapper.dataset.text);
-        showToast("Message copied");
-      }
-      else if (action === 'delete') {
-        document.getElementById('deleteModal').style.display = 'flex';
-        setTimeout(() => { document.getElementById('deleteModal').style.opacity = '1'; document.querySelector('.del-modal-box').style.transform = 'scale(1)'; }, 10);
-      }
+      if (action === 'reply') { replyingTo = { id: activeMsgId, sender: wrapper.dataset.sender, text: wrapper.dataset.text }; editingMsgId = null; showPreviewBox('reply'); } 
+      else if (action === 'edit') { editingMsgId = activeMsgId; replyingTo = null; document.getElementById('chatInput').value = wrapper.dataset.text; showPreviewBox('edit'); }
+      else if (action === 'copy') { navigator.clipboard.writeText(wrapper.dataset.text); }
+      else if (action === 'delete') { document.getElementById('deleteModal').style.display = 'flex'; setTimeout(() => document.getElementById('deleteModal').style.opacity = '1', 10); }
     }
 
     function showPreviewBox(mode) {
-      const box = document.getElementById('replyPreviewBox');
-      const nameEl = document.getElementById('replyPreviewName');
-      const textEl = document.getElementById('replyPreviewText');
-      const editEl = document.getElementById('editPreviewMode');
-
-      if (mode === 'reply') {
-        nameEl.style.display = 'block'; editEl.style.display = 'none';
-        nameEl.innerText = replyingTo.sender === myName ? 'You' : replyingTo.sender;
-        textEl.innerText = replyingTo.text;
-      } else {
-        nameEl.style.display = 'none'; editEl.style.display = 'block';
-        textEl.innerText = document.getElementById(`msg-${editingMsgId}`).dataset.text;
-      }
-      box.style.display = 'block';
-      document.getElementById('chatInput').focus();
+      const box = document.getElementById('replyPreviewBox'); const nameEl = document.getElementById('replyPreviewName');
+      const textEl = document.getElementById('replyPreviewText'); const editEl = document.getElementById('editPreviewMode');
+      if (mode === 'reply') { nameEl.style.display = 'block'; editEl.style.display = 'none'; nameEl.innerText = replyingTo.sender === myName ? 'You' : replyingTo.sender; textEl.innerText = replyingTo.text; } 
+      else { nameEl.style.display = 'none'; editEl.style.display = 'block'; textEl.innerText = document.getElementById(`msg-${editingMsgId}`).dataset.text; }
+      box.style.display = 'block'; document.getElementById('chatInput').focus();
     }
+    function cancelReplyEdit() { replyingTo = null; editingMsgId = null; document.getElementById('replyPreviewBox').style.display = 'none'; document.getElementById('chatInput').value = ""; }
 
-    function cancelReplyEdit() {
-      replyingTo = null; editingMsgId = null;
-      document.getElementById('replyPreviewBox').style.display = 'none';
-      document.getElementById('chatInput').value = "";
-    }
-
-    // ==========================================
-    // DELETE LOGIC
-    // ==========================================
-    function closeDeleteModal() {
-      document.getElementById('deleteModal').style.opacity = '0';
-      document.querySelector('.del-modal-box').style.transform = 'scale(0.9)';
-      setTimeout(() => document.getElementById('deleteModal').style.display = 'none', 200);
-    }
-
+    function closeDeleteModal() { document.getElementById('deleteModal').style.opacity = '0'; setTimeout(() => document.getElementById('deleteModal').style.display = 'none', 200); }
     function executeDelete(type) {
       if(!activeMsgId) return;
-      if (type === 'everyone') {
-        db.ref(`chats/${activeMsgId}`).update({ isDeletedForEveryone: true, text: "", replyTo: null });
-      } else if (type === 'me') {
-        db.ref(`chats/${activeMsgId}/deletedForMe/${myName}`).set(true);
-      }
-      closeDeleteModal();
-      activeMsgId = null;
+      if (type === 'everyone') db.ref(`chats/${activeMsgId}`).update({ isDeletedForEveryone: true, text: "", replyTo: null });
+      else if (type === 'me') db.ref(`chats/${activeMsgId}/deletedForMe/${myName}`).set(true);
+      closeDeleteModal(); activeMsgId = null;
     }
 
-    // ==========================================
-    // REACTIONS LOGIC
-    // ==========================================
-    function sendReaction(emoji) {
-      if(!activeMsgId) return;
-      db.ref(`chats/${activeMsgId}/reactions/${myName}`).set(emoji);
-      closeAllMenus();
+    function sendReaction(emoji) { if(!activeMsgId) return; db.ref(`chats/${activeMsgId}/reactions/${myName}`).set(emoji); closeAllMenus(); }
+    document.querySelector('emoji-picker').addEventListener('emoji-click', e => { sendReaction(e.detail.unicode); document.getElementById('fullEmojiContainer').style.display = 'none'; });
+    function openFullEmoji() { document.getElementById('msgReactionPicker').classList.remove('show'); setTimeout(() => document.getElementById('msgReactionPicker').style.display = 'none', 200); document.getElementById('fullEmojiContainer').style.display = 'block'; }
+
+    // ANNIVERSARY
+    function startAnniversaryCounter() {
+      setInterval(() => {
+        const diff = new Date().getTime() - new Date(TANGGAL_JADIAN).getTime();
+        if (diff < 0) return; 
+        document.getElementById('daysCount').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+        document.getElementById('hoursCount').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+        document.getElementById('minutesCount').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+        document.getElementById('secondsCount').innerText = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+      }, 1000); 
     }
-
-    // Setup Cloudflare Emoji Picker Component
-    document.querySelector('emoji-picker').addEventListener('emoji-click', event => {
-      sendReaction(event.detail.unicode);
-      document.getElementById('fullEmojiContainer').style.display = 'none';
-    });
-
-    function openFullEmoji() {
-      document.getElementById('msgReactionPicker').classList.remove('show');
-      setTimeout(() => { document.getElementById('msgReactionPicker').style.display = 'none'; }, 200);
-      document.getElementById('fullEmojiContainer').style.display = 'block';
-    }
-
   </script>
 </body>
 </html>
