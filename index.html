@@ -812,6 +812,23 @@ contentHTML = `
       input.value = ""; input.style.height = 'auto'; return;
     }
 
+    // 4. COMMAND GIF (GIPHY)
+        if (cmd === '/gif') {
+          const keyword = args.slice(1).join(' ');
+          if (!keyword) {
+            showToast("Masukkan kata kunci! Contoh: /gif kucing lucu");
+          } else {
+            showToast("Mencari GIF...");
+            fetch(`https://api.giphy.com/v1/gifs/search?api_key=W2CkEQjMnb0TWPNMEj0PXpZYBc1DpDWg&q=${encodeURIComponent(keyword)}&limit=10`)
+              .then(res => res.json())
+              .then(data => {
+                if (data.data.length > 0) showGifPicker(data.data);
+                else showToast("GIF tidak ditemukan!");
+              }).catch(e => showToast("Error mencari GIF"));
+          }
+          input.value = ""; input.style.height = 'auto'; return;
+        }
+
     if (bucinDict[cmd]) {
       // Ambil kalimat secara acak dari list
       const listKalimat = bucinDict[cmd];
@@ -1182,8 +1199,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 }); 
+
+    // ==========================================
+    // 10. GIPHY PICKER
+    // ==========================================
+    function showGifPicker(gifs) {
+      // Hapus kalau sebelumnya sudah ada pop-up GIF yang terbuka
+      let existing = document.getElementById('gifPickerOverlay');
+      if (existing) existing.remove();
+
+      const overlay = document.createElement('div');
+      overlay.id = 'gifPickerOverlay';
+      // Desain pop-up yang cocok dengan tema gelap WA
+      overlay.style.cssText = "position:fixed; bottom:70px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; background:#111b21; border:1px solid #202c33; border-radius:10px; padding:10px; display:flex; flex-wrap:wrap; gap:5px; z-index:2000; max-height:300px; overflow-y:auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5);";
+
+      // Masukkan 10 gambar dari Giphy
+      gifs.forEach(gif => {
+        const img = document.createElement('img');
+        img.src = gif.images.fixed_height_small.url; // Gambar kecil untuk preview
+        img.style.cssText = "height:80px; cursor:pointer; flex: 1 1 auto; object-fit:cover; border-radius:5px;";
+        
+        // Kalau diklik, kirim GIF-nya
+        img.onclick = () => {
+          sendGifMessage(gif.images.downsized_medium.url); // Kirim resolusi bagus
+          overlay.remove(); // Tutup pop-up
+        };
+        overlay.appendChild(img);
+      });
+
+      // Tombol Tutup
+      const closeBtn = document.createElement('div');
+      closeBtn.innerText = "❌ Tutup";
+      closeBtn.style.cssText = "width:100%; text-align:center; padding:10px; color:#ef5350; cursor:pointer; font-weight:bold; margin-top:5px; border-top:1px solid #202c33;";
+      closeBtn.onclick = () => overlay.remove();
+      
+      overlay.appendChild(closeBtn);
+      document.body.appendChild(overlay);
+    }
+
+    function sendGifMessage(gifUrl) {
+      const payload = { sender: myName, imageUrl: gifUrl, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP };
+      if (replyingTo) { payload.replyTo = replyingTo; cancelReplyEdit(); }
+      db.ref("chats").push(payload);
+    }
   </script>
 </body>
 </html>
+
 
 
