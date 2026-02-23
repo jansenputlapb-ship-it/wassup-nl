@@ -1201,23 +1201,19 @@ document.addEventListener('DOMContentLoaded', () => {
 }); 
 
     // ==========================================
-    // 10. GIPHY PICKER (TAMPILAN MEMANJANG KE SAMPING)
+    // 10. GIPHY PICKER (BISA DIGESER MOUSE & SENTUH)
     // ==========================================
     function showGifPicker(gifs) {
-      // Hapus kalau sebelumnya sudah ada pop-up GIF yang terbuka
       let existing = document.getElementById('gifPickerOverlay');
       if (existing) existing.remove();
 
-      // Kontainer utama (menempel di atas kotak input pesan)
       const overlay = document.createElement('div');
       overlay.id = 'gifPickerOverlay';
-      // Asumsi tinggi area input sekitar 65px-70px dari bawah layar
       overlay.style.cssText = "position:fixed; bottom:65px; left:0; width:100%; background:#111b21; border-top:1px solid #202c33; z-index:2000; display:flex; flex-direction:column; box-shadow: 0 -4px 10px rgba(0,0,0,0.3);";
 
-      // Header Bar untuk Judul dan Tombol Tutup
       const headerBar = document.createElement('div');
       headerBar.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 15px; background:#202c33; font-size:13px; color:#ccc;";
-      headerBar.innerHTML = `<span>Pilih GIF:</span>`;
+      headerBar.innerHTML = `<span>Pilih GIF (Geser 👉):</span>`;
       
       const closeBtn = document.createElement('span');
       closeBtn.innerText = "❌ Tutup";
@@ -1226,33 +1222,59 @@ document.addEventListener('DOMContentLoaded', () => {
       headerBar.appendChild(closeBtn);
       overlay.appendChild(headerBar);
 
-      // Kontainer untuk daftar GIF (bisa di-scroll ke samping)
       const gifListContainer = document.createElement('div');
-      // overflow-x: auto membuat elemen memanjang dan bisa digeser
-      gifListContainer.style.cssText = "display:flex; gap:10px; padding:10px; overflow-x:auto; overflow-y:hidden; align-items:center; scrollbar-width:none;"; // scrollbar-width:none agar tidak ada scrollbar tebal di Firefox
+      gifListContainer.style.cssText = "display:flex; gap:10px; padding:10px; overflow-x:auto; overflow-y:hidden; align-items:center; scrollbar-width:none; cursor:grab;"; 
       
-      // Sembunyikan scrollbar di Chrome/Safari via style
       const hideScrollbarStyle = document.createElement('style');
       hideScrollbarStyle.innerText = "#gifPickerOverlay div::-webkit-scrollbar { display: none; }";
       document.head.appendChild(hideScrollbarStyle);
 
-      // Masukkan 10 gambar dari Giphy
+      // Logika agar bisa digeser pakai Mouse (Drag to Scroll)
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      gifListContainer.addEventListener('mousedown', (e) => {
+        isDown = true;
+        gifListContainer.style.cursor = 'grabbing';
+        startX = e.pageX - gifListContainer.offsetLeft;
+        scrollLeft = gifListContainer.scrollLeft;
+      });
+      gifListContainer.addEventListener('mouseleave', () => { isDown = false; gifListContainer.style.cursor = 'grab'; });
+      gifListContainer.addEventListener('mouseup', () => { isDown = false; gifListContainer.style.cursor = 'grab'; });
+      gifListContainer.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - gifListContainer.offsetLeft;
+        const walk = (x - startX) * 2; // Angka 2 adalah kecepatan geser
+        gifListContainer.scrollLeft = scrollLeft - walk;
+      });
+
       gifs.forEach(gif => {
         const img = document.createElement('img');
         img.src = gif.images.fixed_height_small.url; 
-        // flex-shrink: 0 penting agar gambar tidak menyusut kepepet
-        img.style.cssText = "height:90px; width:auto; border-radius:5px; cursor:pointer; flex-shrink:0; object-fit:cover; border: 1px solid #2a3942;";
+        // Tambahkan draggable="false" agar gambar tidak nge-bug saat ditarik mouse
+        img.draggable = false;
+        img.style.cssText = "height:90px; width:auto; border-radius:5px; cursor:pointer; flex-shrink:0; object-fit:cover; border: 1px solid #2a3942; user-select:none;";
         
-        // Kalau diklik, kirim GIF-nya
-        img.onclick = () => {
+        // Cek apakah murni klik atau sedang menggeser mouse
+        img.onclick = (e) => {
+          // Kalau lagi ditarik (drag), jangan kirim GIF
+          if(walkMath(startX, e.pageX) > 5) return; 
           sendGifMessage(gif.images.downsized_medium.url); 
-          overlay.remove(); // Tutup setelah kirim
+          overlay.remove(); 
         };
         gifListContainer.appendChild(img);
       });
 
       overlay.appendChild(gifListContainer);
       document.body.appendChild(overlay);
+
+      // Fungsi bantu cek jarak geser klik
+      function walkMath(start, current) {
+         if(!start || !current) return 0;
+         return Math.abs(start - (current - gifListContainer.offsetLeft));
+      }
     }
 
     function sendGifMessage(gifUrl) {
@@ -1263,6 +1285,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
