@@ -12,6 +12,12 @@
   <script type="module" src="https://unpkg.com/emoji-picker-element@1"></script>
 
   <style>
+
+    .msg-bucin .msg-text {
+  font-style: italic;
+  font-weight: 500;
+  color: inherit; /* Ikut warna standar */
+}
     /* CSS untuk Link Biru */
 .chat-link {
   color: #039be5; /* Warna biru link */
@@ -714,61 +720,74 @@ contentHTML = `
   const text = input.value.trim();
   if(!text && !editingMsgId) return;
 
-  // --- FITUR COMMAND /MIRC ---
+  // --- SISTEM COMMAND BUCIN RANDOMIZER ---
   if (text.startsWith('/') && !editingMsgId) {
     const args = text.split(' ');
     const cmd = args[0].toLowerCase();
 
-    // 1. Command Clear/Clean (Hapus Database)
+    // Kamus Kalimat Bucin
+    const bucinDict = {
+      "/peluk": [
+        `*Peluk erat ${partnerName} dari jauh, rasakan detak jantungku yang cuma buat kamu* 🤗💖`,
+        `*Hug tiiiight! Jangan dilepas ya, mau begini selamanya sama kamu* 🫂✨`,
+        `*Sending virtual hug yang paling hangat buat kesayangan aku* 🧸💕`,
+        `*Kalau kamu capek, sini peluk dulu. Biar semua lelahnya pindah ke aku* 🌸`,
+        `*Peluk paling nyaman cuma ada di kamu, I miss your warmth* 🥺❤️`
+        // ... Tambahkan sampai 20 kalimat di sini
+      ],
+      "/semangat": [
+        `*Semangat ya sayang! Kamu itu lebih kuat dari yang kamu bayangkan* 💪✨`,
+        `*You're doing great, my love! Bangga banget punya kamu* 🌹`,
+        `*Jangan nyerah ya, ada aku yang selalu dukung kamu di sini* ❤️🔥`,
+        `*Fokus sayang, semangatnya jangan kasih kendor! Love you!* 🚀💕`,
+        `*Apapun yang terjadi hari ini, inget kalau kamu hebat banget!* 🌟`
+      ],
+      "/kangen": [
+        `*Kangennya udah di ujung kepala, pengen cepet ketemu kamu* 🥺💔`,
+        `*Lagi apa? Aku kangen banget sampai gak bisa fokus nih* 🌊💕`,
+        `*Thinking of you... and missing you more than words can say* 💭❤️`,
+        `*Hati aku lagi demo, katanya kurang asupan ketemu kamu* 📢💖`,
+        `*Kangen suara kamu, kangen ketawa kamu, kangen semuanya!* 🌈`
+      ],
+      "/cium": [
+        `*Mmuuuaach! Satu kecupan di kening buat ratu/raja hatiku* 💋✨`,
+        `*Kiss on your cheek! Biar hari kamu makin manis kaya aku* 😘🍭`,
+        `*Sending 1000x virtual kisses just for you!* 💋💖🔥`,
+        `*Cium jauh! Jangan dihapus ya bekasnya* 😚💕`,
+        `*Flying kiss meluncur ke arah kamu... Tangkep ya!* 🕊️💋`
+      ]
+    };
+
+    // Eksekusi Command
     if (cmd === '/clear' || cmd === '/clean') {
-      if(confirm("Hapus semua riwayat chat selamanya?")) {
-        db.ref("chats").remove();
-        showToast("Database dibersihkan ✨");
-      }
-      input.value = ""; input.style.height = 'auto';
-      return;
+      if(confirm("Hapus semua chat?")) db.ref("chats").remove();
+      input.value = ""; input.style.height = 'auto'; return;
     }
 
-    // 2. Command Bucin Peluk
-    if (cmd === '/peluk') {
-      const payload = { 
-        sender: myName, 
-        text: `*Memberikan pelukan yang sabaaaar dan erat sekali untuk ${partnerName}* 🤗💖✨`, 
-        type: 'bucin',
-        time: formatTime(), 
-        timestamp: firebase.database.ServerValue.TIMESTAMP 
-      };
-      db.ref("chats").push(payload);
-      input.value = ""; input.style.height = 'auto';
-      return;
-    }
-
-    // 3. Command Bucin Semangat
-    if (cmd === '/semangat') {
-      const payload = { 
-        sender: myName, 
-        text: `*Membisikkan kata semangat: "Kamu hebat banget hari ini, aku bangga punya kamu!"* 💪💕🌹`, 
-        type: 'bucin',
-        time: formatTime(), 
-        timestamp: firebase.database.ServerValue.TIMESTAMP 
-      };
-      db.ref("chats").push(payload);
+    if (bucinDict[cmd]) {
+      // Ambil kalimat secara acak dari list
+      const listKalimat = bucinDict[cmd];
+      const randomText = listKalimat[Math.floor(Math.random() * listKalimat.length)];
+      
+      db.ref("chats").push({
+        sender: myName,
+        text: randomText,
+        type: 'bucin', // Tetap kirim type bucin (warna bisa diatur di CSS)
+        time: formatTime(),
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+      
       input.value = ""; input.style.height = 'auto';
       return;
     }
   }
 
-  // --- LOGIKA KIRIM BIASA (Jika bukan command) ---
+  // --- LOGIKA KIRIM BIASA ---
   if (editingMsgId) {
     db.ref(`chats/${editingMsgId}`).update({ text: text, edited: true });
     cancelReplyEdit();
   } else {
-    const payload = { 
-      sender: myName, 
-      text: text, 
-      time: formatTime(), 
-      timestamp: firebase.database.ServerValue.TIMESTAMP 
-    };
+    const payload = { sender: myName, text: text, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP };
     if (replyingTo) payload.replyTo = replyingTo;
     db.ref("chats").push(payload);
     cancelReplyEdit();
@@ -1118,6 +1137,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
