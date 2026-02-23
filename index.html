@@ -12,40 +12,26 @@
   <script type="module" src="https://unpkg.com/emoji-picker-element@1"></script>
 
   <style>
-/* --- MODE BUCIN FULL PINK --- */
 
-/* 1. Warna Kotak Pesan */
+    /* Style Khusus Pesan Bucin */
 .msg-bucin .msg-content {
-  background-color: #fce4ec !important; /* Pink lembut partner */
-  color: #880e4f !important;
-  border: none !important;
-}
-
-.msg-me.msg-bucin .msg-content {
-  background-color: #f8bbd0 !important; /* Pink cerah saya */
-}
-
-/* 2. Warna Ekor Pesan (Kiri/Partner) */
-.msg-partner.msg-bucin .msg-content::before {
-  border-right-color: #fce4ec !important;
-}
-
-/* 3. Warna Ekor Pesan (Kanan/Saya) */
-.msg-me.msg-bucin .msg-content::after {
-  border-left-color: #f8bbd0 !important;
-}
-
-/* 4. Warna Teks Meta (Jam & Edited) */
-.msg-bucin .time-stamp, 
-.msg-bucin .edited-label {
-  color: #ad1457 !important;
-}
-
-.msg-bucin .msg-text {
-  font-style: italic;
-  font-weight: 500;
+    background-color: #fce4ec !important; /* Pink lembut partner */
+    color: #880e4f !important;
+    border: none !important;
 }
     
+/* Jika pesan bucin berasal dari saya (sisi kanan) */
+.msg-me.msg-bucin .msg-content {
+    background-color: #f8bbd0 !important; /* Pink lebih pekat saya */
+    color: #880e4f !important;
+    border: none !important;
+}
+
+/* Efek sedikit bercahaya untuk pesan bucin */
+.msg-bucin .msg-content {
+  box-shadow: 0 0 10px rgba(240, 98, 146, 0.3);
+}
+
     /* CSS untuk Link Biru */
 .chat-link {
   color: #039be5; /* Warna biru link */
@@ -658,39 +644,57 @@
         wrapper.className = 'msg-wrapper';
         document.getElementById('chatBox').appendChild(wrapper);
       }
-const isMe = (data.sender === myName);
-  const isBucin = (data.type === 'bucin'); // Cek apakah pesan hasil command
-  const bucinClass = isBucin ? 'msg-bucin' : ''; 
 
-  let contentHTML = "";
+      const isMe = (data.sender === myName);
+      let contentHTML = "";
 
-  if (data.isDeletedForEveryone) {
-    contentHTML = `
-      <div class="message ${isMe ? 'msg-me' : 'msg-partner'}">
-        <div class="msg-content">
-          <span class="deleted-text">🚫 This message was deleted</span>
-          <div class="msg-meta"><span class="time-stamp">${data.time}</span></div>
-        </div>
-      </div>`;
-  } else {
-    // --- Bagian Pesan Aktif ---
-    // (Definisikan quoteHTML, mediaHTML, reactHTML seperti biasa)
-    
-    contentHTML = `
-      <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}">
-        <div class="msg-content">
-          ${quoteHTML}
-          ${mediaHTML}
-          ${data.text ? `<div class="msg-text">${formatMessageText(data.text)}</div>` : ''}
-          <div class="msg-meta">
-             ${data.edited ? '<span class="edited-label">Edited</span>' : ''}
-             <span class="time-stamp">${data.time}</span>
+      if (data.isDeletedForEveryone) {
+        contentHTML = `
+          <div class="message ${isMe ? 'msg-me' : 'msg-partner'}" onclick="openReactionPicker(event, '${id}')">
+            <div class="msg-content">
+              <span class="deleted-text">🚫 This message was deleted</span>
+              <div class="msg-meta"><span class="time-stamp">${data.time}</span></div>
+            </div>
+          </div>`;
+      } else {
+        let quoteHTML = "";
+        if (data.replyTo) {
+          let repText = data.replyTo.text || "Image";
+          quoteHTML = `
+            <div class="msg-quote" onclick="scrollToMsg('${data.replyTo.id}')">
+              <div class="quote-sender">${data.replyTo.sender === myName ? 'You' : data.replyTo.sender}</div>
+              <div class="quote-text">${repText}</div>
+            </div>`;
+        }
+
+        let reactHTML = "";
+        if (data.reactions) {
+          let rIcons = Object.values(data.reactions).join("");
+          if(rIcons.length > 0) reactHTML = `<div class="reaction-badge">${rIcons}</div>`;
+        }
+
+        // Tampilkan gambar jika ada (fitur upload)
+        let mediaHTML = "";
+        if (data.imageUrl) {
+          mediaHTML = `<img src="${data.imageUrl}" style="max-width: 100%; max-height: 250px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; object-fit: contain;" onclick="window.open('${data.imageUrl}', '_blank')">`;
+        }
+
+        const editedStr = data.edited ? `<span class="edited-label">Edited</span>` : "";
+
+        // Tambahkan class msg-bucin jika data.type adalah bucin
+const bucinClass = data.type === 'bucin' ? 'msg-bucin' : '';
+
+contentHTML = `
+  <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}">
+            <div class="msg-content">
+              ${quoteHTML}
+              ${mediaHTML}
+              ${data.text ? `<div class="msg-text">${formatMessageText(data.text)}</div>` : ''}
+              <div class="msg-meta">${editedStr}<span class="time-stamp">${data.time}</span></div>
+            </div>
+            ${reactHTML}
           </div>
-        </div>
-        ${reactHTML}
-      </div>`;
-  }
-      
+        `;
         
         // INTERAKSI KLIK KIRI & KANAN
         wrapper.onclick = (e) => {
@@ -1134,11 +1138,6 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
-
-
-
-
-
 
 
 
