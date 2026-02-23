@@ -7,6 +7,7 @@
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
   
   <script type="module" src="https://unpkg.com/emoji-picker-element@1"></script>
 
@@ -66,12 +67,7 @@
     .bf-wrapper { position: absolute; will-change: transform; }
     .butterfly { font-size: 14px; display: flex; animation: flutterJitter 3s infinite ease-in-out alternate; will-change: transform; }
     .bf-flap { display: inline-block; animation: flapWings 0.15s infinite alternate; will-change: transform; }
-    .bf-c1 { filter: hue-rotate(0deg); }   
-    .bf-c2 { filter: hue-rotate(45deg); }  
-    .bf-c3 { filter: hue-rotate(90deg); }  
-    .bf-c4 { filter: hue-rotate(140deg); } 
-    .bf-c5 { filter: hue-rotate(180deg); } 
-    .bf-c6 { filter: hue-rotate(220deg); } 
+    .bf-c1 { filter: hue-rotate(0deg); } .bf-c2 { filter: hue-rotate(45deg); } .bf-c3 { filter: hue-rotate(90deg); } .bf-c4 { filter: hue-rotate(140deg); } .bf-c5 { filter: hue-rotate(180deg); } .bf-c6 { filter: hue-rotate(220deg); } 
     .bf-1 { top: 20%; left: -5%; animation: pathWideDrift 25s infinite linear; } .bf-1 .butterfly { animation-duration: 2s; font-size: 12px; }
     .bf-2 { top: 60%; left: 110%; animation: pathWideDrift 28s infinite linear reverse; animation-delay: -5s; } .bf-2 .butterfly { animation-duration: 2.5s; font-size: 15px; transform: scaleX(-1); }
     .bf-3 { top: 40%; left: 30%; animation: pathLoop 18s infinite linear; animation-delay: -2s; } .bf-3 .butterfly { animation-duration: 3s; }
@@ -112,9 +108,7 @@
     .spinner-icon { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; animation: spinLoader 1s linear infinite; font-size: 14px; line-height: 0; }
     @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
-    /* =========================================
-       CHAT AREA & WA FEATURES
-       ========================================= */
+    /* CHAT AREA & WA FEATURES */
     main { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; position: relative; }
     main::-webkit-scrollbar { width: 6px; } main::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
     
@@ -132,18 +126,13 @@
     .edited-label { font-size: 10px; color: rgba(0,0,0,0.45); font-style: italic; }
     .deleted-text { font-style: italic; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
 
-    /* QUOTE/REPLY UI DALAM CHAT */
+    /* QUOTE/REPLY UI */
     .msg-quote { background: rgba(0,0,0,0.05); border-left: 4px solid var(--wa-light); padding: 6px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; }
     .msg-me .msg-quote { background: rgba(0, 128, 105, 0.08); border-left-color: #006c5b; }
     .quote-sender { font-weight: bold; color: var(--wa-light); font-size: 12px; margin-bottom: 2px; }
     .msg-me .quote-sender { color: #006c5b; }
     .quote-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
 
-    /* MENU PANAH KANAN CHAT */
-    .msg-arrow { position: absolute; top: 0; right: 0; padding: 8px; opacity: 0; transition: opacity 0.2s; color: rgba(0,0,0,0.3); font-size: 16px; cursor: pointer; background: linear-gradient(90deg, transparent, var(--wa-chat-partner) 40%); border-top-right-radius: 12px; }
-    .msg-me .msg-arrow { background: linear-gradient(90deg, transparent, var(--wa-chat-me) 40%); }
-    .msg-wrapper:hover .msg-arrow { opacity: 1; }
-    
     /* REACTION BADGE */
     .reaction-badge { position: absolute; bottom: -12px; right: 10px; background: white; border: 1px solid #ddd; border-radius: 16px; padding: 2px 6px; font-size: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 2; display: flex; gap: 2px; }
     .msg-me .reaction-badge { right: auto; left: 10px; }
@@ -162,37 +151,11 @@
     .react-emoji:hover { transform: scale(1.3); }
     .react-plus { background: #f0f2f5; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: bold; font-size: 16px; cursor: pointer; }
 
-    /* FULL EMOJI PICKER CONTAINER */
-    #fullEmojiContainer { 
-      position: fixed; 
-      bottom: 0; /* Menempel ke bawah atau ubah ke 65px jika ingin di atas kolom input */
-      left: 0; 
-      right: 0; 
-      width: 100vw; /* Lebar penuh layar */
-      height: 45vh; /* Tinggi responsif 45% dari layar */
-      max-height: 400px;
-      z-index: 9000; 
-      display: none; 
-      box-shadow: 0 -5px 20px rgba(0,0,0,0.15); 
-      border-top-left-radius: 16px; 
-      border-top-right-radius: 16px;
-      overflow: hidden; 
-      background: white; 
-      animation: slideUpEmoji 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
+    /* EMOJI PICKER FULL CONTAINER (NATIVE STYLE) */
+    #fullEmojiContainer { position: fixed; bottom: 0; left: 0; right: 0; width: 100vw; height: 45vh; max-height: 400px; z-index: 9000; display: none; box-shadow: 0 -5px 20px rgba(0,0,0,0.15); border-top-left-radius: 16px; border-top-right-radius: 16px; overflow: hidden; background: white; animation: slideUpEmoji 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    emoji-picker { width: 100%; height: 100%; --background: white; --indicator-color: var(--wa-dark); }
+    @keyframes slideUpEmoji { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    /* Memaksa elemen emoji-picker memenuhi seluruh wadahnya tanpa sisa putih */
-    emoji-picker {
-      width: 100%;
-      height: 100%;
-      --background: white; 
-      --indicator-color: var(--wa-dark); /* Warna garis bawah saat pindah kategori */
-    }
-
-    @keyframes slideUpEmoji {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
     /* REPLY PREVIEW DI ATAS INPUT */
     #replyPreviewBox { background: #f0f2f5; border-left: 4px solid var(--wa-light); padding: 8px 12px; margin: 0 16px; border-top-left-radius: 8px; border-top-right-radius: 8px; display: none; position: relative; z-index: 900; box-shadow: 0 -2px 5px rgba(0,0,0,0.02); }
     .reply-preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
@@ -201,9 +164,13 @@
     .reply-preview-text { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .reply-preview-edit { font-weight: bold; font-size: 13px; color: var(--wa-dark); display: none; }
 
-    /* FOOTER */
+    /* FOOTER & BUTTONS */
     footer { background: var(--wa-bg); padding: 8px 16px 12px 16px; display: flex; flex-direction: column; z-index: 1000; box-shadow: 0 -1px 2px rgba(0,0,0,0.05); }
-    .input-row { display: flex; gap: 10px; align-items: flex-end; }
+    .input-row { display: flex; gap: 8px; align-items: flex-end; }
+    
+    .icon-btn { background: transparent; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center; transition: var(--trans-smooth); }
+    .icon-btn:active { transform: scale(0.9); filter: brightness(0.8); }
+
     .input-wrapper { flex: 1; background: white; border-radius: 24px; padding: 10px 16px; display: flex; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); min-height: 48px; }
     .input-wrapper input { width: 100%; border: none; outline: none; font-size: 15px; background: transparent; color: var(--text-main); }
     .send-btn { background: var(--wa-dark); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 5px rgba(0,128,105,0.3); transition: var(--trans-smooth); flex-shrink: 0; padding: 0; }
@@ -339,11 +306,16 @@
 
     <footer>
       <div class="input-row">
+        <button class="icon-btn" onclick="openEmojiForInput()" title="Insert Emoji">😊</button>
+        <button class="icon-btn" onclick="document.getElementById('imageUpload').click()" title="Attach Image">📎</button>
+        
         <div class="input-wrapper">
           <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
         </div>
         <button class="send-btn" onclick="sendMessage()">➤</button>
       </div>
+      
+      <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
     </footer>
   </div>
 
@@ -397,7 +369,9 @@
   <div id="customToast"></div>
 
   <script>
-    // 1. FIREBASE CONFIG 
+    // ==========================================
+    // 1. FIREBASE CONFIG
+    // ==========================================
     const firebaseConfig = {
       apiKey: "AIzaSyBiZ5Npq09AYDi9yTbYv5iYSrj9r5BCgxc",
       authDomain: "wassup-nl.firebaseapp.com",
@@ -411,17 +385,22 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.database();
 
-    // VARIABEL GLOBAL
+    // ==========================================
+    // 2. VARIABEL GLOBAL
+    // ==========================================
     const TANGGAL_JADIAN = "2025-07-30T00:00:00"; 
     let myName = ""; let partnerName = ""; let lastMusicTimestamp = 0;
     let isPlaying = false; let currentSongIndex = -1; let isRepeat = false;
     let isTyping = false; let typingTimer; let idleTimer;
     
     let activeMsgId = null; let replyingTo = null; let editingMsgId = null;
+    let emojiTarget = 'reaction'; // Status flag emoji
 
     const audioPlayer = document.getElementById('audioPlayer');
 
-    // KUMPULAN QUOTES
+    // ==========================================
+    // 3. QUOTES & PLAYLIST
+    // ==========================================
     const romaticQuotes = [
       "Every second with you is a beautiful adventure I never want to end.",
       "You are not just my world, but the universe where I belong forever.",
@@ -444,7 +423,6 @@
       }, 6000); 
     }
     
-    // GENERATE PLAYLIST SIMULASI
     const baseSongs = [
       { title: "Sweet Memories", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
       { title: "Perfect For Us", artist: "Malam Indah", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
@@ -458,7 +436,7 @@
     }
 
     // ==========================================
-    // LOGIN & INITIALIZATION
+    // 4. LOGIN & PRESENCE
     // ==========================================
     function doLogin() {
       const code = document.getElementById('inputCode').value.trim();
@@ -468,21 +446,23 @@
       };
 
       if(users[code]) {
-        myName = users[code].name; partnerName = users[code].partner;
-        document.getElementById('partnerNameDisplay').innerText = partnerName;
-        document.getElementById('headerAvatar').src = (users[code].role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-        
-        const loginEl = document.getElementById('loginScreen'); loginEl.style.opacity = '0';
-        setTimeout(() => { loginEl.style.display = 'none'; document.getElementById('appScreen').style.display = 'flex'; }, 300);
-        
-        audioPlayer.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"; 
-        audioPlayer.play().then(() => { audioPlayer.pause(); }).catch(e => console.log("Unlock delayed"));
+        try {
+          myName = users[code].name; partnerName = users[code].partner;
+          document.getElementById('partnerNameDisplay').innerText = partnerName;
+          document.getElementById('headerAvatar').src = (users[code].role === 'cowok') ? "https://cdn-icons-png.flaticon.com/512/4140/4140047.png" : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+          
+          const loginEl = document.getElementById('loginScreen'); loginEl.style.opacity = '0';
+          setTimeout(() => { loginEl.style.display = 'none'; document.getElementById('appScreen').style.display = 'flex'; }, 300);
+          
+          audioPlayer.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"; 
+          audioPlayer.play().then(() => { audioPlayer.pause(); }).catch(e => console.log("Unlock delayed"));
 
-        startAnniversaryCounter(); 
-        initChatSync(); 
-        setupPresenceSystem(); 
-        initMusicSync();
-        startRandomQuotes();
+          startAnniversaryCounter(); 
+          initChatSync(); 
+          setupPresenceSystem(); 
+          initMusicSync();
+          startRandomQuotes();
+        } catch (e) { console.error("Initialization error:", e); }
       } else {
         const err = document.getElementById('errorMsg'); 
         err.style.display = 'block'; 
@@ -490,9 +470,6 @@
       }
     }
 
-    // ==========================================
-    // PRESENCE & ANNIVERSARY
-    // ==========================================
     function startAnniversaryCounter() {
       function update() {
         const diff = new Date().getTime() - new Date(TANGGAL_JADIAN).getTime();
@@ -545,7 +522,7 @@
     }
 
     // ==========================================
-    // CHAT ENGINE (WA STYLE)
+    // 5. CHAT ENGINE (RENDER & SEND)
     // ==========================================
     function formatTime() { const d = new Date(); return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`; }
 
@@ -555,7 +532,6 @@
     }
 
     function buildChatUI(id, data) {
-      // PROTEKSI: Abaikan data undefined / chat lawas tanpa sender
       if (!data || !data.sender) return; 
 
       if (data.deletedForMe && data.deletedForMe[myName]) {
@@ -574,13 +550,12 @@
         document.getElementById('chatBox').appendChild(wrapper);
       }
 
-      // Pastikan presisi Kanan-Kiri
       const isMe = (data.sender === myName);
       let contentHTML = "";
 
       if (data.isDeletedForEveryone) {
         contentHTML = `
-          <div class="message ${isMe ? 'msg-me' : 'msg-partner'}">
+          <div class="message ${isMe ? 'msg-me' : 'msg-partner'}" onclick="openReactionPicker(event, '${id}')">
             <div class="msg-content">
               <span class="deleted-text">🚫 This message was deleted</span>
               <div class="msg-meta"><span class="time-stamp">${data.time}</span></div>
@@ -589,10 +564,11 @@
       } else {
         let quoteHTML = "";
         if (data.replyTo) {
+          let repText = data.replyTo.text || "Image";
           quoteHTML = `
             <div class="msg-quote" onclick="scrollToMsg('${data.replyTo.id}')">
               <div class="quote-sender">${data.replyTo.sender === myName ? 'You' : data.replyTo.sender}</div>
-              <div class="quote-text">${data.replyTo.text}</div>
+              <div class="quote-text">${repText}</div>
             </div>`;
         }
 
@@ -602,50 +578,47 @@
           if(rIcons.length > 0) reactHTML = `<div class="reaction-badge">${rIcons}</div>`;
         }
 
+        // Tampilkan gambar jika ada (fitur upload)
+        let mediaHTML = "";
+        if (data.imageUrl) {
+          mediaHTML = `<img src="${data.imageUrl}" style="max-width: 100%; max-height: 250px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; object-fit: contain;" onclick="window.open('${data.imageUrl}', '_blank')">`;
+        }
+
         const editedStr = data.edited ? `<span class="edited-label">Edited</span>` : "";
 
-        // Tombol panah kanan ditiadakan secara visual, kita full fungsikan dari Klik Kanan
         contentHTML = `
           <div class="message ${isMe ? 'msg-me' : 'msg-partner'}">
             <div class="msg-content">
               ${quoteHTML}
-              <div class="msg-text">${data.text}</div>
+              ${mediaHTML}
+              ${data.text ? `<div class="msg-text">${data.text}</div>` : ''}
               <div class="msg-meta">${editedStr}<span class="time-stamp">${data.time}</span></div>
             </div>
             ${reactHTML}
           </div>
         `;
         
-        // --- KLIK KIRI (REACTION) ---
+        // INTERAKSI KLIK KIRI & KANAN
         wrapper.onclick = (e) => {
-          // Validasi: Abaikan jika yang diklik BUKAN bubble pesan (area kosong)
           if (!e.target.closest('.message')) return; 
-          
-          if (!e.target.closest('.msg-quote')) {
-            openReactionPicker(e, id);
-          }
+          if (!e.target.closest('.msg-quote')) { openReactionPicker(e, id); }
         };
 
-        // --- KLIK KANAN (CONTEXT MENU) ---
         wrapper.oncontextmenu = (e) => {
-          // Validasi: Abaikan jika yang diklik BUKAN bubble pesan
           if (!e.target.closest('.message')) return; 
-          
-          e.preventDefault(); // Matikan menu bawaan browser HANYA di area bubble
-          if (!e.target.closest('.msg-quote')) {
-            openContextMenu(e, id, isMe);
-          }
+          e.preventDefault(); 
+          if (!e.target.closest('.msg-quote')) { openContextMenu(e, id, isMe); }
         };
       }
 
       wrapper.innerHTML = contentHTML;
       wrapper.dataset.sender = data.sender;
-      wrapper.dataset.text = data.text;
+      wrapper.dataset.text = data.text || "";
       wrapper.dataset.isDeleted = data.isDeletedForEveryone ? "true" : "false";
 
       if (isNew) {
         const b = document.getElementById('chatBox');
-        b.scrollTop = b.scrollHeight;
+        setTimeout(() => b.scrollTop = b.scrollHeight, 100); // Timeout agar gambar ter-load dulu
       }
     }
 
@@ -678,7 +651,42 @@
     }
 
     // ==========================================
-    // MENUS, REACTIONS & ACTIONS
+    // 6. IMAGE UPLOAD LOGIC
+    // ==========================================
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      showToast("Uploading image... ⏳");
+      
+      const storageRef = firebase.storage().ref(`chat_images/${Date.now()}_${file.name}`);
+      const uploadTask = storageRef.put(file);
+
+      uploadTask.on('state_changed', 
+        null, 
+        (error) => { showToast("Upload failed! ❌"); console.error(error); }, 
+        () => {
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            const payload = {
+              sender: myName,
+              text: "", 
+              imageUrl: downloadURL,
+              time: formatTime(),
+              timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+            if (replyingTo) payload.replyTo = replyingTo;
+
+            db.ref("chats").push(payload);
+            showToast("Image sent! 🖼️");
+            cancelReplyEdit();
+          });
+        }
+      );
+      event.target.value = ""; // reset
+    }
+
+    // ==========================================
+    // 7. MENUS, REACTIONS & ACTIONS
     // ==========================================
     function openContextMenu(e, id, isMe) {
       e.stopPropagation(); activeMsgId = id;
@@ -691,24 +699,13 @@
       document.getElementById('btnDeleteEveryone').style.display = isMe ? 'block' : 'none';
       overlay.style.display = 'block'; menu.style.display = 'block';
       
-      const rect = e.target.getBoundingClientRect();
       const menuHeight = 160; 
-      
-      // SMART POSITIONING (Cegah terpotong di bawah)
-      // Karena dipanggil dari body pesan, menggunakan posisi kursor mouse (clientX/Y) akan lebih akurat
       let topPos = e.clientY;
-      if (topPos + menuHeight > window.innerHeight - 60) {
-        topPos = e.clientY - menuHeight;
-      }
+      if (topPos + menuHeight > window.innerHeight - 60) topPos = e.clientY - menuHeight;
       menu.style.top = `${topPos}px`;
       
-      if (isMe) { 
-        menu.style.right = `${window.innerWidth - e.clientX}px`; 
-        menu.style.left = 'auto'; 
-      } else { 
-        menu.style.left = `${e.clientX}px`; 
-        menu.style.right = 'auto'; 
-      }
+      if (isMe) { menu.style.right = `${window.innerWidth - e.clientX}px`; menu.style.left = 'auto'; } 
+      else { menu.style.left = `${e.clientX}px`; menu.style.right = 'auto'; }
 
       setTimeout(() => menu.classList.add('show'), 10);
     }
@@ -725,7 +722,6 @@
       const rect = e.currentTarget.firstElementChild.getBoundingClientRect();
       let pickerTop = rect.top - 50;
       if(pickerTop < 70) pickerTop = rect.bottom + 10;
-      
       picker.style.top = `${pickerTop}px`;
       
       if (wrapper.dataset.sender === myName) { picker.style.right = `20px`; picker.style.left = 'auto'; } 
@@ -755,7 +751,7 @@
     function showPreviewBox(mode) {
       const box = document.getElementById('replyPreviewBox'); const nameEl = document.getElementById('replyPreviewName');
       const textEl = document.getElementById('replyPreviewText'); const editEl = document.getElementById('editPreviewMode');
-      if (mode === 'reply') { nameEl.style.display = 'block'; editEl.style.display = 'none'; nameEl.innerText = replyingTo.sender === myName ? 'You' : replyingTo.sender; textEl.innerText = replyingTo.text; } 
+      if (mode === 'reply') { nameEl.style.display = 'block'; editEl.style.display = 'none'; nameEl.innerText = replyingTo.sender === myName ? 'You' : replyingTo.sender; textEl.innerText = replyingTo.text || "Image"; } 
       else { nameEl.style.display = 'none'; editEl.style.display = 'block'; textEl.innerText = document.getElementById(`msg-${editingMsgId}`).dataset.text; }
       box.style.display = 'block'; document.getElementById('chatInput').focus();
     }
@@ -764,18 +760,48 @@
     function closeDeleteModal() { document.getElementById('deleteModal').style.opacity = '0'; document.querySelector('.del-modal-box').style.transform = 'scale(0.9)'; setTimeout(() => document.getElementById('deleteModal').style.display = 'none', 200); }
     function executeDelete(type) {
       if(!activeMsgId) return;
-      if (type === 'everyone') db.ref(`chats/${activeMsgId}`).update({ isDeletedForEveryone: true, text: "", replyTo: null });
+      if (type === 'everyone') db.ref(`chats/${activeMsgId}`).update({ isDeletedForEveryone: true, text: "", imageUrl: null, replyTo: null });
       else if (type === 'me') db.ref(`chats/${activeMsgId}/deletedForMe/${myName}`).set(true);
       closeDeleteModal(); activeMsgId = null;
     }
 
+    // ==========================================
+    // 8. EMOJI ENGINE
+    // ==========================================
     function sendReaction(emoji) { if(!activeMsgId) return; db.ref(`chats/${activeMsgId}/reactions/${myName}`).set(emoji); closeAllMenus(); }
-    document.querySelector('emoji-picker').addEventListener('emoji-click', e => { sendReaction(e.detail.unicode); document.getElementById('fullEmojiContainer').style.display = 'none'; });
-    function openFullEmoji() { document.getElementById('msgReactionPicker').classList.remove('show'); setTimeout(() => document.getElementById('msgReactionPicker').style.display = 'none', 200); document.getElementById('fullEmojiContainer').style.display = 'block'; }
+    
+    function openFullEmoji() { 
+      emojiTarget = 'reaction'; 
+      document.getElementById('msgReactionPicker').classList.remove('show'); 
+      setTimeout(() => document.getElementById('msgReactionPicker').style.display = 'none', 200); 
+      document.getElementById('fullEmojiContainer').style.display = 'block'; 
+    }
+
+    function openEmojiForInput() {
+      emojiTarget = 'input'; 
+      const container = document.getElementById('fullEmojiContainer');
+      container.style.display = (container.style.display === 'block') ? 'none' : 'block';
+    }
+
+    document.querySelector('emoji-picker').addEventListener('emoji-click', e => { 
+      if (emojiTarget === 'reaction') {
+        sendReaction(e.detail.unicode); 
+        document.getElementById('fullEmojiContainer').style.display = 'none'; 
+      } else {
+        const chatInput = document.getElementById('chatInput');
+        chatInput.value += e.detail.unicode; 
+        chatInput.focus();
+      }
+    });
+
+    // Hide emoji if clicking in chat box
+    document.getElementById('chatBox').addEventListener('click', () => {
+      document.getElementById('fullEmojiContainer').style.display = 'none';
+    });
 
 
     // ==========================================
-    // MUSIC CONTROLS
+    // 9. MUSIC CONTROLS & SYNC
     // ==========================================
     function setSubView(mode) {
       const anni = document.getElementById('anniView'); const music = document.getElementById('musicView');
@@ -784,52 +810,27 @@
     }
 
     function setPlayerLoadingState(isLoading) {
-      const playBtn = document.getElementById('btnPlayPause');
-      const diskCover = document.getElementById('diskCover');
-      if(isLoading) {
-        playBtn.innerHTML = '<div class="spinner-icon">🔄</div>'; 
-        diskCover.classList.remove('playing');
-        diskCover.classList.add('loading-pulse'); 
-      } else {
-        diskCover.classList.remove('loading-pulse');
-      }
+      const playBtn = document.getElementById('btnPlayPause'); const diskCover = document.getElementById('diskCover');
+      if(isLoading) { playBtn.innerHTML = '<div class="spinner-icon">🔄</div>'; diskCover.classList.remove('playing'); diskCover.classList.add('loading-pulse'); } 
+      else { diskCover.classList.remove('loading-pulse'); }
     }
 
     function broadcastMusicAction(action, index = currentSongIndex) {
       if(index < 0 || index >= myPlaylist.length) return;
       const song = myPlaylist[index];
       if(action === 'play') setPlayerLoadingState(true);
-
-      db.ref("music_state").set({
-        action: action, songIndex: index, title: song.title, url: song.url, sender: myName,
-        timestamp: Date.now(), seekTime: (action === 'play' ? 0 : audioPlayer.currentTime) 
-      });
+      db.ref("music_state").set({ action: action, songIndex: index, title: song.title, url: song.url, sender: myName, timestamp: Date.now(), seekTime: (action === 'play' ? 0 : audioPlayer.currentTime) });
     }
 
-    function togglePlayPause() {
-      if(currentSongIndex === -1) return;
-      if (isPlaying) broadcastMusicAction("pause"); else broadcastMusicAction("resume");
-    }
-    function playNext() {
-      if(currentSongIndex === -1) return;
-      let nextIdx = currentSongIndex + 1; if(nextIdx >= myPlaylist.length) nextIdx = 0;
-      broadcastMusicAction("play", nextIdx);
-    }
-    function playPrev() {
-      if(currentSongIndex === -1) return;
-      let prevIdx = currentSongIndex - 1; if(prevIdx < 0) prevIdx = myPlaylist.length - 1;
-      broadcastMusicAction("play", prevIdx);
-    }
+    function togglePlayPause() { if(currentSongIndex === -1) return; if (isPlaying) broadcastMusicAction("pause"); else broadcastMusicAction("resume"); }
+    function playNext() { if(currentSongIndex === -1) return; let nextIdx = currentSongIndex + 1; if(nextIdx >= myPlaylist.length) nextIdx = 0; broadcastMusicAction("play", nextIdx); }
+    function playPrev() { if(currentSongIndex === -1) return; let prevIdx = currentSongIndex - 1; if(prevIdx < 0) prevIdx = myPlaylist.length - 1; broadcastMusicAction("play", prevIdx); }
     function stopMusicBroadcast() { db.ref("music_state").set({ action: "stop", sender: myName, timestamp: Date.now() }); }
     function toggleRepeat() { db.ref("music_settings").set({ repeat: !isRepeat, sender: myName }); }
 
     audioPlayer.onended = () => {
       if (isRepeat) { audioPlayer.play(); } 
-      else {
-        db.ref("music_state").once("value", snap => {
-          const state = snap.val(); if(state && state.sender === myName) playNext(); 
-        });
-      }
+      else { db.ref("music_state").once("value", snap => { const state = snap.val(); if(state && state.sender === myName) playNext(); }); }
     };
 
     function initMusicSync() {
@@ -838,13 +839,8 @@
         if(data !== null) {
           isRepeat = data.repeat;
           const btn = document.getElementById('btnRepeat');
-          if(isRepeat) {
-            btn.classList.add('active-repeat');
-            if(data.sender !== myName) showToast(`${data.sender} turned on Repeat 🔁`);
-          } else {
-            btn.classList.remove('active-repeat');
-            if(data.sender !== myName) showToast(`${data.sender} turned off Repeat ➡️`);
-          }
+          if(isRepeat) { btn.classList.add('active-repeat'); if(data.sender !== myName) showToast(`${data.sender} turned on Repeat 🔁`); } 
+          else { btn.classList.remove('active-repeat'); if(data.sender !== myName) showToast(`${data.sender} turned off Repeat ➡️`); }
         }
       });
 
@@ -859,48 +855,36 @@
           currentSongIndex = state.songIndex;
           if (audioPlayer.src !== state.url) { audioPlayer.src = state.url; }
 
-          setSubView('music');
-          document.getElementById('musicTitleDisplay').innerText = state.title;
-          setPlayerLoadingState(true); 
+          setSubView('music'); document.getElementById('musicTitleDisplay').innerText = state.title; setPlayerLoadingState(true); 
 
           const syncAndPlay = () => {
             const timePassed = (Date.now() - state.timestamp) / 1000;
             const targetTime = state.seekTime + timePassed;
-
             if (Math.abs(audioPlayer.currentTime - targetTime) > 2) { audioPlayer.currentTime = targetTime; }
             const currentActionTimestamp = state.timestamp;
 
             audioPlayer.play().then(() => {
               if (lastMusicTimestamp !== currentActionTimestamp) { audioPlayer.pause(); return; }
-              setPlayerLoadingState(false);
-              playBtn.innerHTML = "⏸"; diskCover.classList.add('playing'); isPlaying = true;
+              setPlayerLoadingState(false); playBtn.innerHTML = "⏸"; diskCover.classList.add('playing'); isPlaying = true;
             }).catch(() => {
               if (lastMusicTimestamp === currentActionTimestamp) { setPlayerLoadingState(false); showToast("System syncing audio playback."); }
             });
           };
 
-          if (audioPlayer.readyState >= 1) { syncAndPlay(); } 
-          else { audioPlayer.onloadedmetadata = () => { syncAndPlay(); audioPlayer.onloadedmetadata = null; }; }
+          if (audioPlayer.readyState >= 1) { syncAndPlay(); } else { audioPlayer.onloadedmetadata = () => { syncAndPlay(); audioPlayer.onloadedmetadata = null; }; }
         } 
         else if(state.action === "pause") {
           audioPlayer.currentTime = state.seekTime; audioPlayer.pause();
-          setPlayerLoadingState(false);
-          playBtn.innerHTML = "▶"; diskCover.classList.remove('playing'); isPlaying = false;
+          setPlayerLoadingState(false); playBtn.innerHTML = "▶"; diskCover.classList.remove('playing'); isPlaying = false;
         }
         else if(state.action === "stop") {
           audioPlayer.pause(); audioPlayer.currentTime = 0; setSubView('anni');
-          setPlayerLoadingState(false);
-          diskCover.classList.remove('playing'); isPlaying = false; currentSongIndex = -1;
+          setPlayerLoadingState(false); diskCover.classList.remove('playing'); isPlaying = false; currentSongIndex = -1;
         }
       });
     }
 
-    function openPlaylist() {
-      document.getElementById('searchSong').value = ''; renderPlaylistItems(myPlaylist); 
-      const modal = document.getElementById('playlistModal');
-      modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
-    }
-
+    function openPlaylist() { document.getElementById('searchSong').value = ''; renderPlaylistItems(myPlaylist); const modal = document.getElementById('playlistModal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10); }
     function renderPlaylistItems(listToRender) {
       const list = document.getElementById('playlistContainer'); list.innerHTML = "";
       if(listToRender.length === 0) { list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:14px;">Song not found 😔</div>`; return; }
@@ -909,35 +893,18 @@
         const originalIndex = myPlaylist.findIndex(s => s.url === song.url && s.title === song.title);
         const div = document.createElement('div'); div.className = "song-item";
         div.onclick = () => { closeModal(null, true); broadcastMusicAction("play", originalIndex); }
-        
         const isThisPlaying = (currentSongIndex === originalIndex);
-        const iconColor = isThisPlaying ? "var(--spot-green)" : "#ccc"; 
-        const titleColor = isThisPlaying ? "var(--spot-green)" : "var(--text-main)";
-        const icon = isThisPlaying ? `<div style="display:flex; gap:2px; height:15px; align-items:flex-end;">
-            <div style="width:3px; height:100%; background:var(--spot-green); animation: bounce 1s infinite;"></div>
-            <div style="width:3px; height:60%; background:var(--spot-green); animation: bounce 1s infinite 0.2s;"></div>
-            <div style="width:3px; height:80%; background:var(--spot-green); animation: bounce 1s infinite 0.4s;"></div>
-          </div>` : "▶";
-
+        const iconColor = isThisPlaying ? "var(--spot-green)" : "#ccc"; const titleColor = isThisPlaying ? "var(--spot-green)" : "var(--text-main)";
+        const icon = isThisPlaying ? `<div style="display:flex; gap:2px; height:15px; align-items:flex-end;"><div style="width:3px; height:100%; background:var(--spot-green); animation: bounce 1s infinite;"></div><div style="width:3px; height:60%; background:var(--spot-green); animation: bounce 1s infinite 0.2s;"></div><div style="width:3px; height:80%; background:var(--spot-green); animation: bounce 1s infinite 0.4s;"></div></div>` : "▶";
         div.innerHTML = `<div class="song-item-info"><span class="song-item-title" style="color:${titleColor}">${song.title}</span><span class="song-item-artist">${song.artist}</span></div><span style="color:${iconColor}; font-size:18px;">${icon}</span>`;
         list.appendChild(div);
       });
     }
-
-    function filterPlaylist() {
-      const query = document.getElementById('searchSong').value.toLowerCase();
-      const filtered = myPlaylist.filter(song => song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query));
-      renderPlaylistItems(filtered);
-    }
-    function closeModal(e, forceClose = false) { 
-      const modal = document.getElementById('playlistModal');
-      if(forceClose || e.target.id === 'playlistModal') { modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300); }
-    }
+    function filterPlaylist() { const query = document.getElementById('searchSong').value.toLowerCase(); const filtered = myPlaylist.filter(song => song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query)); renderPlaylistItems(filtered); }
+    function closeModal(e, forceClose = false) { const modal = document.getElementById('playlistModal'); if(forceClose || e.target.id === 'playlistModal') { modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300); } }
     function showToast(msg) { const t = document.getElementById('customToast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
     
     const styleSheet = document.createElement("style"); styleSheet.innerText = "@keyframes bounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }"; document.head.appendChild(styleSheet);
   </script>
 </body>
 </html>
-
-
