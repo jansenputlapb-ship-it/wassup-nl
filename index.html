@@ -651,9 +651,8 @@
     }
 
     // ==========================================
-    // 6. IMAGE UPLOAD LOGIC (WITH CANVAS COMPRESSION)
+    // 6. IMAGE UPLOAD LOGIC (ULTIMATE FIX)
     // ==========================================
-    // GANTI DENGAN URL WEB APP GOOGLE SCRIPT KAMU
     const G_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwB0u554wQCWX7M_eaAo4pmCPoiz1fSZPLupmvWhCeuwCjHcFKww9Npy8neYZ_BV8JtIQ/exec";
 
     async function handleImageUpload(event) {
@@ -668,12 +667,11 @@
         im.src = e.target.result;
         im.onload = async () => {
           
-          // --- KOMPRESI CANVAS DARI PROJECT LAMA KAMU ---
+          // Kompresi Canvas
           const c = document.createElement('canvas');
           const x = c.getContext('2d');
           let w = im.width, h = im.height;
           
-          // Maksimal lebar 800px agar ringan dan cepat dikirim
           if (w > 800) { 
             h = Math.round(h * (800 / w)); 
             w = 800; 
@@ -682,22 +680,20 @@
           c.height = h; 
           x.drawImage(im, 0, 0, w, h);
           
-          // Ubah menjadi Base64 berformat JPEG dengan kualitas 70%
           const compressedBase64 = c.toDataURL('image/jpeg', 0.7);
-          // ----------------------------------------------
           
           showToast("Mengunggah ke Drive... 🚀");
           
+          // TRIK ANTI-ERROR: Menggunakan URLSearchParams agar dibaca sebagai Form Data
+          const formData = new URLSearchParams();
+          formData.append("base64", compressedBase64);
+          formData.append("name", "img_" + Date.now() + ".jpg");
+
           try {
             const res = await fetch(G_SCRIPT_URL, {
               method: "POST",
-              headers: {
-                "Content-Type": "text/plain;charset=utf-8"
-              },
-              body: JSON.stringify({ 
-                base64: compressedBase64, 
-                name: "img_" + Date.now() + ".jpg" 
-              })
+              // Hapus headers Content-Type, biarkan browser yang mengatur otomatis untuk Form Data
+              body: formData
             });
             
             const result = await res.json();
@@ -716,18 +712,17 @@
               showToast("Foto terkirim! 🖼️");
               cancelReplyEdit();
             } else {
-              showToast("Gagal dari server: " + result.error);
-              console.error(result.error);
+              showToast("Gagal (Server): " + result.error);
+              console.error("Server Error Detail:", result.error);
             }
           } catch (err) {
-            showToast("Connection Error ❌ Cek URL/Akses Script!");
+            showToast("Connection Error ❌");
             console.error("Fetch Error:", err);
           }
         };
       };
       
       reader.readAsDataURL(file);
-      // Reset input file agar bisa memilih gambar yang sama jika perlu
       event.target.value = ""; 
     }
 
@@ -954,4 +949,5 @@
   </script>
 </body>
 </html>
+
 
