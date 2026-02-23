@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Portal Bucin 💖</title>
+  <title>Love Portal 💖</title>
   
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -41,7 +41,8 @@
     #headerAvatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #fff; border: 2px solid rgba(255,255,255,0.2); }
     .header-info { display: flex; flex-direction: column; justify-content: center; flex: 1; overflow: hidden; }
     .header-name { font-size: 17px; font-weight: 600; line-height: 1.2; letter-spacing: 0.2px; }
-    .header-status { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.8); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* FIXED: Ditambahkan padding-bottom dan line-height agar tulisan typing/mengetik tidak terpotong */
+    .header-status { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.8); line-height: 1.4; padding-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .action-btn { background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 50%; border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--trans-smooth); }
     .action-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
 
@@ -57,7 +58,6 @@
     .timer-left { display: flex; align-items: center; gap: 5px; z-index: 2; flex-shrink: 0; }
     .anni-heart { color: #e91e63; font-size: 14px; animation: heartbeat 1.5s infinite ease-in-out; margin-right: 2px; }
     
-    /* Struktur Baru: Blok Label + Angka */
     .time-block { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
     .time-label { font-size: 8px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
     .time-badge { background: #f0f2f5; padding: 2px 4px; border-radius: 4px; color: var(--wa-dark); font-family: monospace; font-weight: 700; font-size: 13px; min-width: 22px; text-align: center; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
@@ -117,7 +117,8 @@
     .music-title { font-size: 13px; font-weight: 700; color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
     
     .player-controls { display: flex; align-items: center; gap: 8px; }
-    .ctrl-btn { background: #f0f2f5; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: var(--trans-smooth); position: relative; }
+    /* FIXED: Penyesuaian padding dan line-height agar ikon berada presisi di tengah vertikal & horizontal */
+    .ctrl-btn { background: #f0f2f5; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: var(--trans-smooth); position: relative; padding: 0; line-height: 1; font-family: "Segoe UI Emoji", "Apple Color Emoji", sans-serif; }
     .ctrl-btn:active { transform: scale(0.9); background: #e9edef; }
     .play-pause-btn { background: var(--spot-green); color: white; font-size: 14px; box-shadow: 0 3px 8px rgba(29, 185, 84, 0.3); }
     .play-pause-btn:active { background: #189c46; }
@@ -140,7 +141,7 @@
     footer { background: var(--wa-bg); padding: 12px 16px; display: flex; gap: 10px; align-items: flex-end; z-index: 1000; }
     .input-wrapper { flex: 1; background: white; border-radius: 24px; padding: 10px 16px; display: flex; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); min-height: 48px; }
     .input-wrapper input { width: 100%; border: none; outline: none; font-size: 15px; background: transparent; color: var(--text-main); }
-    .send-btn { background: var(--wa-dark); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 5px rgba(0,128,105,0.3); transition: var(--trans-smooth); flex-shrink: 0; }
+    .send-btn { background: var(--wa-dark); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 5px rgba(0,128,105,0.3); transition: var(--trans-smooth); flex-shrink: 0; padding: 0; }
     .send-btn:active { transform: scale(0.9) rotate(-10deg); background: var(--wa-light); }
 
     /* MODAL PLAYLIST */
@@ -150,7 +151,7 @@
     #playlistModal.show .modal-content { transform: translateY(0); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .modal-header h3 { color: var(--text-main); font-size: 20px; font-weight: 800; }
-    .close-modal-btn { background: #f0f2f5; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; color: var(--text-muted); cursor: pointer; transition: var(--trans-smooth); }
+    .close-modal-btn { background: #f0f2f5; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; color: var(--text-muted); cursor: pointer; transition: var(--trans-smooth); display: flex; align-items: center; justify-content: center; padding: 0; }
     .search-bar-wrapper { flex-shrink: 0; position: sticky; top: 0; background: white; z-index: 10; padding-bottom: 10px; border-bottom: 1px solid #f0f2f5; }
     .search-input { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e9edef; background: #f9f9f9; font-size: 14px; outline: none; transition: var(--trans-smooth); }
     .search-input:focus { border-color: var(--spot-green); background: white; }
@@ -173,11 +174,11 @@
 
   <div id="loginScreen">
     <div class="login-box">
-      <h2>Portal Bucin <span style="animation: heartbeat 1.5s infinite; display: inline-block;">💖</span></h2>
-      <p>Masuk ke ruang privasi kita</p>
-      <input type="password" id="inputCode" placeholder="Kode Rahasia" onkeypress="if(event.key==='Enter') doLogin()">
-      <button onclick="doLogin()">Masuk Sekarang</button>
-      <div id="errorMsg">Oops! Kodenya salah. Coba 123456 atau 654321 ya!</div>
+      <h2>Love Portal <span style="animation: heartbeat 1.5s infinite; display: inline-block;">💖</span></h2>
+      <p>Enter our private space</p>
+      <input type="password" id="inputCode" placeholder="Secret Code" onkeypress="if(event.key==='Enter') doLogin()">
+      <button onclick="doLogin()">Enter Now</button>
+      <div id="errorMsg">Oops! Wrong code. Try 123456 or 654321!</div>
     </div>
   </div>
 
@@ -185,11 +186,11 @@
     <header>
       <img id="headerAvatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
       <div class="header-info">
-        <div class="header-name" id="partnerNameDisplay">Si Doi</div>
-        <div class="header-status" id="partnerStatusDisplay">menunggu koneksi...</div>
+        <div class="header-name" id="partnerNameDisplay">Partner</div>
+        <div class="header-status" id="partnerStatusDisplay">waiting for connection...</div>
       </div>
       <div class="header-actions">
-        <button class="action-btn" onclick="openPlaylist()" title="Buka Playlist">🎧</button>
+        <button class="action-btn" onclick="openPlaylist()" title="Open Playlist">🎧</button>
       </div>
     </header>
 
@@ -235,11 +236,11 @@
           <div class="music-cover" id="diskCover">🎵</div>
           <div class="music-text">
             <span class="music-label">Now Playing</span>
-            <span class="music-title" id="musicTitleDisplay">Judul Lagu</span>
+            <span class="music-title" id="musicTitleDisplay">Song Title</span>
           </div>
         </div>
         <div class="player-controls">
-          <button class="ctrl-btn" id="btnRepeat" onclick="toggleRepeat()" title="Ulangi Lagu">🔁</button>
+          <button class="ctrl-btn" id="btnRepeat" onclick="toggleRepeat()" title="Repeat Song">🔁</button>
           <button class="ctrl-btn" onclick="playPrev()">⏮</button>
           <button class="ctrl-btn play-pause-btn" id="btnPlayPause" onclick="togglePlayPause()">⏸</button>
           <button class="ctrl-btn" onclick="playNext()">⏭</button>
@@ -251,12 +252,12 @@
     <audio id="audioPlayer" preload="auto"></audio>
 
     <main id="chatBox">
-      <div class="msg-system">Enkripsi End-to-End. Tidak ada yang bisa membaca pesan kalian berdua. 🔒</div>
+      <div class="msg-system">End-to-End Encrypted. No one outside of this chat can read your messages. 🔒</div>
     </main>
 
     <footer>
       <div class="input-wrapper">
-        <input type="text" id="chatInput" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <input type="text" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
       </div>
       <button class="send-btn" onclick="sendMessage()">➤</button>
     </footer>
@@ -265,11 +266,11 @@
   <div id="playlistModal" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <h3>Daftar Lagu 🎶</h3>
+        <h3>Playlist 🎶</h3>
         <button class="close-modal-btn" onclick="closeModal(null, true)">✖</button>
       </div>
       <div class="search-bar-wrapper">
-        <input type="text" id="searchSong" class="search-input" placeholder="Cari judul lagu atau artis..." onkeyup="filterPlaylist()">
+        <input type="text" id="searchSong" class="search-input" placeholder="Search song or artist..." onkeyup="filterPlaylist()">
       </div>
       <div id="playlistContainer"></div>
     </div>
@@ -294,14 +295,14 @@
 
     const TANGGAL_JADIAN = "2025-07-30T00:00:00"; 
     
-    // KUMPULAN KALIMAT (Lebih Panjang untuk tes Justify)
+    // ENGLISH QUOTES
     const romaticQuotes = [
-      "Setiap detik bersamamu adalah petualangan indah yang tak ingin kuakhiri.",
-      "Kamu bukan hanya duniaku, tapi juga semesta tempatku pulang dan menetap selamanya.",
-      "Jarak mungkin memisahkan raga, tapi hati kita selalu bertaut dalam frekuensi yang sama.",
-      "Mencintaimu adalah hal termudah yang pernah kulakukan, dan hal terindah yang kurasakan.",
-      "Terima kasih telah menjadi alasan di balik senyumku setiap hari, my favorite human.",
-      "Tidak ada tempat yang lebih nyaman selain berada dalam dekapan hangat perhatianmu."
+      "Every second with you is a beautiful adventure I never want to end.",
+      "You are not just my world, but the universe where I belong forever.",
+      "Distance may separate our bodies, but our hearts always beat on the same frequency.",
+      "Loving you is the easiest thing I've ever done, and the most beautiful thing I've felt.",
+      "Thank you for being the reason behind my smile every single day, my favorite human.",
+      "There is no place more comfortable than the warm embrace of your attention."
     ];
 
     function startRandomQuotes() {
@@ -319,13 +320,12 @@
       }, 6000); 
     }
     
-    // GENERATE 55 LAGU UNTUK SIMULASI UI
     const baseSongs = [
-      { title: "Lagu Kenangan", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-      { title: "Sempurna Buat Kita", artist: "Malam Indah", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-      { title: "Rindu Sekali", artist: "Hujan Sore", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-      { title: "Menari Bersama", artist: "Bintang Jatuh", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-      { title: "Cinta Terakhir", artist: "Selalu Kamu", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+      { title: "Sweet Memories", artist: "Pasti Berbunyi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+      { title: "Perfect For Us", artist: "Malam Indah", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+      { title: "Miss You So Much", artist: "Hujan Sore", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+      { title: "Dancing Together", artist: "Bintang Jatuh", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+      { title: "Last Love", artist: "Selalu Kamu", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
     ];
     let myPlaylist = [];
     for(let i=0; i<11; i++) { 
@@ -341,8 +341,8 @@
     function doLogin() {
       const code = document.getElementById('inputCode').value.trim();
       const users = {
-        "123456": { name: "NamaCowok", partner: "NamaCewek", role: "cowok" },
-        "654321": { name: "NamaCewek", partner: "NamaCowok", role: "cewek" }
+        "123456": { name: "BoyName", partner: "GirlName", role: "cowok" },
+        "654321": { name: "GirlName", partner: "BoyName", role: "cewek" }
       };
 
       if(users[code]) {
@@ -355,11 +355,11 @@
           setTimeout(() => { loginEl.style.display = 'none'; document.getElementById('appScreen').style.display = 'flex'; }, 300);
           
           audioPlayer.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"; 
-          audioPlayer.play().then(() => { audioPlayer.pause(); }).catch(e => console.log("Unlock tertunda"));
+          audioPlayer.play().then(() => { audioPlayer.pause(); }).catch(e => console.log("Unlock delayed"));
 
           startAnniversaryCounter(); initFirebaseListeners(); setupPresenceSystem(); startRandomQuotes();
         } catch (e) {
-          console.error("Terjadi kesalahan saat inisialisasi:", e);
+          console.error("Initialization error:", e);
         }
       } else {
         const err = document.getElementById('errorMsg'); 
@@ -407,14 +407,14 @@
         const data = snap.val(); const statusEl = document.getElementById('partnerStatusDisplay');
         if(!data) { statusEl.innerText = "offline"; return; }
         if(data.state === 'typing') {
-          statusEl.innerText = "sedang mengetik..."; statusEl.style.color = "var(--wa-chat-me)"; statusEl.style.fontWeight = "600";
+          statusEl.innerText = "typing..."; statusEl.style.color = "var(--wa-chat-me)"; statusEl.style.fontWeight = "600";
         } else if(data.state === 'online') {
           statusEl.innerText = "Online"; statusEl.style.color = "#d9fdd3"; statusEl.style.fontWeight = "400";
         } else {
           const date = new Date(data.last_changed);
           const h = date.getHours().toString().padStart(2, '0'); const m = date.getMinutes().toString().padStart(2, '0');
           statusEl.style.color = "rgba(255,255,255,0.7)"; statusEl.style.fontWeight = "400";
-          statusEl.innerText = (data.state === 'afk') ? `AFK sejak pukul ${h}:${m}` : `terakhir dilihat ${h}:${m}`;
+          statusEl.innerText = (data.state === 'afk') ? `Away since ${h}:${m}` : `last seen at ${h}:${m}`;
         }
       });
     }
@@ -500,10 +500,10 @@
           const btn = document.getElementById('btnRepeat');
           if(isRepeat) {
             btn.classList.add('active-repeat');
-            if(data.sender !== myName) showToast(`${data.sender} menyalakan Repeat 🔁`);
+            if(data.sender !== myName) showToast(`${data.sender} turned on Repeat 🔁`);
           } else {
             btn.classList.remove('active-repeat');
-            if(data.sender !== myName) showToast(`${data.sender} mematikan Repeat ➡️`);
+            if(data.sender !== myName) showToast(`${data.sender} turned off Repeat ➡️`);
           }
         }
       });
@@ -536,7 +536,7 @@
               isPlaying = true;
             }).catch(() => {
               setPlayerLoadingState(false);
-              showToast("Sistem mengamankan sinkronisasi audio.");
+              showToast("System syncing audio playback.");
             });
           };
 
@@ -570,7 +570,7 @@
 
     function renderPlaylistItems(listToRender) {
       const list = document.getElementById('playlistContainer'); list.innerHTML = "";
-      if(listToRender.length === 0) { list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:14px;">Lagu tidak ditemukan 😔</div>`; return; }
+      if(listToRender.length === 0) { list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:14px;">Song not found 😔</div>`; return; }
 
       listToRender.forEach((song) => {
         const originalIndex = myPlaylist.findIndex(s => s.url === song.url && s.title === song.title);
