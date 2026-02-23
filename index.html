@@ -781,7 +781,7 @@
       document.getElementById('msgContextMenu').classList.remove('show');
       document.getElementById('msgReactionPicker').classList.remove('show');
       document.getElementById('fullEmojiContainer').style.display = 'none';
-document.getElementById('chatBox').classList.remove('chat-pushed-up');
+document.getElementById('chatBox').style.paddingBottom = "0";
       setTimeout(() => { document.getElementById('msgContextMenu').style.display = 'none'; document.getElementById('msgReactionPicker').style.display = 'none'; }, 200);
     }
 
@@ -837,19 +837,25 @@ document.getElementById('chatBox').classList.remove('chat-pushed-up');
       const chatBox = document.getElementById('chatBox');
       
       if (container.style.display === 'block') {
+        // TUTUP EMOJI
         container.style.display = 'none';
-        chatBox.classList.remove('chat-pushed-up'); // Kembalikan chat ke bawah
+        chatBox.style.paddingBottom = "0"; // Kembalikan chat ke ukuran normal
       } else {
+        // BUKA EMOJI
         container.style.display = 'block';
-        chatBox.classList.add('chat-pushed-up'); // Dorong chat ke atas
         
-        // Otomatis scroll ke pesan paling bawah agar tidak tertutup
+        // Trik WA: Tambahkan ruang kosong di bawah chat sebesar kotak emojimu
+        // Karena di CSS kamu emojinya "height: 45vh; max-height: 400px;"
+        chatBox.style.paddingBottom = "min(45vh, 400px)"; 
+        
+        // Scroll otomatis ke bawah agar pesan terakhir naik ke atas emoji
         setTimeout(() => {
           chatBox.scrollTop = chatBox.scrollHeight;
-        }, 150);
+        }, 100);
       }
     }
 
+    // Saat user memilih emoji
     document.querySelector('emoji-picker').addEventListener('emoji-click', e => { 
       if (emojiTarget === 'reaction') {
         sendReaction(e.detail.unicode); 
@@ -861,10 +867,10 @@ document.getElementById('chatBox').classList.remove('chat-pushed-up');
       }
     });
 
-    // Sembunyikan emoji dan kembalikan posisi chat saat background chat diklik
+    // Saat user klik area chat untuk menutup emoji
     document.getElementById('chatBox').addEventListener('click', () => {
       document.getElementById('fullEmojiContainer').style.display = 'none';
-      document.getElementById('chatBox').classList.remove('chat-pushed-up');
+      document.getElementById('chatBox').style.paddingBottom = "0"; // Kembalikan normal
     });
 
 
@@ -976,6 +982,7 @@ document.getElementById('chatBox').classList.remove('chat-pushed-up');
   </script>
 </body>
 </html>
+
 
 
 
