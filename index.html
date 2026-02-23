@@ -539,6 +539,9 @@
       update(); setInterval(update, 1000); 
     }
 
+    let allowSfx = false;
+setTimeout(() => { allowSfx = true; }, 3000);
+    
     function setupPresenceSystem() {
       const myStatusRef = db.ref(`users/${myName}`);
       db.ref('.info/connected').on('value', snap => {
@@ -616,7 +619,7 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
 }
 
     function buildChatUI(id, data) {
-      if (!data || !data.sender) return; 
+      if (!data || !data.sender) return;
 
       if (data.deletedForMe && data.deletedForMe[myName]) {
         const el = document.getElementById(`msg-${id}`);
@@ -631,10 +634,27 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
         wrapper = document.createElement('div');
         wrapper.id = `msg-${id}`;
         wrapper.className = 'msg-wrapper';
+        
+        // Sembunyikan bubble jika tipenya suara (Invisible)
+        if (data.type === 'suara') {
+          wrapper.style.display = 'none';
+        }
+        
         document.getElementById('chatBox').appendChild(wrapper);
       }
 
+      // --- LOGIKA EKSEKUSI SUARA TANPA BUBBLE CHAT ---
+      if (data.type === 'suara') {
+        if (isNew && allowSfx && data.audioUrl) {
+          const sfx = new Audio(data.audioUrl);
+          sfx.play().catch(e => console.log("Gagal memutar suara", e));
+        }
+        return; // Stop gambar bubble HTML-nya
+      }
+
       const isMe = (data.sender === myName);
+      const isBucin = (data.type === 'bucin');
+      const bucinClass = isBucin ? 'msg-bucin' : '';
       let contentHTML = "";
 
       if (data.isDeletedForEveryone) {
@@ -655,73 +675,37 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
               <div class="quote-text">${repText}</div>
             </div>`;
         }
+        let mediaHTML = data.imageUrl ? `<img src="${data.imageUrl}" class="chat-img" onclick="openActionMenu(event, '${id}')">` : "";
+        let reactHTML = data.reactions ? `<div class="msg-reaction" onclick="openReactionPicker(event, '${id}')">${Object.values(data.reactions).join('')}</div>` : "";
 
-        let reactHTML = "";
-        if (data.reactions) {
-          let rIcons = Object.values(data.reactions).join("");
-          if(rIcons.length > 0) reactHTML = `<div class="reaction-badge">${rIcons}</div>`;
-        }
-
-        // Tampilkan gambar jika ada (fitur upload)
-        let mediaHTML = "";
-        if (data.imageUrl) {
-          mediaHTML = `<img src="${data.imageUrl}" style="max-width: 100%; max-height: 250px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; object-fit: contain;" onclick="window.open('${data.imageUrl}', '_blank')">`;
-        }
-
-        const editedStr = data.edited ? `<span class="edited-label">Edited</span>` : "";
-
-        // Tambahkan class msg-bucin jika data.type adalah bucin
-const bucinClass = data.type === 'bucin' ? 'msg-bucin' : '';
-
-contentHTML = `
-  <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}">
+        contentHTML = `
+          <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}" onclick="openActionMenu(event, '${id}')">
             <div class="msg-content">
               ${quoteHTML}
               ${mediaHTML}
               ${data.text ? `<div class="msg-text">${formatMessageText(data.text)}</div>` : ''}
-              <div class="msg-meta">${editedStr}<span class="time-stamp">${data.time}</span></div>
+              <div class="msg-meta">
+                 ${data.edited ? '<span class="edited-label">Edited</span>' : ''}
+                 <span class="time-stamp">${data.time}</span>
+              </div>
             </div>
             ${reactHTML}
-          </div>
-        `;
-        
-        // INTERAKSI KLIK KIRI & KANAN
-        wrapper.onclick = (e) => {
-          if (!e.target.closest('.message')) return; 
-          if (!e.target.closest('.msg-quote')) { openReactionPicker(e, id); }
-        };
-
-        wrapper.oncontextmenu = (e) => {
-          if (!e.target.closest('.message')) return; 
-          e.preventDefault(); 
-          if (!e.target.closest('.msg-quote')) { openContextMenu(e, id, isMe); }
-        };
+          </div>`;
       }
 
       wrapper.innerHTML = contentHTML;
-      wrapper.dataset.sender = data.sender;
-      wrapper.dataset.text = data.text || "";
-      wrapper.dataset.isDeleted = data.isDeletedForEveryone ? "true" : "false";
 
       if (isNew) {
-    const b = document.getElementById('chatBox');
-    setTimeout(() => b.scrollTop = b.scrollHeight, 100);
+        const b = document.getElementById('chatBox');
+        setTimeout(() => b.scrollTop = b.scrollHeight, 100);
 
-    // --- LOGIKA PEMUTAR SUARA OTOMATIS (COMMAND /SUARA) ---
-    if (data.type === 'suara' && data.audioUrl && allowSfx) {
-      // Putar suara khas jika command /suara digunakan
-      const sfx = new Audio(data.audioUrl);
-      sfx.play().catch(e => console.log("Gagal memutar suara otomatis", e));
-    } 
-    // --- LOGIKA NOTIFIKASI MESEJ MASUK BIASA ---
-    else if (data.sender !== myName && allowSfx) {
-      // Hanya berbunyi jika mesej dihantar oleh pasangan (bukan diri sendiri)
-      // Menggunakan bunyi 'Ding' dari myinstants
-      const notifSound = new Audio("https://www.myinstants.com/media/sounds/piuw.mp3");
-      notifSound.play().catch(e => console.log("Gagal memutar notifikasi", e));
+        // --- NOTIFIKASI DING (Hanya pesan dari pasangan) ---
+        if (data.sender !== myName && allowSfx) {
+          const notifSound = new Audio("https://www.myinstants.com/media/sounds/piuw.mp3");
+          notifSound.play().catch(e => console.log("Notif gagal", e));
+        }
+      }
     }
-  }
-} // <--- Penutup fungsi buildChatUI
 
     function scrollToMsg(id) {
       const el = document.getElementById(`msg-${id}`);
@@ -733,116 +717,67 @@ contentHTML = `
     }
 
     function sendMessage() {
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
-  if(!text && !editingMsgId) return;
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if(!text && !editingMsgId) return;
 
-  // --- SISTEM COMMAND BUCIN RANDOMIZER ---
-  if (text.startsWith('/') && !editingMsgId) {
-    const args = text.split(' ');
-    const cmd = args[0].toLowerCase();
+      // --- SISTEM COMMAND ---
+      if (text.startsWith('/') && !editingMsgId) {
+        const args = text.split(' ');
+        const cmd = args[0].toLowerCase();
 
-    // Kamus Kalimat Bucin
-    const bucinDict = {
-      "/peluk": [
-        `*Peluk erat ${partnerName} dari jauh, rasakan detak jantungku yang cuma buat kamu* 🤗💖`,
-        `*Hug tiiiight! Jangan dilepas ya, mau begini selamanya sama kamu* 🫂✨`,
-        `*Sending virtual hug yang paling hangat buat kesayangan aku* 🧸💕`,
-        `*Kalau kamu capek, sini peluk dulu. Biar semua lelahnya pindah ke aku* 🌸`,
-        `*Peluk paling nyaman cuma ada di kamu, I miss your warmth* 🥺❤️`
-        // ... Tambahkan sampai 20 kalimat di sini
-      ],
-      "/semangat": [
-        `*Semangat ya sayang! Kamu itu lebih kuat dari yang kamu bayangkan* 💪✨`,
-        `*You're doing great, my love! Bangga banget punya kamu* 🌹`,
-        `*Jangan nyerah ya, ada aku yang selalu dukung kamu di sini* ❤️🔥`,
-        `*Fokus sayang, semangatnya jangan kasih kendor! Love you!* 🚀💕`,
-        `*Apapun yang terjadi hari ini, inget kalau kamu hebat banget!* 🌟`
-      ],
-      "/kangen": [
-        `*Kangennya udah di ujung kepala, pengen cepet ketemu kamu* 🥺💔`,
-        `*Lagi apa? Aku kangen banget sampai gak bisa fokus nih* 🌊💕`,
-        `*Thinking of you... and missing you more than words can say* 💭❤️`,
-        `*Hati aku lagi demo, katanya kurang asupan ketemu kamu* 📢💖`,
-        `*Kangen suara kamu, kangen ketawa kamu, kangen semuanya!* 🌈`
-      ],
-      "/cium": [
-        `*Mmuuuaach! Satu kecupan di kening buat ratu/raja hatiku* 💋✨`,
-        `*Kiss on your cheek! Biar hari kamu makin manis kaya aku* 😘🍭`,
-        `*Sending 1000x virtual kisses just for you!* 💋💖🔥`,
-        `*Cium jauh! Jangan dihapus ya bekasnya* 😚💕`,
-        `*Flying kiss meluncur ke arah kamu... Tangkep ya!* 🕊️💋`
-      ]
-    };
+        // 1. CLEAR CHAT
+        if (cmd === '/clear' || cmd === '/clean') {
+          if(confirm("Hapus semua chat selamanya?")) db.ref("chats").remove();
+          input.value = ""; input.style.height = 'auto'; return;
+        }
 
-    // --- COMMAND SUARA ---
-    if (cmd === '/suara') {
-      const namaSuara = args[1] ? args[1].toLowerCase() : "";
-      
-      // Kamus URL Suara dari myinstants
-      const suaraDict = {
-        "cium": "https://www.myinstants.com/media/sounds/kissss.mp3",
-        "wow": "https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3",
-        "bruh": "https://www.myinstants.com/media/sounds/vine-boom.mp3",
-        "nani": "https://www.myinstants.com/media/sounds/nani_1.mp3",
-        "ketawa": "https://www.myinstants.com/media/sounds/sitcom-laughing.mp3"
-      };
+        // 2. COMMAND SUARA INVISIBLE
+        if (cmd === '/suara') {
+          const namaSuara = args[1] ? args[1].toLowerCase() : "";
+          const suaraDict = {
+            "cium": "https://www.myinstants.com/media/sounds/anime-kiss.mp3",
+            "wow": "https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3",
+            "bruh": "https://www.myinstants.com/media/sounds/vine-boom.mp3",
+            "nani": "https://www.myinstants.com/media/sounds/nani_1.mp3",
+            "ketawa": "https://www.myinstants.com/media/sounds/sitcom-laughing.mp3"
+          };
+          if (suaraDict[namaSuara]) {
+            db.ref("chats").push({ sender: myName, type: 'suara', audioUrl: suaraDict[namaSuara], time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP });
+          } else { 
+            showToast("Suara tidak ada! Coba: cium, wow, bruh, nani, ketawa"); 
+          }
+          input.value = ""; input.style.height = 'auto'; return;
+        }
 
-      if (suaraDict[namaSuara]) {
-        // Kirim data pesan suara ke Firebase
-        db.ref("chats").push({
-          sender: myName,
-          text: `🔊 Mengirim suara: *${namaSuara}*`,
-          type: 'suara',
-          audioUrl: suaraDict[namaSuara],
-          time: formatTime(),
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-      } else {
-        showToast("Suara tidak ada! Coba: cium, wow, bruh, nani, ketawa");
+        // 3. COMMAND BUCIN RANDOMIZER
+        const bucinDict = {
+          "/peluk": ["*Peluk erat dari jauh, rasakan detak jantungku yang cuma buat kamu* 🤗💖", "*Hug tiiiight! Jangan dilepas ya, mau begini selamanya sama kamu* 🫂✨", "*Sending virtual hug yang paling hangat buat kesayangan aku* 🧸💕", "*Kalau kamu capek, sini peluk dulu. Biar semua lelahnya pindah ke aku* 🌸", "*Peluk paling nyaman cuma ada di kamu, I miss your warmth* 🥺❤️"],
+          "/semangat": ["*Semangat ya sayang! Kamu itu lebih kuat dari yang kamu bayangkan* 💪✨", "*You're doing great, my love! Bangga banget punya kamu* 🌹", "*Jangan nyerah ya, ada aku yang selalu dukung kamu di sini* ❤️🔥", "*Fokus sayang, semangatnya jangan kasih kendor! Love you!* 🚀💕", "*Apapun yang terjadi hari ini, inget kalau kamu hebat banget!* 🌟"],
+          "/kangen": ["*Kangennya udah di ujung kepala, pengen cepet ketemu kamu* 🥺💔", "*Lagi apa? Aku kangen banget sampai gak bisa fokus nih* 🌊💕", "*Thinking of you... and missing you more than words can say* 💭❤️", "*Hati aku lagi demo, katanya kurang asupan ketemu kamu* 📢💖", "*Kangen suara kamu, kangen ketawa kamu, kangen semuanya!* 🌈"],
+          "/cium": ["*Mmuuuaach! Satu kecupan di kening buat ratu/raja hatiku* 💋✨", "*Kiss on your cheek! Biar hari kamu makin manis kaya aku* 😘🍭", "*Sending 1000x virtual kisses just for you!* 💋💖🔥", "*Cium jauh! Jangan dihapus ya bekasnya* 😚💕", "*Flying kiss meluncur ke arah kamu... Tangkep ya!* 🕊️💋"]
+        };
+
+        if (bucinDict[cmd]) {
+          const listKalimat = bucinDict[cmd];
+          let randomText = listKalimat[Math.floor(Math.random() * listKalimat.length)];
+          db.ref("chats").push({ sender: myName, text: randomText, type: 'bucin', time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP });
+          input.value = ""; input.style.height = 'auto'; return;
+        }
       }
-      
-      input.value = ""; input.style.height = 'auto';
-      return;
-    }
-    
-    // Eksekusi Command
-    if (cmd === '/clear' || cmd === '/clean') {
-      if(confirm("Hapus semua chat?")) db.ref("chats").remove();
-      input.value = ""; input.style.height = 'auto'; return;
-    }
 
-    if (bucinDict[cmd]) {
-      // Ambil kalimat secara acak dari list
-      const listKalimat = bucinDict[cmd];
-      const randomText = listKalimat[Math.floor(Math.random() * listKalimat.length)];
-      
-      db.ref("chats").push({
-        sender: myName,
-        text: randomText,
-        type: 'bucin', // Tetap kirim type bucin (warna bisa diatur di CSS)
-        time: formatTime(),
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-      });
-      
+      // --- KIRIM CHAT BIASA ---
+      if (editingMsgId) {
+        db.ref(`chats/${editingMsgId}`).update({ text: text, edited: true });
+        cancelReplyEdit();
+      } else {
+        const payload = { sender: myName, text: text, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP };
+        if (replyingTo) payload.replyTo = replyingTo;
+        db.ref("chats").push(payload);
+        cancelReplyEdit();
+      }
       input.value = ""; input.style.height = 'auto';
-      return;
     }
-  }
-
-  // --- LOGIKA KIRIM BIASA ---
-  if (editingMsgId) {
-    db.ref(`chats/${editingMsgId}`).update({ text: text, edited: true });
-    cancelReplyEdit();
-  } else {
-    const payload = { sender: myName, text: text, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP };
-    if (replyingTo) payload.replyTo = replyingTo;
-    db.ref("chats").push(payload);
-    cancelReplyEdit();
-  }
-  input.value = "";
-  input.style.height = 'auto';
-}
 
    // ==========================================
     // 6. IMAGE UPLOAD LOGIC
@@ -1185,4 +1120,5 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
