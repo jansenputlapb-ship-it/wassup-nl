@@ -146,13 +146,12 @@
   outline: none;
   background: white;
   border-radius: 20px;
-  resize: none; /* Hilangkan resize manual di pojok */
-  max-height: 120px; /* Batas tinggi maksimal input */
-  overflow-y: auto;
+  resize: none;
+  height: 42px !important; /* Mengunci tinggi tepat 1 baris */
+  box-sizing: border-box; /* Mencegah padding merusak ukuran asli */
+  overflow-y: auto; /* Memunculkan scrollbar otomatis jika teks panjang */
   line-height: 1.4;
   font-family: inherit;
-  display: flex;
-  align-items: center;
 }
 
 /* Pastikan teks pesan merender baris baru */
@@ -1255,6 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
