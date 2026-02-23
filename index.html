@@ -710,7 +710,6 @@ contentHTML = `
       wrapper.dataset.text = data.text || "";
       wrapper.dataset.isDeleted = data.isDeletedForEveryone ? "true" : "false";
 
-      if (isNew) {
     if (isNew) {
         const b = document.getElementById('chatBox');
         setTimeout(() => b.scrollTop = b.scrollHeight, 100);
@@ -1255,6 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
