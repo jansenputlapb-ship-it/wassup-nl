@@ -13,6 +13,25 @@
 
   <style>
 
+    /* Style Khusus Pesan Bucin */
+.msg-bucin .msg-content {
+  background-color: #fce4ec !important; /* Pink muda */
+  border: 1.5px solid #f8bbd0;
+  color: #880e4f !important;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Jika pesan bucin berasal dari saya (sisi kanan) */
+.msg-me.msg-bucin .msg-content {
+  background-color: #f8bbd0 !important; /* Pink sedikit lebih gelap */
+}
+
+/* Efek sedikit bercahaya untuk pesan bucin */
+.msg-bucin .msg-content {
+  box-shadow: 0 0 10px rgba(240, 98, 146, 0.3);
+}
+
     /* CSS untuk Link Biru */
 .chat-link {
   color: #039be5; /* Warna biru link */
@@ -597,9 +616,15 @@
     function formatTime() { const d = new Date(); return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`; }
 
     function initChatSync() {
-      db.ref("chats").limitToLast(100).on("child_added", snap => buildChatUI(snap.key, snap.val()));
-      db.ref("chats").on("child_changed", snap => buildChatUI(snap.key, snap.val()));
-    }
+  db.ref("chats").limitToLast(100).on("child_added", snap => buildChatUI(snap.key, snap.val()));
+  db.ref("chats").on("child_changed", snap => buildChatUI(snap.key, snap.val()));
+  
+  // Tambahkan ini: Hapus bubble dari layar jika data di hapus dari Firebase
+  db.ref("chats").on("child_removed", snap => {
+    const el = document.getElementById(`msg-${snap.key}`);
+    if(el) el.remove();
+  });
+}
 
     function buildChatUI(id, data) {
       if (!data || !data.sender) return; 
@@ -656,8 +681,11 @@
 
         const editedStr = data.edited ? `<span class="edited-label">Edited</span>` : "";
 
-        contentHTML = `
-          <div class="message ${isMe ? 'msg-me' : 'msg-partner'}">
+        // Tambahkan class msg-bucin jika data.type adalah bucin
+const bucinClass = data.type === 'bucin' ? 'msg-bucin' : '';
+
+contentHTML = `
+  <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}">
             <div class="msg-content">
               ${quoteHTML}
               ${mediaHTML}
@@ -706,20 +734,67 @@
   const text = input.value.trim();
   if(!text && !editingMsgId) return;
 
-      isTyping = false; clearTimeout(typingTimer); db.ref(`users/${myName}`).update({ state: 'online' });
+  // --- FITUR COMMAND /MIRC ---
+  if (text.startsWith('/') && !editingMsgId) {
+    const args = text.split(' ');
+    const cmd = args[0].toLowerCase();
 
-      if (editingMsgId) {
-        db.ref(`chats/${editingMsgId}`).update({ text: text, edited: true });
-        cancelReplyEdit();
-      } else {
-        const payload = { sender: myName, text: text, time: formatTime(), timestamp: firebase.database.ServerValue.TIMESTAMP };
-        if (replyingTo) payload.replyTo = replyingTo;
-        db.ref("chats").push(payload);
-        cancelReplyEdit();
+    // 1. Command Clear/Clean (Hapus Database)
+    if (cmd === '/clear' || cmd === '/clean') {
+      if(confirm("Hapus semua riwayat chat selamanya?")) {
+        db.ref("chats").remove();
+        showToast("Database dibersihkan ✨");
       }
-      input.value = "";
-  input.style.height = 'auto'; // Reset tinggi textarea setelah kirim
-  cancelReplyEdit();
+      input.value = ""; input.style.height = 'auto';
+      return;
+    }
+
+    // 2. Command Bucin Peluk
+    if (cmd === '/peluk') {
+      const payload = { 
+        sender: myName, 
+        text: `*Memberikan pelukan yang sabaaaar dan erat sekali untuk ${partnerName}* 🤗💖✨`, 
+        type: 'bucin',
+        time: formatTime(), 
+        timestamp: firebase.database.ServerValue.TIMESTAMP 
+      };
+      db.ref("chats").push(payload);
+      input.value = ""; input.style.height = 'auto';
+      return;
+    }
+
+    // 3. Command Bucin Semangat
+    if (cmd === '/semangat') {
+      const payload = { 
+        sender: myName, 
+        text: `*Membisikkan kata semangat: "Kamu hebat banget hari ini, aku bangga punya kamu!"* 💪💕🌹`, 
+        type: 'bucin',
+        time: formatTime(), 
+        timestamp: firebase.database.ServerValue.TIMESTAMP 
+      };
+      db.ref("chats").push(payload);
+      input.value = ""; input.style.height = 'auto';
+      return;
+    }
+  }
+
+  // --- LOGIKA KIRIM BIASA (Jika bukan command) ---
+  if (editingMsgId) {
+    db.ref(`chats/${editingMsgId}`).update({ text: text, edited: true });
+    cancelReplyEdit();
+  } else {
+    const payload = { 
+      sender: myName, 
+      text: text, 
+      time: formatTime(), 
+      timestamp: firebase.database.ServerValue.TIMESTAMP 
+    };
+    if (replyingTo) payload.replyTo = replyingTo;
+    db.ref("chats").push(payload);
+    cancelReplyEdit();
+  }
+  input.value = "";
+  input.style.height = 'auto';
 }
 
    // ==========================================
@@ -1063,6 +1138,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
