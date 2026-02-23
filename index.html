@@ -912,137 +912,115 @@
     });
 
     // ==========================================
-    // 9. DUMMY FUNGSI MUSIK (Agar tidak error)
+    // 9. FUNGSI MUSIK & PLAYLIST (DIKEMBALIKAN)
     // ==========================================
-    // ==========================================
-    // 9. MUSIC CONTROLS & SYNC
-    // ==========================================
-    function setSubView(mode) {
-      const anni = document.getElementById('anniView'); const music = document.getElementById('musicView');
-      if(mode === 'music') { anni.classList.remove('active'); music.classList.add('active'); } 
-      else { music.classList.remove('active'); anni.classList.add('active'); }
+    function openPlaylist() { 
+      const modal = document.getElementById('playlistModal');
+      if(modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+        renderPlaylistItems(myPlaylist); 
+      }
     }
 
-    function setPlayerLoadingState(isLoading) {
-      const playBtn = document.getElementById('btnPlayPause'); const diskCover = document.getElementById('diskCover');
-      if(isLoading) { playBtn.innerHTML = '<div class="spinner-icon">🔄</div>'; diskCover.classList.remove('playing'); diskCover.classList.add('loading-pulse'); } 
-      else { diskCover.classList.remove('loading-pulse'); }
+    function closeModal(e, forceClose = false) { 
+      const modal = document.getElementById('playlistModal'); 
+      if(forceClose || (e && e.target.id === 'playlistModal')) { 
+        modal.classList.remove('show'); 
+        setTimeout(() => modal.style.display = 'none', 300); 
+      } 
     }
 
-    function broadcastMusicAction(action, index = currentSongIndex) {
+    function filterPlaylist() { 
+      const query = document.getElementById('searchSong').value.toLowerCase(); 
+      const filtered = myPlaylist.filter(song => 
+        song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query)
+      ); 
+      renderPlaylistItems(filtered); 
+    }
+
+    function renderPlaylistItems(list) { 
+      const container = document.getElementById('playlistSongs');
+      if (!container) return;
+      container.innerHTML = '';
+      
+      list.forEach((song) => {
+        const div = document.createElement('div');
+        div.className = 'song-item';
+        div.onclick = () => playSong(myPlaylist.indexOf(song));
+        
+        const isCurrent = (myPlaylist.indexOf(song) === currentSongIndex);
+        const titleColor = isCurrent ? 'var(--spot-green)' : 'var(--text-main)';
+        const iconColor = isCurrent ? 'var(--spot-green)' : '#999';
+        
+        // Animasi bar musik bergerak kalau sedang play
+        const icon = (isCurrent && isPlaying) 
+          ? `<div style="display:flex; gap:3px; height:15px; align-items:flex-end;"><div style="width:3px; height:100%; background:var(--spot-green); animation: bounce 1s infinite;"></div><div style="width:3px; height:60%; background:var(--spot-green); animation: bounce 1s infinite 0.2s;"></div><div style="width:3px; height:80%; background:var(--spot-green); animation: bounce 1s infinite 0.4s;"></div></div>` 
+          : "▶";
+          
+        div.innerHTML = `
+          <div class="song-item-info">
+            <span class="song-item-title" style="color:${titleColor}">${song.title}</span>
+            <span class="song-item-artist">${song.artist}</span>
+          </div>
+          <span style="color:${iconColor}; font-size:18px;">${icon}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function playSong(index) {
       if(index < 0 || index >= myPlaylist.length) return;
+      currentSongIndex = index;
       const song = myPlaylist[index];
-      if(action === 'play') setPlayerLoadingState(true);
-      db.ref("music_state").set({ action: action, songIndex: index, title: song.title, url: song.url, sender: myName, timestamp: Date.now(), seekTime: (action === 'play' ? 0 : audioPlayer.currentTime) });
+      
+      if(audioPlayer) {
+        audioPlayer.src = song.url;
+        audioPlayer.play().catch(e => console.log("Auto-play dicegah browser", e));
+      }
+      isPlaying = true;
+      
+      const btnIcon = document.getElementById('musicToggleBtn');
+      if(btnIcon) btnIcon.innerText = "⏸";
+      
+      renderPlaylistItems(myPlaylist);
+      showToast("Memutar: " + song.title);
     }
 
-    function togglePlayPause() { if(currentSongIndex === -1) return; if (isPlaying) broadcastMusicAction("pause"); else broadcastMusicAction("resume"); }
-    function playNext() { if(currentSongIndex === -1) return; let nextIdx = currentSongIndex + 1; if(nextIdx >= myPlaylist.length) nextIdx = 0; broadcastMusicAction("play", nextIdx); }
-    function playPrev() { if(currentSongIndex === -1) return; let prevIdx = currentSongIndex - 1; if(prevIdx < 0) prevIdx = myPlaylist.length - 1; broadcastMusicAction("play", prevIdx); }
-    function stopMusicBroadcast() { db.ref("music_state").set({ action: "stop", sender: myName, timestamp: Date.now() }); }
-    function toggleRepeat() { db.ref("music_settings").set({ repeat: !isRepeat, sender: myName }); }
+    function toggleMusic() { 
+      const btnIcon = document.getElementById('musicToggleBtn');
+      
+      if (!audioPlayer.src || audioPlayer.src.includes('data:audio/wav') || currentSongIndex === -1) {
+        // Kalau belum ada lagu yang dipilih, putar lagu pertama
+        playSong(0);
+        return;
+      }
 
-    audioPlayer.onended = () => {
-      if (isRepeat) { audioPlayer.play(); } 
-      else { db.ref("music_state").once("value", snap => { const state = snap.val(); if(state && state.sender === myName) playNext(); }); }
-    };
-
-    function initMusicSync() {
-      db.ref("music_settings").on("value", (snapshot) => {
-        const data = snapshot.val();
-        if(data !== null) {
-          isRepeat = data.repeat;
-          const btn = document.getElementById('btnRepeat');
-          if(isRepeat) { btn.classList.add('active-repeat'); if(data.sender !== myName) showToast(`${data.sender} turned on Repeat 🔁`); } 
-          else { btn.classList.remove('active-repeat'); if(data.sender !== myName) showToast(`${data.sender} turned off Repeat ➡️`); }
-        }
-      });
-
-      db.ref("music_state").on("value", (snapshot) => {
-        const state = snapshot.val();
-        if(!state || state.timestamp === lastMusicTimestamp) return;
-        lastMusicTimestamp = state.timestamp;
-
-        const playBtn = document.getElementById('btnPlayPause'); const diskCover = document.getElementById('diskCover');
-
-        if(state.action === "play" || state.action === "resume") {
-          currentSongIndex = state.songIndex;
-          if (audioPlayer.src !== state.url) { audioPlayer.src = state.url; }
-
-          setSubView('music'); document.getElementById('musicTitleDisplay').innerText = state.title; setPlayerLoadingState(true); 
-
-          const syncAndPlay = () => {
-            const timePassed = (Date.now() - state.timestamp) / 1000;
-            const targetTime = state.seekTime + timePassed;
-            if (Math.abs(audioPlayer.currentTime - targetTime) > 2) { audioPlayer.currentTime = targetTime; }
-            const currentActionTimestamp = state.timestamp;
-
-            audioPlayer.play().then(() => {
-              if (lastMusicTimestamp !== currentActionTimestamp) { audioPlayer.pause(); return; }
-              setPlayerLoadingState(false); playBtn.innerHTML = "⏸"; diskCover.classList.add('playing'); isPlaying = true;
-            }).catch(() => {
-              if (lastMusicTimestamp === currentActionTimestamp) { setPlayerLoadingState(false); showToast("System syncing audio playback."); }
-            });
-          };
-
-          if (audioPlayer.readyState >= 1) { syncAndPlay(); } else { audioPlayer.onloadedmetadata = () => { syncAndPlay(); audioPlayer.onloadedmetadata = null; }; }
-        } 
-        else if(state.action === "pause") {
-          audioPlayer.currentTime = state.seekTime; audioPlayer.pause();
-          setPlayerLoadingState(false); playBtn.innerHTML = "▶"; diskCover.classList.remove('playing'); isPlaying = false;
-        }
-        else if(state.action === "stop") {
-          audioPlayer.pause(); audioPlayer.currentTime = 0; setSubView('anni');
-          setPlayerLoadingState(false); diskCover.classList.remove('playing'); isPlaying = false; currentSongIndex = -1;
-        }
-      });
+      if (isPlaying) {
+        audioPlayer.pause();
+        isPlaying = false;
+        if(btnIcon) btnIcon.innerText = "▶";
+      } else {
+        audioPlayer.play();
+        isPlaying = true;
+        if(btnIcon) btnIcon.innerText = "⏸";
+      }
+      renderPlaylistItems(myPlaylist);
     }
-
-    function openPlaylist() { document.getElementById('searchSong').value = ''; renderPlaylistItems(myPlaylist); const modal = document.getElementById('playlistModal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10); }
-    function renderPlaylistItems(listToRender) {
-      const list = document.getElementById('playlistContainer'); list.innerHTML = "";
-      if(listToRender.length === 0) { list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:14px;">Song not found 😔</div>`; return; }
-
-      listToRender.forEach((song) => {
-        const originalIndex = myPlaylist.findIndex(s => s.url === song.url && s.title === song.title);
-        const div = document.createElement('div'); div.className = "song-item";
-        div.onclick = () => { closeModal(null, true); broadcastMusicAction("play", originalIndex); }
-        const isThisPlaying = (currentSongIndex === originalIndex);
-        const iconColor = isThisPlaying ? "var(--spot-green)" : "#ccc"; const titleColor = isThisPlaying ? "var(--spot-green)" : "var(--text-main)";
-        const icon = isThisPlaying ? `<div style="display:flex; gap:2px; height:15px; align-items:flex-end;"><div style="width:3px; height:100%; background:var(--spot-green); animation: bounce 1s infinite;"></div><div style="width:3px; height:60%; background:var(--spot-green); animation: bounce 1s infinite 0.2s;"></div><div style="width:3px; height:80%; background:var(--spot-green); animation: bounce 1s infinite 0.4s;"></div></div>` : "▶";
-        div.innerHTML = `<div class="song-item-info"><span class="song-item-title" style="color:${titleColor}">${song.title}</span><span class="song-item-artist">${song.artist}</span></div><span style="color:${iconColor}; font-size:18px;">${icon}</span>`;
-        list.appendChild(div);
-      });
-    }
-    function filterPlaylist() { const query = document.getElementById('searchSong').value.toLowerCase(); const filtered = myPlaylist.filter(song => song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query)); renderPlaylistItems(filtered); }
-    function closeModal(e, forceClose = false) { const modal = document.getElementById('playlistModal'); if(forceClose || e.target.id === 'playlistModal') { modal.classList.remove('show'); setTimeout(() => modal.style.display = 'none', 300); } }
-    function showToast(msg) { const t = document.getElementById('customToast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
     
-    const styleSheet = document.createElement("style"); styleSheet.innerText = "@keyframes bounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }"; document.head.appendChild(styleSheet);
-// Gunakan DOMContentLoaded agar tidak bentrok dengan login
-document.addEventListener('DOMContentLoaded', () => {
-    const inputEl = document.getElementById('chatInput');
-    
-    if (inputEl) {
-        // Logika Enter untuk kirim, Shift+Enter untuk baris baru
-        inputEl.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // Mencegah baris baru saat enter biasa
-                sendMessage();      // Panggil fungsi kirim
-            }
-        });
-
-        // Logika Auto-height (tinggi otomatis saat mengetik atau paste)
-        inputEl.addEventListener('input', function() {
-            this.style.height = 'auto';
-            let newHeight = this.scrollHeight;
-            this.style.height = (newHeight > 120 ? 120 : newHeight) + 'px';
-        });
+    // Auto next ke lagu selanjutnya kalau lagu habis
+    if(audioPlayer) {
+      audioPlayer.addEventListener('ended', () => {
+         let nextIdx = currentSongIndex + 1;
+         if(nextIdx >= myPlaylist.length) nextIdx = 0; // Balik ke awal kalau sudah di akhir
+         playSong(nextIdx);
+      });
     }
-}); 
+</script>
 </script>
 </body>
 </html>
+
 
 
 
