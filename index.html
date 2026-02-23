@@ -651,56 +651,83 @@
     }
 
     // ==========================================
-    // 6. IMAGE UPLOAD LOGIC
+    // 6. IMAGE UPLOAD LOGIC (WITH CANVAS COMPRESSION)
     // ==========================================
     // GANTI DENGAN URL WEB APP GOOGLE SCRIPT KAMU
     const G_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwB0u554wQCWX7M_eaAo4pmCPoiz1fSZPLupmvWhCeuwCjHcFKww9Npy8neYZ_BV8JtIQ/exec";
 
-    function handleImageUpload(event) {
+    async function handleImageUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      showToast("Uploading to Drive... ⏳");
+      showToast("Memproses foto... ⏳");
       
       const reader = new FileReader();
-      reader.onload = function(e) {
-        const base64Data = e.target.result;
-        
-        // Kirim ke Google Apps Script
-        fetch(G_SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            base64: base64Data,
-            name: `${Date.now()}_${file.name}`
-          })
-        })
-        .then(res => res.json())
-        .then(result => {
-          if (result.success) {
-            // Jika sukses, kirim URL foto ke Firebase Chat
-            const payload = {
-              sender: myName,
-              text: "", 
-              imageUrl: result.url, // URL dari Google Drive
-              time: formatTime(),
-              timestamp: firebase.database.ServerValue.TIMESTAMP
-            };
-            if (replyingTo) payload.replyTo = replyingTo;
-
-            db.ref("chats").push(payload);
-            showToast("Image sent! 🖼️");
-            cancelReplyEdit();
-          } else {
-            showToast("Upload failed! ❌");
-            console.error(result.error);
+      reader.onload = (e) => {
+        const im = new Image();
+        im.src = e.target.result;
+        im.onload = async () => {
+          
+          // --- KOMPRESI CANVAS DARI PROJECT LAMA KAMU ---
+          const c = document.createElement('canvas');
+          const x = c.getContext('2d');
+          let w = im.width, h = im.height;
+          
+          // Maksimal lebar 800px agar ringan dan cepat dikirim
+          if (w > 800) { 
+            h = Math.round(h * (800 / w)); 
+            w = 800; 
           }
-        })
-        .catch(err => {
-          showToast("Connection Error! ❌");
-          console.error(err);
-        });
+          c.width = w; 
+          c.height = h; 
+          x.drawImage(im, 0, 0, w, h);
+          
+          // Ubah menjadi Base64 berformat JPEG dengan kualitas 70%
+          const compressedBase64 = c.toDataURL('image/jpeg', 0.7);
+          // ----------------------------------------------
+          
+          showToast("Mengunggah ke Drive... 🚀");
+          
+          try {
+            const res = await fetch(G_SCRIPT_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+              },
+              body: JSON.stringify({ 
+                base64: compressedBase64, 
+                name: "img_" + Date.now() + ".jpg" 
+              })
+            });
+            
+            const result = await res.json();
+            
+            if (result.success) {
+              const payload = {
+                sender: myName,
+                text: "",
+                imageUrl: result.url,
+                time: formatTime(),
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+              };
+              if (replyingTo) payload.replyTo = replyingTo;
+
+              db.ref("chats").push(payload);
+              showToast("Foto terkirim! 🖼️");
+              cancelReplyEdit();
+            } else {
+              showToast("Gagal dari server: " + result.error);
+              console.error(result.error);
+            }
+          } catch (err) {
+            showToast("Connection Error ❌ Cek URL/Akses Script!");
+            console.error("Fetch Error:", err);
+          }
+        };
       };
+      
       reader.readAsDataURL(file);
+      // Reset input file agar bisa memilih gambar yang sama jika perlu
       event.target.value = ""; 
     }
 
@@ -927,3 +954,4 @@
   </script>
 </body>
 </html>
+
