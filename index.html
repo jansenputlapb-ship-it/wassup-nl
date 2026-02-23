@@ -654,66 +654,39 @@
         wrapper.className = 'msg-wrapper';
         document.getElementById('chatBox').appendChild(wrapper);
       }
+const isMe = (data.sender === myName);
+  const isBucin = (data.type === 'bucin'); // Cek apakah pesan hasil command
+  const bucinClass = isBucin ? 'msg-bucin' : ''; 
 
-      const isMe = (data.sender === myName);
+  let contentHTML = "";
 
-// 1. Cek apakah ini pesan hasil command bucin
-const isBucin = (data.type === 'bucin');
-const bucinClass = isBucin ? 'msg-bucin' : '';
-
-// 2. Pasang class-nya di sini
-contentHTML = `
-  <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}">
-    <div class="msg-content">
-      let contentHTML = "";
-
-      if (data.isDeletedForEveryone) {
-        contentHTML = `
-          <div class="message ${isMe ? 'msg-me' : 'msg-partner'}" onclick="openReactionPicker(event, '${id}')">
-            <div class="msg-content">
-              <span class="deleted-text">🚫 This message was deleted</span>
-              <div class="msg-meta"><span class="time-stamp">${data.time}</span></div>
-            </div>
-          </div>`;
-      } else {
-        let quoteHTML = "";
-        if (data.replyTo) {
-          let repText = data.replyTo.text || "Image";
-          quoteHTML = `
-            <div class="msg-quote" onclick="scrollToMsg('${data.replyTo.id}')">
-              <div class="quote-sender">${data.replyTo.sender === myName ? 'You' : data.replyTo.sender}</div>
-              <div class="quote-text">${repText}</div>
-            </div>`;
-        }
-
-        let reactHTML = "";
-        if (data.reactions) {
-          let rIcons = Object.values(data.reactions).join("");
-          if(rIcons.length > 0) reactHTML = `<div class="reaction-badge">${rIcons}</div>`;
-        }
-
-        // Tampilkan gambar jika ada (fitur upload)
-        let mediaHTML = "";
-        if (data.imageUrl) {
-          mediaHTML = `<img src="${data.imageUrl}" style="max-width: 100%; max-height: 250px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; object-fit: contain;" onclick="window.open('${data.imageUrl}', '_blank')">`;
-        }
-
-        const editedStr = data.edited ? `<span class="edited-label">Edited</span>` : "";
-
-        // Tambahkan class msg-bucin jika data.type adalah bucin
-const bucinClass = data.type === 'bucin' ? 'msg-bucin' : '';
-
-contentHTML = `
-  <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}">
-            <div class="msg-content">
-              ${quoteHTML}
-              ${mediaHTML}
-              ${data.text ? `<div class="msg-text">${formatMessageText(data.text)}</div>` : ''}
-              <div class="msg-meta">${editedStr}<span class="time-stamp">${data.time}</span></div>
-            </div>
-            ${reactHTML}
+  if (data.isDeletedForEveryone) {
+    contentHTML = `
+      <div class="message ${isMe ? 'msg-me' : 'msg-partner'}">
+        <div class="msg-content">
+          <span class="deleted-text">🚫 This message was deleted</span>
+          <div class="msg-meta"><span class="time-stamp">${data.time}</span></div>
+        </div>
+      </div>`;
+  } else {
+    // --- Bagian Pesan Aktif ---
+    // (Definisikan quoteHTML, mediaHTML, reactHTML seperti biasa)
+    
+    contentHTML = `
+      <div class="message ${isMe ? 'msg-me' : 'msg-partner'} ${bucinClass}">
+        <div class="msg-content">
+          ${quoteHTML}
+          ${mediaHTML}
+          ${data.text ? `<div class="msg-text">${formatMessageText(data.text)}</div>` : ''}
+          <div class="msg-meta">
+             ${data.edited ? '<span class="edited-label">Edited</span>' : ''}
+             <span class="time-stamp">${data.time}</span>
           </div>
-        `;
+        </div>
+        ${reactHTML}
+      </div>`;
+  }
+      
         
         // INTERAKSI KLIK KIRI & KANAN
         wrapper.onclick = (e) => {
@@ -1157,6 +1130,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
