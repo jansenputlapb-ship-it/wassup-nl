@@ -15,30 +15,50 @@
     /* Login */
     #loginScreen { position: fixed; inset: 0; background: #EFE6DD; display: flex; align-items: center; justify-content: center; z-index: 10000; }
     .login-box { background: white; padding: 30px; border-radius: 15px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; text-align: center; }
+    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; text-align: center; outline: none; }
     .login-box button { width: 100%; padding: 12px; background: #008069; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
     /* Header ala WhatsApp */
-    header { background: #008069; color: white; padding: 10px 15px; display: flex; align-items: center; gap: 12px; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    header { background: #008069; color: white; padding: 10px 15px; display: flex; align-items: center; gap: 12px; z-index: 1000; }
     #headerAvatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid rgba(255,255,255,0.3); }
     .header-info { display: flex; flex-direction: column; justify-content: center; flex: 1; }
     .header-name { font-size: 16px; font-weight: 600; line-height: 1.2; }
     .header-status { font-size: 12px; font-weight: 400; color: #d9fdd3; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    /* Widget Menghitung Hari (Estetik & Minimalis) */
-    #anniversaryWidget {
-      text-align: center; padding: 12px 10px; background: transparent; 
-      z-index: 950; display: flex; flex-direction: column; gap: 4px;
+    /* =========================================
+       SUB-HEADER DYNAMIC (JADIAN & SPOTIFY BAR)
+       ========================================= */
+    #dynamicSubHeader {
+      background: #ffffff;
+      min-height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      z-index: 950;
+      transition: all 0.3s ease;
     }
-    .anni-title { font-size: 11px; font-weight: bold; color: #667781; letter-spacing: 1px; text-transform: uppercase; }
-    .anni-text { font-size: 15px; font-weight: 600; color: #008069; }
-    .anni-heart { color: #e91e63; font-size: 14px; display: inline-block; animation: heartbeat 1.5s infinite; }
+
+    /* Tampilan Jadian (Minimalis) */
+    #anniView { display: flex; align-items: center; gap: 5px; font-size: 13px; color: #54656f; font-weight: 500; }
+    .time-num { font-family: monospace; font-weight: bold; color: #008069; font-size: 14px; }
+    .anni-heart { color: #e91e63; font-size: 12px; animation: heartbeat 1.5s infinite; }
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
-    /* Bar Musik */
-    #musicBar { background: #fff; padding: 10px 15px; display: none; align-items: center; justify-content: space-between; border-bottom: 1px solid #ddd; z-index: 900; }
-    .music-info { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; color: #008069; }
-    .btn-stop { background: #d32f2f; color: white; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-size: 12px; font-weight: bold; }
+    /* Tampilan Music (Ala Spotify) */
+    #musicView { display: none; width: 100%; align-items: center; justify-content: space-between; }
+    .music-left { display: flex; align-items: center; gap: 12px; }
+    .music-cover { 
+      width: 32px; height: 32px; border-radius: 4px; background: #1ed760; 
+      display: flex; align-items: center; justify-content: center; color: white; font-size: 16px;
+      box-shadow: 0 2px 5px rgba(30,215,96,0.4);
+    }
+    .music-text { display: flex; flex-direction: column; }
+    .music-label { font-size: 9px; font-weight: 800; color: #1ed760; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+    .music-title { font-size: 13px; font-weight: bold; color: #111; line-height: 1.1; }
+    .btn-stop { background: none; border: none; color: #8696a0; font-size: 24px; cursor: pointer; padding: 0 5px; }
+    .btn-stop:hover { color: #d32f2f; }
 
     /* Area Chat */
     main { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
@@ -79,27 +99,29 @@
       </div>
     </header>
 
-    <div id="anniversaryWidget">
-      <div class="anni-title">Bersama Selama</div>
-      <div class="anni-text">
+    <div id="dynamicSubHeader">
+      
+      <div id="anniView">
         <span class="anni-heart">❤️</span>
-        <span id="daysCount">0</span> Hari, 
-        <span id="hoursCount">0</span> Jam, 
-        <span id="minutesCount">0</span> Menit, 
-        <span id="secondsCount">0</span> Detik
+        <span>Bersama:</span>
+        <span class="time-num" id="daysCount">0</span> hr
+        <span class="time-num" id="hoursCount">00</span> jm
+        <span class="time-num" id="minutesCount">00</span> mnt
+        <span class="time-num" id="secondsCount">00</span> dtk
         <span class="anni-heart">❤️</span>
       </div>
-    </div>
 
-    <div id="musicBar">
-      <div class="music-info">
-        <span>🎵</span>
-        <div>
-          <div style="font-size: 10px; color: gray;">Sedang diputar bareng</div>
-          <div id="musicTitleDisplay">Judul Lagu</div>
+      <div id="musicView">
+        <div class="music-left">
+          <div class="music-cover">🎵</div>
+          <div class="music-text">
+            <span class="music-label">Now Playing</span>
+            <span class="music-title" id="musicTitleDisplay">Judul Lagu</span>
+          </div>
         </div>
+        <button class="btn-stop" onclick="stopMusicBroadcast()">×</button>
       </div>
-      <button class="btn-stop" onclick="stopMusicBroadcast()">⏹ STOP</button>
+
     </div>
 
     <audio id="audioPlayer" preload="auto"></audio>
@@ -181,7 +203,7 @@
         
         startAnniversaryCounter();
         initFirebaseListeners();
-        setupPresenceSystem(); // Jalankan sistem Online/Offline
+        setupPresenceSystem(); 
         
         audioPlayer.play().catch(()=>{}); setTimeout(()=>audioPlayer.pause(), 100);
       } else {
@@ -195,7 +217,7 @@
         const now = new Date().getTime();
         const diff = now - start;
 
-        if (diff < 0) return;
+        if (diff < 0) return; // Jika tanggal belum tiba
 
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -212,98 +234,57 @@
     }
 
     // ==============================================================
-    // SISTEM PRESENCE (ONLINE, OFFLINE, AFK, MENGETIK)
+    // SISTEM PRESENCE (ONLINE/OFFLINE/TYPING)
     // ==============================================================
     function setupPresenceSystem() {
       const myStatusRef = db.ref(`users/${myName}`);
       
-      // Saat berhasil terhubung ke server Firebase
       db.ref('.info/connected').on('value', function(snapshot) {
         if (snapshot.val() === false) return;
-        
-        // Atur saat koneksi putus (Close tab / mati inet) jadi offline + catat waktu
-        myStatusRef.onDisconnect().set({
-          state: 'offline',
-          last_changed: firebase.database.ServerValue.TIMESTAMP
-        }).then(function() {
-          // Set jadi online saat ini
-          myStatusRef.set({
-            state: 'online',
-            last_changed: firebase.database.ServerValue.TIMESTAMP
-          });
+        myStatusRef.onDisconnect().set({ state: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP }).then(function() {
+          myStatusRef.set({ state: 'online', last_changed: firebase.database.ServerValue.TIMESTAMP });
         });
       });
 
-      // Deteksi AFK (Tidak nyentuh layar 1 menit)
       function resetIdle() {
-        if(isTyping) return; // Kalo lagi ngetik jgn afk
+        if(isTyping) return;
         myStatusRef.update({ state: 'online' });
-        
         clearTimeout(idleTimer);
         idleTimer = setTimeout(() => {
-          myStatusRef.update({ 
-            state: 'afk', 
-            last_changed: firebase.database.ServerValue.TIMESTAMP 
-          });
-        }, 60000); // 1 Menit AFK
+          myStatusRef.update({ state: 'afk', last_changed: firebase.database.ServerValue.TIMESTAMP });
+        }, 60000);
       }
 
       document.addEventListener('mousemove', resetIdle);
       document.addEventListener('keypress', resetIdle);
       document.addEventListener('touchstart', resetIdle);
 
-      // Deteksi Mengetik
       document.getElementById('chatInput').addEventListener('input', () => {
-        if(!isTyping) {
-          isTyping = true;
-          myStatusRef.update({ state: 'typing' });
-        }
+        if(!isTyping) { isTyping = true; myStatusRef.update({ state: 'typing' }); }
         clearTimeout(typingTimer);
-        typingTimer = setTimeout(() => {
-          isTyping = false;
-          myStatusRef.update({ state: 'online' });
-          resetIdle();
-        }, 1500); // Kalo berhenti ngetik 1.5 detik, ubah jadi online lagi
+        typingTimer = setTimeout(() => { isTyping = false; myStatusRef.update({ state: 'online' }); resetIdle(); }, 1500); 
       });
 
-      // Dengarkan Status Partner
       db.ref(`users/${partnerName}`).on('value', (snap) => {
         const data = snap.val();
         const statusEl = document.getElementById('partnerStatusDisplay');
-        
-        if(!data) {
-          statusEl.innerText = "offline";
-          return;
-        }
+        if(!data) { statusEl.innerText = "offline"; return; }
 
         if(data.state === 'typing') {
-          statusEl.innerText = "sedang mengetik...";
-          statusEl.style.color = "#008069"; // Warna hijau lebih terang
-          statusEl.style.fontWeight = "bold";
+          statusEl.innerText = "sedang mengetik..."; statusEl.style.color = "#1ed760"; statusEl.style.fontWeight = "bold";
         } else if(data.state === 'online') {
-          statusEl.innerText = "Online";
-          statusEl.style.color = "#d9fdd3";
-          statusEl.style.fontWeight = "normal";
+          statusEl.innerText = "Online"; statusEl.style.color = "#d9fdd3"; statusEl.style.fontWeight = "normal";
         } else {
-          // Format waktu offline/afk
           const date = new Date(data.last_changed);
-          const h = date.getHours().toString().padStart(2, '0');
-          const m = date.getMinutes().toString().padStart(2, '0');
-          
-          statusEl.style.color = "rgba(255,255,255,0.7)";
-          statusEl.style.fontWeight = "normal";
-          
-          if(data.state === 'afk') {
-            statusEl.innerText = `AFK sejak pukul ${h}:${m}`;
-          } else {
-            statusEl.innerText = `terakhir dilihat pukul ${h}:${m}`;
-          }
+          const h = date.getHours().toString().padStart(2, '0'); const m = date.getMinutes().toString().padStart(2, '0');
+          statusEl.style.color = "rgba(255,255,255,0.7)"; statusEl.style.fontWeight = "normal";
+          statusEl.innerText = (data.state === 'afk') ? `AFK sejak pukul ${h}:${m}` : `terakhir dilihat pukul ${h}:${m}`;
         }
       });
     }
 
     // ==============================================================
-    // FUNGSI CHAT & MUSIK KE FIREBASE
+    // FUNGSI CHAT & MUSIK FIREBASE
     // ==============================================================
     function sendMessage() {
       const input = document.getElementById('chatInput');
@@ -311,26 +292,16 @@
       if(!text) return;
 
       input.value = "";
-      
-      // Kalo kirim pesan, otomatis hapus status mengetik
-      isTyping = false;
-      clearTimeout(typingTimer);
-      db.ref(`users/${myName}`).update({ state: 'online' });
+      isTyping = false; clearTimeout(typingTimer); db.ref(`users/${myName}`).update({ state: 'online' });
 
       if(text.toLowerCase() === '/musik') { openPlaylist(); return; }
 
-      db.ref("chats").push({
-        sender: myName,
-        text: text,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-      });
+      db.ref("chats").push({ sender: myName, text: text, timestamp: firebase.database.ServerValue.TIMESTAMP });
     }
 
     function broadcastMusic(title, url) {
       closeModal();
-      db.ref("music_state").set({
-        action: "play", title: title, url: url, sender: myName, timestamp: Date.now()
-      });
+      db.ref("music_state").set({ action: "play", title: title, url: url, sender: myName, timestamp: Date.now() });
     }
 
     function stopMusicBroadcast() {
@@ -351,11 +322,18 @@
         if(!state || state.timestamp === lastMusicTimestamp) return;
         lastMusicTimestamp = state.timestamp;
 
+        // ANIMASI TRANSISI SUB-HEADER
+        const anniView = document.getElementById('anniView');
+        const musicView = document.getElementById('musicView');
+
         if(state.action === "play") {
           audioPlayer.src = state.url;
           audioPlayer.play().then(() => {
-            document.getElementById('musicBar').style.display = 'flex';
+            // Sembunyikan Tanggal, Munculkan Player Spotify
+            anniView.style.display = 'none';
+            musicView.style.display = 'flex';
             document.getElementById('musicTitleDisplay').innerText = state.title;
+            
             if(state.sender !== myName) renderChat(`<i>Doi memutar lagu: <b>${state.title}</b></i> 🎶`, 'system');
           }).catch(() => {
             renderChat(`Penyelarasan lagu tertunda. Sentuh layar agar musik berbunyi.`, 'system');
@@ -363,25 +341,21 @@
         } 
         else if(state.action === "stop") {
           audioPlayer.pause();
-          document.getElementById('musicBar').style.display = 'none';
+          
+          // Sembunyikan Player Spotify, Kembalikan Tanggal
+          musicView.style.display = 'none';
+          anniView.style.display = 'flex';
+          
           if(state.sender !== myName) renderChat(`<i>Doi mematikan musik.</i>`, 'system');
         }
       });
     }
 
-    // ==============================================================
-    // FUNGSI PENDUKUNG UI
-    // ==============================================================
     function renderChat(text, side) {
       const b = document.getElementById('chatBox');
       const d = document.createElement('div');
-      
-      if(side === 'system') {
-        d.className = `msg-system`; d.innerHTML = text;
-      } else {
-        d.className = `message msg-${side}`; d.innerHTML = text;
-      }
-      
+      d.className = (side === 'system') ? `msg-system` : `message msg-${side}`;
+      d.innerHTML = text;
       b.appendChild(d);
       b.scrollTop = b.scrollHeight;
     }
@@ -393,7 +367,7 @@
         const div = document.createElement('div');
         div.className = "song-item";
         div.onclick = () => broadcastMusic(song.title, song.url);
-        div.innerHTML = `<div><b>${song.title}</b><br><small style="color:gray;">${song.artist}</small></div><span style="color:#008069; font-size:18px;">▶</span>`;
+        div.innerHTML = `<div><b>${song.title}</b><br><small style="color:gray;">${song.artist}</small></div><span style="color:#1ed760; font-size:18px;">▶</span>`;
         list.appendChild(div);
       });
       document.getElementById('playlistModal').style.display = 'flex';
