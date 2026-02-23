@@ -43,34 +43,34 @@
     .action-btn { background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 50%; border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--trans-smooth); }
     .action-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
 
-    /* SUB-HEADER & MUSIC PLAYER */
-    #dynamicSubHeader { position: relative; background: #ffffff; height: 65px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 950; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    /* SUB-HEADER & MUSIC PLAYER (DIMENSI LEBIH TIPIS) */
+    #dynamicSubHeader { position: relative; background: #ffffff; height: 52px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 950; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .sub-view { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0 16px; transition: var(--trans-smooth); opacity: 0; pointer-events: none; transform: translateY(10px); }
     .sub-view.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
     /* Anniversary */
-    #anniView { gap: 8px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
-    .time-badge { background: #f0f2f5; padding: 4px 8px; border-radius: 8px; color: var(--wa-dark); font-family: monospace; font-weight: 700; font-size: 15px; min-width: 32px; text-align: center; }
-    .anni-heart { color: #e91e63; font-size: 14px; animation: heartbeat 1.5s infinite ease-in-out; }
+    #anniView { gap: 6px; color: var(--text-muted); font-size: 13px; font-weight: 500; }
+    .time-badge { background: #f0f2f5; padding: 2px 6px; border-radius: 6px; color: var(--wa-dark); font-family: monospace; font-weight: 700; font-size: 14px; min-width: 28px; text-align: center; }
+    .anni-heart { color: #e91e63; font-size: 13px; animation: heartbeat 1.5s infinite ease-in-out; }
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
 
-    /* Music Elements */
+    /* Music Elements (Diperkecil agar fit di 52px) */
     #musicView { justify-content: space-between; }
-    .music-left { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
-    .music-cover { min-width: 42px; height: 42px; border-radius: 8px; background: linear-gradient(135deg, var(--spot-green), var(--wa-dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; box-shadow: 0 4px 10px rgba(29, 185, 84, 0.3); transition: border-radius 0.5s ease; animation: spinDisk 5s linear infinite; animation-play-state: paused; }
+    .music-left { display: flex; align-items: center; gap: 10px; flex: 1; overflow: hidden; }
+    .music-cover { min-width: 36px; height: 36px; border-radius: 6px; background: linear-gradient(135deg, var(--spot-green), var(--wa-dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; box-shadow: 0 3px 8px rgba(29, 185, 84, 0.3); transition: border-radius 0.5s ease; animation: spinDisk 5s linear infinite; animation-play-state: paused; }
     .music-cover.playing { border-radius: 50%; animation-play-state: running; }
-    .music-cover.loading-pulse { animation: bufferingPulse 1s infinite alternate; border-radius: 8px; }
+    .music-cover.loading-pulse { animation: bufferingPulse 1s infinite alternate; border-radius: 6px; }
     @keyframes spinDisk { 100% { transform: rotate(360deg); } }
     @keyframes bufferingPulse { 0% { opacity: 0.5; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
 
-    .music-text { display: flex; flex-direction: column; overflow: hidden; }
-    .music-label { font-size: 10px; font-weight: 800; color: var(--spot-green); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 2px; }
-    .music-title { font-size: 14px; font-weight: 700; color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+    .music-text { display: flex; flex-direction: column; overflow: hidden; justify-content: center; }
+    .music-label { font-size: 9px; font-weight: 800; color: var(--spot-green); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1px; }
+    .music-title { font-size: 13px; font-weight: 700; color: var(--text-main); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
     
-    .player-controls { display: flex; align-items: center; gap: 10px; }
-    .ctrl-btn { background: #f0f2f5; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; transition: var(--trans-smooth); position: relative; }
+    .player-controls { display: flex; align-items: center; gap: 8px; }
+    .ctrl-btn { background: #f0f2f5; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: var(--trans-smooth); position: relative; }
     .ctrl-btn:active { transform: scale(0.9); background: #e9edef; }
-    .play-pause-btn { background: var(--spot-green); color: white; font-size: 16px; box-shadow: 0 4px 10px rgba(29, 185, 84, 0.3); }
+    .play-pause-btn { background: var(--spot-green); color: white; font-size: 14px; box-shadow: 0 3px 8px rgba(29, 185, 84, 0.3); }
     .play-pause-btn:active { background: #189c46; }
     .stop-btn { color: #e91e63; background: #fce4ec; }
     
@@ -78,7 +78,7 @@
     .active-repeat { color: var(--spot-green) !important; background: rgba(29, 185, 84, 0.15) !important; box-shadow: inset 0 0 0 1px var(--spot-green); }
 
     /* SPINNER ANIMATION */
-    .spinner-icon { display: inline-block; animation: spinLoader 1s linear infinite; font-size: 14px; }
+    .spinner-icon { display: inline-block; animation: spinLoader 1s linear infinite; font-size: 12px; }
     @keyframes spinLoader { 100% { transform: rotate(360deg); } }
 
     /* CHAT AREA */
@@ -237,8 +237,8 @@
       { title: "Cinta Terakhir", artist: "Selalu Kamu", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
     ];
     let myPlaylist = [];
-    for(let i=0; i<11; i++) { // Duplikasi 11 kali jadi 55 lagu
-      baseSongs.forEach((song, index) => {
+    for(let i=0; i<11; i++) { 
+      baseSongs.forEach((song) => {
         myPlaylist.push({ title: `${song.title} Vol.${i+1}`, artist: song.artist, url: song.url });
       });
     }
@@ -330,14 +330,13 @@
       else { music.classList.remove('active'); anni.classList.add('active'); }
     }
 
-    // --- VISUAL FEEDBACK: LOADING STATE ---
     function setPlayerLoadingState(isLoading) {
       const playBtn = document.getElementById('btnPlayPause');
       const diskCover = document.getElementById('diskCover');
       if(isLoading) {
-        playBtn.innerHTML = '<span class="spinner-icon">🔄</span>'; // Spinner
+        playBtn.innerHTML = '<span class="spinner-icon">🔄</span>'; 
         diskCover.classList.remove('playing');
-        diskCover.classList.add('loading-pulse'); // Kedip-kedip buffering
+        diskCover.classList.add('loading-pulse'); 
       } else {
         diskCover.classList.remove('loading-pulse');
       }
@@ -346,8 +345,6 @@
     function broadcastMusicAction(action, index = currentSongIndex) {
       if(index < 0 || index >= myPlaylist.length) return;
       const song = myPlaylist[index];
-      
-      // Jika action play, tampilkan loading SEGERA sebelum firebase memproses
       if(action === 'play') setPlayerLoadingState(true);
 
       db.ref("music_state").set({
@@ -375,18 +372,17 @@
 
     function stopMusicBroadcast() { db.ref("music_state").set({ action: "stop", sender: myName, timestamp: Date.now() }); }
 
+    // --- REPEAT SYNC ---
     function toggleRepeat() {
-      isRepeat = !isRepeat; const btn = document.getElementById('btnRepeat');
-      if(isRepeat) { 
-        btn.classList.add('active-repeat'); 
-        showToast("Ulangi Lagu: ON"); 
-      } else { 
-        btn.classList.remove('active-repeat'); 
-        showToast("Ulangi Lagu: OFF"); 
-      }
+      // Mengirim status toggle ke Firebase agar disinkron ke kedua HP
+      db.ref("music_settings").set({
+        repeat: !isRepeat, 
+        sender: myName
+      });
     }
 
     audioPlayer.onended = () => {
+      // Hanya biarkan 1 HP yang bertugas mengganti lagu (menghindari skip dobel)
       if (isRepeat) { audioPlayer.play(); } 
       else {
         db.ref("music_state").once("value", snap => {
@@ -408,6 +404,22 @@
         const data = snapshot.val(); renderChat(data.text, data.sender === myName ? 'me' : 'partner', data.time || formatTime());
       });
 
+      // Listener Status Repeat
+      db.ref("music_settings").on("value", (snapshot) => {
+        const data = snapshot.val();
+        if(data !== null) {
+          isRepeat = data.repeat;
+          const btn = document.getElementById('btnRepeat');
+          if(isRepeat) {
+            btn.classList.add('active-repeat');
+            if(data.sender !== myName) showToast(`${data.sender} menyalakan Repeat 🔁`);
+          } else {
+            btn.classList.remove('active-repeat');
+            if(data.sender !== myName) showToast(`${data.sender} mematikan Repeat ➡️`);
+          }
+        }
+      });
+
       db.ref("music_state").on("value", (snapshot) => {
         const state = snapshot.val();
         if(!state || state.timestamp === lastMusicTimestamp) return;
@@ -421,7 +433,7 @@
 
           setSubView('music');
           document.getElementById('musicTitleDisplay').innerText = state.title;
-          setPlayerLoadingState(true); // Mulai loading saat menerima perintah
+          setPlayerLoadingState(true); 
 
           const syncAndPlay = () => {
             const timePassed = (Date.now() - state.timestamp) / 1000;
@@ -430,7 +442,6 @@
             if (Math.abs(audioPlayer.currentTime - targetTime) > 2) { audioPlayer.currentTime = targetTime; }
 
             audioPlayer.play().then(() => {
-              // Sukses buffering/playing
               setPlayerLoadingState(false);
               playBtn.innerHTML = "⏸"; 
               diskCover.classList.add('playing'); 
@@ -462,10 +473,9 @@
       d.innerHTML = text + `<span class="time-stamp">${timeStr}</span>`; b.appendChild(d); b.scrollTop = b.scrollHeight;
     }
 
-    // --- FITUR SEARCH DAN 50+ PLAYLIST ---
     function openPlaylist() {
-      document.getElementById('searchSong').value = ''; // Reset pencarian
-      renderPlaylistItems(myPlaylist); // Tampilkan semua
+      document.getElementById('searchSong').value = ''; 
+      renderPlaylistItems(myPlaylist); 
       const modal = document.getElementById('playlistModal');
       modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 10);
     }
@@ -475,7 +485,6 @@
       if(listToRender.length === 0) { list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:14px;">Lagu tidak ditemukan 😔</div>`; return; }
 
       listToRender.forEach((song) => {
-        // Cari index aslinya di myPlaylist
         const originalIndex = myPlaylist.findIndex(s => s.url === song.url && s.title === song.title);
         
         const div = document.createElement('div'); div.className = "song-item";
