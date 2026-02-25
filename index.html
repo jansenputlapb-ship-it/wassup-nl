@@ -638,7 +638,7 @@ setTimeout(() => { allowSfx = true; }, 3000); // Suara baru diizinkan 3 detik se
     function formatTime() { const d = new Date(); return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`; }
 
     function initChatSync() {
-  db.ref("chats").limitToLast(100).on("child_added", snap => buildChatUI(snap.key, snap.val()));
+  db.ref("chats").limitToLast(10000).on("child_added", snap => buildChatUI(snap.key, snap.val()));
   db.ref("chats").on("child_changed", snap => buildChatUI(snap.key, snap.val()));
   
   // Tambahkan ini: Hapus bubble dari layar jika data di hapus dari Firebase
@@ -856,7 +856,7 @@ contentHTML = `
             showToast("Masukkan kata kunci! Contoh: /gif kucing lucu");
           } else {
             showToast("Mencari GIF...");
-            fetch(`https://api.giphy.com/v1/gifs/search?api_key=W2CkEQjMnb0TWPNMEj0PXpZYBc1DpDWg&q=${encodeURIComponent(keyword)}&limit=10`)
+            fetch(`https://api.giphy.com/v1/gifs/search?api_key=W2CkEQjMnb0TWPNMEj0PXpZYBc1DpDWg&q=${encodeURIComponent(keyword)}&limit=50`)
               .then(res => res.json())
               .then(data => {
                 if (data.data.length > 0) showGifPicker(data.data);
@@ -1281,6 +1281,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
