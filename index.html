@@ -486,49 +486,44 @@
       }, 6000); 
     }
     
-    const baseSongs = [
-            { 
-  title: "My Heart", 
-  artist: "Acha Septriasa & Irwansyah", 
-  url: "https://dl.dropboxusercontent.com/scl/fi/jazcgho3qmye84n3l1szm/Acha-Septriasa-Irwansyah-My-Heart.mp3?rlkey=vmxzrucbjifmwlfhq0pn9lyx5&st=aqxyao0h&dl=0" 
-},
-      { 
-  title: "Iya Lagi", 
-  artist: "Stevan Pasaribu", 
-  url: "https://dl.dropboxusercontent.com/scl/fi/1rnbywyjz7e3fdqc5b1ip/Stevan-Pasaribu-Iya-Lagi.mp3?rlkey=st1l40sswn3jum1atkdbadxxx&st=y4xoo9jf&dl=0" 
-},
-      { 
-  title: "Memories cover Amanda", 
-  artist: "Maki Otsuki", 
-  url: "https://dl.dropboxusercontent.com/scl/fi/or5u4rpfw7egks7yieggg/Maki-Otsuki-Memories.mp3?rlkey=jkcric265gbwuxkabf8jh3c51&st=i2tyjbiu&dl=0" 
-},
-      { 
-  title: "Popcorn", 
-  artist: "도경수 Doh Kyung Soo", 
-  url: "https://dl.dropboxusercontent.com/scl/fi/nyvdt4xqbrw3lul0dicyv/Doh-Kyung-Soo-Popcorn.mp3?rlkey=zwu1nkn3rgnh8lksi8ao8at91&st=esf8gzq5&dl=0" 
-},
-      { 
-  title: "눈,코,입 (EYES, NOSE, LIPS)", 
-  artist: "TAEYANG", 
-  url: "https://dl.dropboxusercontent.com/scl/fi/455bgn1dap2dvc7kgb4be/TAEYANG-EYES-NOSE-LIPS.mp3?rlkey=mqlfw8xawvcke3a1sgcrr1qug&st=yeuwvqtt&dl=0" 
-},
-      { 
-  title: "WEDDING DRESS", 
-  artist: "TAEYANG", 
-  url: "https://dl.dropboxusercontent.com/scl/fi/1yrnw3gqwvh96vk6tgf6j/TAEYANG-WEDDING-DRESS.mp3?rlkey=f6fxcfdagkrzndszduseidcad&st=vrlrsknx&dl=0" 
-},
-      { 
-  title: "Golden", 
-  artist: "Huntrix", 
-  url: "https://dl.dropboxusercontent.com/scl/fi/grk26p5uvvf8ob6dx2evk/Huntrix-Golden.mp3?rlkey=9i8xigvn7ewvm0r3sucrhpidt&st=v5xe6dko&dl=0" 
-},
-      { 
-  title: "NONSTOP SANTAI 3.21.38", 
-  artist: "NONSTOP SANTAI", 
-  url: "https://dl.dropboxusercontent.com/scl/fi/9gyuw5goh10eiejhuuhp1/NONSTOP-SANTAI-3.21.38.mp3?rlkey=f0vyqu7uueawazk38vqcuj1ti&st=uo7tsl25&dl=0" 
-}
-    ];
-    let myPlaylist = [...baseSongs];
+    let myPlaylist = [];
+
+// 1. Masukkan link TSV dari Google Sheet kamu ke sini
+// (Dapatkan dari menu: File > Bagikan > Publikasikan ke web > Pilih "Nilai yang dipisahkan tab / .tsv")
+const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDofRmn30UIf4XLy73IWQILIXLEP4G4MChC5e2RumsXMjF1EtkkYr5vflS396Q8HdgKaUcvkQGaYo/pub?gid=0&single=true&output=tsv";
+
+// 2. Fungsi untuk mengambil data otomatis dari Spreadsheet
+fetch(sheetUrl)
+  .then(response => response.text())
+  .then(data => {
+    // Memecah data berdasarkan baris (enter)
+    const rows = data.split('\n');
+    
+    // Mulai dari i=1 untuk melewati baris pertama (Header/Judul Kolom)
+    for (let i = 1; i < rows.length; i++) {
+      // Memecah baris berdasarkan Tab
+      const cols = rows[i].split('\t');
+      
+      // Pastikan baris tidak kosong dan Kolom D (index 3) ada isinya
+      if (cols.length >= 4 && cols[0].trim() !== "") {
+        myPlaylist.push({
+          title: cols[0].trim(),   // Mengambil Kolom A (Judul)
+          artist: cols[1].trim(),  // Mengambil Kolom B (Artis)
+          url: cols[3].trim()      // MENGAMBIL KOLOM D (URL Dropbox yang sudah diubah)
+        });
+      }
+    }
+    
+    console.log("Playlist sukses dimuat dari Spreadsheet!", myPlaylist);
+    
+    // --- PENTING ---
+    // Panggil fungsi untuk me-render/memuat playlist kamu ke UI di sini.
+    // (Misalnya: loadSongs() atau renderPlaylist() sesuai nama fungsi di kodemu sebelumnya)
+    
+  })
+  .catch(error => {
+    console.error("Gagal mengambil data dari Spreadsheet:", error);
+  });
 
     // ==========================================
     // 4. LOGIN & PRESENCE
@@ -1286,6 +1281,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
