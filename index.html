@@ -436,53 +436,47 @@
 let suaraDict = {};
 
 async function muatSuaraDariSheet() {
-    // ID dan GID diambil langsung dari link Anda
     const sheetId = '17RVtqpAcSQ1V8X_sEvNg-L4L5yhiaYB_4X78A5jzDTM';
     const gid = '2086137548'; 
     
-    // URL Export CSV yang lebih akurat dan stabil
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+    // Menggunakan endpoint Google Visualization (Format JSON) agar tidak kena blokir CORS
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`;
 
     try {
-        const response = await fetch(csvUrl);
+        const response = await fetch(url);
+        const text = await response.text();
         
-        // Jika file masih private, proses akan dihentikan
-        if (!response.ok) {
-            throw new Error("Gagal mengambil data. Pastikan Sheet sudah di-Share ke 'Anyone with the link'.");
+        // Google mengembalikan teks dengan awalan aneh (/*O_o*/), kita potong agar menjadi JSON murni
+        const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+        const data = JSON.parse(jsonString);
+
+        suaraDict = {}; // Kosongkan dict sebelum diisi ulang
+
+        const rows = data.table.rows;
+        
+        // Cek apakah baris pertama adalah judul/header (misal: "Nama" dan "URL")
+        let startIndex = 0;
+        if (rows[0] && rows[0].c[0] && rows[0].c[0].v.toString().toLowerCase() === 'nama') {
+            startIndex = 1; // Lewati baris pertama jika itu adalah header
         }
 
-        const csvText = await response.text();
-        
-        // Cek jika Google malah mengirim halaman HTML (biasanya karena lupa set Public)
-        if (csvText.includes("<html")) {
-            console.error("Akses Ditolak: Spreadsheet masih Private!");
-            return;
-        }
-
-        // Memecah teks CSV menjadi array per baris
-        const baris = csvText.split('\n').slice(1); // Lewati baris 1 (Header: Nama, URL)
-        
-        suaraDict = {}; 
-        
-        baris.forEach(b => {
-            // Memisahkan berdasarkan koma (,)
-            const kolom = b.split(',');
-            if (kolom.length >= 2) {
-                // Membersihkan tanda kutip (") jika ada, lalu mengambil teksnya
-                const nama = kolom[0].replace(/"/g, '').trim().toLowerCase();
-                
-                // Menyatukan sisa URL (berjaga-jaga jika di dalam URL ada koma)
-                const url = kolom.slice(1).join(',').replace(/"/g, '').trim(); 
-                
-                if (nama && url) {
-                    suaraDict[nama] = url;
-                }
+        // Looping untuk memasukkan data dari Spreadsheet ke dalam suaraDict
+        for (let i = startIndex; i < rows.length; i++) {
+            const row = rows[i];
+            
+            // Pastikan kolom 1 (Nama) dan kolom 2 (URL) ada isinya
+            if (row.c[0] && row.c[0].v && row.c[1] && row.c[1].v) {
+                const nama = row.c[0].v.toString().trim().toLowerCase();
+                const link = row.c[1].v.toString().trim();
+                suaraDict[nama] = link;
             }
-        });
+        }
+
+        console.log("✅ SUKSES: Daftar suara berhasil dimuat!", suaraDict);
         
-        console.log("SUKSES: Daftar suara berhasil dimuat!", suaraDict);
     } catch (error) {
-        console.error("Gagal memuat suara:", error);
+        console.error("❌ Gagal memuat suara dari Google Sheets:", error);
+        alert("Gagal memuat daftar suara. Pastikan akses Google Sheet sudah 'Anyone with the link'.");
     }
 }
 
@@ -1339,6 +1333,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
