@@ -941,13 +941,89 @@ if (cmd === '/suara') {
     });
   } else {
     // ---------------------------------------------------------
-    // KODE BARU: Mengambil semua daftar kunci/nama suara secara otomatis
+    // BUBBLE BANTUAN SUARA INTERAKTIF (Auto Hitung Mundur)
     // ---------------------------------------------------------
-    const daftarSuara = Object.keys(suaraDict).join(", ");
-    showToast(`Suara tidak ada! Coba: ${daftarSuara}`);
+    const cmds = Object.keys(suaraDict);
+
+    // Buat daftar tombol (chips) yang berjajar rapi dan bisa diklik
+    let listHTML = '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0;">';
+    cmds.forEach(c => {
+      // Saat diklik, otomatis mengisi input dengan format "/suara nama_suaranya "
+      listHTML += `
+        <span onclick="document.getElementById('chatInput').value='/suara ${c} '; document.getElementById('chatInput').focus();" 
+              style="color: #e84393; font-weight: bold; font-size: 0.9rem; cursor: pointer; background: rgba(232, 67, 147, 0.1); padding: 5px 10px; border-radius: 15px; border: 1px solid rgba(232, 67, 147, 0.3);">
+          🔊 ${c}
+        </span>`;
+    });
+    listHTML += '</div>';
+
+    // Bedakan sapaan jika dia ketik kosong "/suara" atau salah nama "/suara blabla"
+    let teksSapaan = namaSuara === "" 
+        ? "Mau kirim efek suara ya? 🎶<br>Pilih aja langsung dari koleksi ini:" 
+        : `Oops, suara <b>${namaSuara}</b> belum ada nih sayang. 😅<br>Pilih yang udah tersedia di bawah ini ya:`;
+
+    const pesanSuara = `
+      <div style="font-size: 0.95rem; line-height: 1.4;">
+        ${teksSapaan}
+        ${listHTML}
+        Tinggal <b>klik</b> aja namanya, nanti otomatis masuk ke kotak ketik kamu kok. ✨<br>
+        <div style="margin-top: 8px; font-size: 0.75rem; opacity: 0.8; text-align: right; color: #747d8c;">
+          <i>(Pesan ini hilang dalam <b class="countdown-suara" style="color: #e84393;">15</b> detik)</i>
+        </div>
+      </div>
+    `;
+
+    // Buat Container Bubble Rata Kiri
+    const tempMsg = document.createElement("div");
+    tempMsg.style.display = "flex";
+    tempMsg.style.justifyContent = "flex-start"; 
+    tempMsg.style.marginBottom = "15px";
+    tempMsg.style.width = "100%";
+    tempMsg.style.transition = "opacity 0.5s ease"; 
+
+    // Desain Bubble Chat
+    const bubble = document.createElement("div");
+    bubble.style.backgroundColor = "#ffffff"; 
+    bubble.style.color = "#2f3542"; 
+    bubble.style.padding = "12px 16px";
+    bubble.style.borderRadius = "15px 15px 15px 0px"; 
+    bubble.style.maxWidth = "80%";
+    bubble.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
+    bubble.style.border = "1px solid #f1f2f6";
+    
+    bubble.innerHTML = pesanSuara;
+    tempMsg.appendChild(bubble);
+
+    // Masukkan ke layar chat
+    const chatBox = document.getElementById("chatBox"); // Pastikan ID ini sama dengan ID chat box Anda
+    chatBox.appendChild(tempMsg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Logika Hitung Mundur (Countdown)
+    const elemenAngka = tempMsg.querySelector('.countdown-suara');
+    let waktuTersisa = 15; 
+
+    const hitungMundur = setInterval(() => {
+        waktuTersisa--; 
+        if (elemenAngka) {
+            elemenAngka.innerText = waktuTersisa; 
+        }
+
+        if (waktuTersisa <= 0) {
+            clearInterval(hitungMundur); 
+            tempMsg.style.opacity = "0"; 
+            setTimeout(() => {
+                if (tempMsg.parentNode) {
+                    tempMsg.remove();
+                }
+            }, 500);
+        }
+    }, 1000); 
   }
   
-  input.value = ""; input.style.height = 'auto';
+  // Bersihkan input setelah command dijalankan
+  input.value = ""; 
+  input.style.height = 'auto';
   return;
 }
     
@@ -1390,6 +1466,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
 
 
