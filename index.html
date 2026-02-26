@@ -432,41 +432,29 @@
   </div>
   
   <script>
-// Jadikan variabel global
-// Jadikan variabel global agar bisa dibaca oleh command /suara
-let suaraDict = {};
-
-// Link TSV khusus untuk Sheet "Suara" (menggunakan ID dan GID Anda)
-const suaraSheetUrl = "https://docs.google.com/spreadsheets/d/17RVtqpAcSQ1V8X_sEvNg-L4L5yhiaYB_4X78A5jzDTM/pub?gid=2086137548&single=true&output=tsv";
+// GANTI LINK DI BAWAH INI DENGAN LINK YANG BARU ANDA COPY DARI GOOGLE SHEET
+const suaraSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDofRmn30UIf4XLy73IWQILIXLEP4G4MChC5e2RumsXMjF1EtkkYr5vflS396Q8HdgKaUcvkQGaYo/pub?gid=2086137548&single=true&output=tsv";
 
 fetch(suaraSheetUrl)
   .then(response => {
-      if (!response.ok) throw new Error("Link gagal diakses, pastikan sudah di-Publish ke Web.");
+      // Jika error, akan melempar pesan ke catch
+      if (!response.ok) throw new Error("Gagal akses link TSV Suara.");
       return response.text();
   })
   .then(data => {
-    // Memecah data berdasarkan baris (enter)
     const rows = data.split('\n');
-    
-    // Mulai dari i=1 untuk melewati baris pertama (Header/Judul Kolom: Nama, URL)
     for (let i = 1; i < rows.length; i++) {
-      // Memecah baris berdasarkan Tab (\t)
       const cols = rows[i].split('\t');
-      
-      // Pastikan baris tidak kosong dan minimal ada 2 kolom (Kolom A & B)
       if (cols.length >= 2 && cols[0].trim() !== "") {
-        const nama = cols[0].trim().toLowerCase(); // Kolom A: Nama Suara
-        const url = cols[1].trim();                // Kolom B: URL Suara
-        
-        // Memasukkan ke dalam dictionary
+        const nama = cols[0].trim().toLowerCase(); 
+        const url = cols[1].trim();                
         suaraDict[nama] = url;
       }
     }
-    
-    console.log("Suara sukses dimuat dari Spreadsheet TSV!", suaraDict);
+    console.log("SUKSES: Suara dimuat dari Spreadsheet TSV!", suaraDict);
   })
   .catch(error => {
-    console.error("Gagal mengambil data suara dari Spreadsheet:", error);
+    console.error("Gagal mengambil data suara:", error);
   });
     
     // ==========================================
@@ -1319,6 +1307,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
