@@ -432,29 +432,38 @@
   </div>
   
   <script>
-// GANTI LINK DI BAWAH INI DENGAN LINK YANG BARU ANDA COPY DARI GOOGLE SHEET
+// Jadikan variabel global
+let suaraDict = {};
+
+// Ini adalah link ajaib Anda: Gabungan 2PACX Playlist + GID Sheet Suara
 const suaraSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDofRmn30UIf4XLy73IWQILIXLEP4G4MChC5e2RumsXMjF1EtkkYr5vflS396Q8HdgKaUcvkQGaYo/pub?gid=2086137548&single=true&output=tsv";
 
 fetch(suaraSheetUrl)
   .then(response => {
-      // Jika error, akan melempar pesan ke catch
       if (!response.ok) throw new Error("Gagal akses link TSV Suara.");
       return response.text();
   })
   .then(data => {
-    const rows = data.split('\n');
+    // PENTING: Menghapus karakter \r (carriage return) bawaan Windows/Excel
+    // agar pembacaan baris baru (\n) benar-benar bersih.
+    const rows = data.replace(/\r/g, '').split('\n');
+    
+    // Mulai dari i=1 untuk melewati header
     for (let i = 1; i < rows.length; i++) {
       const cols = rows[i].split('\t');
+      
+      // Pastikan ada minimal 2 kolom (Nama dan URL)
       if (cols.length >= 2 && cols[0].trim() !== "") {
         const nama = cols[0].trim().toLowerCase(); 
         const url = cols[1].trim();                
         suaraDict[nama] = url;
       }
     }
-    console.log("SUKSES: Suara dimuat dari Spreadsheet TSV!", suaraDict);
+    
+    console.log("✅ SUKSES: Daftar Suara dimuat!", suaraDict);
   })
   .catch(error => {
-    console.error("Gagal mengambil data suara:", error);
+    console.error("❌ Gagal mengambil data suara:", error);
   });
     
     // ==========================================
@@ -1307,6 +1316,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
