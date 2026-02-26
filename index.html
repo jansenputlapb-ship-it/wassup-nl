@@ -819,6 +819,8 @@ contentHTML = `
       // Kamus URL Suara dari myinstants
       const suaraDict = {
         "cium": "https://www.myinstants.com/media/sounds/kissss.mp3",
+        "jokowi": "https://www.myinstants.com/media/sounds/hidup-jokowi.mp3",
+        "love": "https://www.myinstants.com/media/sounds/ted-i-love-you.mp3",
         "wow": "https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3",
         "sorry": "https://www.myinstants.com/media/sounds/prabowo-sorry-ye.mp3",
         "heartopia": "https://www.myinstants.com/media/sounds/heartopia_UOxitV6.mp3",
@@ -836,7 +838,7 @@ contentHTML = `
           timestamp: firebase.database.ServerValue.TIMESTAMP
         });
       } else {
-        showToast("Suara tidak ada! Coba: cium, wow, sorry, heartopia, hoyah");
+        showToast("Suara tidak ada! Coba: cium, love, jokowi, wow, sorry, heartopia, hoyah");
       }
       
       input.value = ""; input.style.height = 'auto';
@@ -1281,3 +1283,4 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
