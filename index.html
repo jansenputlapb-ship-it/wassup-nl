@@ -814,31 +814,43 @@ contentHTML = `
 
     // --- COMMAND HELP ---
     if (cmd === '/help') {
-      // Mengambil semua daftar kunci dari bucinDict otomatis ("/peluk, /semangat, /kangen, /cium")
       const daftarBucin = Object.keys(bucinDict).join(", ");
+      const pesanFriendly = `💡 <b>Bantuan Command</b><br>Ketik salah satu dari ini yuk:<br><span style="color:#ff6b6b; font-weight:bold;">${daftarBucin}, /suara</span><br><small style="opacity:0.7;"><i>(Pesan ini akan hilang otomatis)</i></small>`;
       
-      // Menampilkan di Toast (Anda juga bisa menambahkan command lain seperti /suara manual di sini)
-      showToast(`Command tersedia: ${daftarBucin}, /suara`);
+      // 1. Buat elemen kotak pesan khusus
+      const tempMsg = document.createElement("div");
       
-      // Bersihkan kolom input
-      input.value = ""; 
-      input.style.height = 'auto';
-      return;
-    }
+      // Berikan styling agar terlihat seperti pesan sistem yang friendly
+      tempMsg.style.margin = "10px auto";
+      tempMsg.style.padding = "12px 15px";
+      tempMsg.style.backgroundColor = "rgba(224, 175, 160, 0.15)"; // Warna transparan elegan
+      tempMsg.style.border = "1px solid #E0AFA0";
+      tempMsg.style.color = "#fff";
+      tempMsg.style.borderRadius = "12px";
+      tempMsg.style.textAlign = "center";
+      tempMsg.style.maxWidth = "85%";
+      tempMsg.style.fontSize = "0.9rem";
+      tempMsg.style.transition = "opacity 0.5s ease"; // Efek transisi menghilang
+      
+      tempMsg.innerHTML = pesanFriendly;
 
-    // --- LOGIKA UNTUK MENJALANKAN COMMAND BUCIN ---
-    // (Pastikan Anda memiliki logika ini untuk memproses command bucinnya)
-    if (bucinDict[cmd]) {
-      // Ambil kalimat random dari array
-      const kalimatRandom = bucinDict[cmd][Math.floor(Math.random() * bucinDict[cmd].length)];
+      // 2. Masukkan pesan ini ke dalam kotak chat utama
+      // (Pastikan ID kotak chat Anda benar, biasanya 'chatBox' atau 'messages')
+      const chatBox = document.getElementById("chatBox"); 
+      chatBox.appendChild(tempMsg);
       
-      // Kirim pesan ke Firebase (Sesuaikan dengan format Firebase Anda)
-      db.ref("chats").push({
-        sender: myName, // pastikan variabel myName sudah ada
-        text: kalimatRandom,
-        time: formatTime(), // pastikan fungsi formatTime() ada
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-      });
+      // 3. Scroll otomatis ke bawah agar pesannya terlihat
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // 4. Timer untuk menghilangkan pesan dalam 7 detik (7000 milidetik)
+      setTimeout(() => {
+          tempMsg.style.opacity = "0"; // Buat transparan dulu (fade out)
+          
+          // Setelah 0.5 detik (menunggu animasi fade out selesai), hapus dari sistem
+          setTimeout(() => {
+              tempMsg.remove();
+          }, 500);
+      }, 7000); 
 
       // Bersihkan kolom input
       input.value = ""; 
@@ -1326,6 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
 
 
