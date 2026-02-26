@@ -813,37 +813,42 @@ contentHTML = `
     };
 
     // --- COMMAND SUARA ---
-    if (cmd === '/suara') {
-      const namaSuara = args[1] ? args[1].toLowerCase() : "";
-      
-      // Kamus URL Suara dari myinstants
-      const suaraDict = {
-        "cium": "https://www.myinstants.com/media/sounds/kissss.mp3",
-        "jokowi": "https://www.myinstants.com/media/sounds/hidup-jokowi.mp3",
-        "love": "https://www.myinstants.com/media/sounds/ted-i-love-you.mp3",
-        "wow": "https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3",
-        "sorry": "https://www.myinstants.com/media/sounds/prabowo-sorry-ye.mp3",
-        "heartopia": "https://www.myinstants.com/media/sounds/heartopia_UOxitV6.mp3",
-        "hoyah": "https://www.myinstants.com/media/sounds/hooyahh.mp3"
-      };
+if (cmd === '/suara') {
+  const namaSuara = args[1] ? args[1].toLowerCase() : "";
+  
+  // Kamus URL Suara dari myinstants
+  const suaraDict = {
+    "cium": "https://www.myinstants.com/media/sounds/kissss.mp3",
+    "jokowi": "https://www.myinstants.com/media/sounds/hidup-jokowi.mp3",
+    "love": "https://www.myinstants.com/media/sounds/ted-i-love-you.mp3",
+    "wow": "https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3",
+    "sorry": "https://www.myinstants.com/media/sounds/prabowo-sorry-ye.mp3",
+    "heartopia": "https://www.myinstants.com/media/sounds/heartopia_UOxitV6.mp3",
+    "oppa": "https://www.myinstants.com/media/sounds/sooyoung-saying-oppa.mp3",
+    "hoyah": "https://www.myinstants.com/media/sounds/hooyahh.mp3"
+  };
 
-      if (suaraDict[namaSuara]) {
-        // Kirim data pesan suara ke Firebase
-        db.ref("chats").push({
-          sender: myName,
-          text: `🔊 Mengirim suara: *${namaSuara}*`,
-          type: 'suara',
-          audioUrl: suaraDict[namaSuara],
-          time: formatTime(),
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-      } else {
-        showToast("Suara tidak ada! Coba: cium, love, jokowi, wow, sorry, heartopia, hoyah");
-      }
-      
-      input.value = ""; input.style.height = 'auto';
-      return;
-    }
+  if (suaraDict[namaSuara]) {
+    // Kirim data pesan suara ke Firebase
+    db.ref("chats").push({
+      sender: myName,
+      text: `🔊 Mengirim suara: *${namaSuara}*`,
+      type: 'suara',
+      audioUrl: suaraDict[namaSuara],
+      time: formatTime(),
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+  } else {
+    // ---------------------------------------------------------
+    // KODE BARU: Mengambil semua daftar kunci/nama suara secara otomatis
+    // ---------------------------------------------------------
+    const daftarSuara = Object.keys(suaraDict).join(", ");
+    showToast(`Suara tidak ada! Coba: ${daftarSuara}`);
+  }
+  
+  input.value = ""; input.style.height = 'auto';
+  return;
+}
     
     // Eksekusi Command
     if (cmd === '/clear' || cmd === '/clean') {
@@ -1283,4 +1288,5 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
