@@ -432,32 +432,62 @@
   </div>
   
   <script>
-let suaraDict = {}; // Variabel global
+// Jadikan variabel global
+let suaraDict = {};
 
-        async function muatSuaraDariSheet() {
-            const sheetId = '17RVtqpAcSQ1V8X_sEvNg-L4L5yhiaYB_4X78A5jzDTM'; // Pastikan ID ini diisi
-            const sheetName = 'Suara';
-            const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
+async function muatSuaraDariSheet() {
+    // ID dan GID diambil langsung dari link Anda
+    const sheetId = '17RVtqpAcSQ1V8X_sEvNg-L4L5yhiaYB_4X78A5jzDTM';
+    const gid = '2086137548'; 
+    
+    // URL Export CSV yang lebih akurat dan stabil
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
 
-            try {
-                const response = await fetch(csvUrl);
-                const csvText = await response.text();
-                const baris = csvText.split('\n').slice(1);
-                
-                baris.forEach(b => {
-                    const kolom = b.replace(/(^"|"$)/g, '').split('","');
-                    if (kolom.length >= 2) {
-                        suaraDict[kolom[0].trim().toLowerCase()] = kolom[1].trim();
-                    }
-                });
-                console.log("Suara berhasil dimuat:", suaraDict);
-            } catch (error) {
-                console.error("Gagal muat suara:", error);
-            }
+    try {
+        const response = await fetch(csvUrl);
+        
+        // Jika file masih private, proses akan dihentikan
+        if (!response.ok) {
+            throw new Error("Gagal mengambil data. Pastikan Sheet sudah di-Share ke 'Anyone with the link'.");
         }
 
-        // Panggil fungsinya langsung agar berjalan saat web dibuka
-        muatSuaraDariSheet();
+        const csvText = await response.text();
+        
+        // Cek jika Google malah mengirim halaman HTML (biasanya karena lupa set Public)
+        if (csvText.includes("<html")) {
+            console.error("Akses Ditolak: Spreadsheet masih Private!");
+            return;
+        }
+
+        // Memecah teks CSV menjadi array per baris
+        const baris = csvText.split('\n').slice(1); // Lewati baris 1 (Header: Nama, URL)
+        
+        suaraDict = {}; 
+        
+        baris.forEach(b => {
+            // Memisahkan berdasarkan koma (,)
+            const kolom = b.split(',');
+            if (kolom.length >= 2) {
+                // Membersihkan tanda kutip (") jika ada, lalu mengambil teksnya
+                const nama = kolom[0].replace(/"/g, '').trim().toLowerCase();
+                
+                // Menyatukan sisa URL (berjaga-jaga jika di dalam URL ada koma)
+                const url = kolom.slice(1).join(',').replace(/"/g, '').trim(); 
+                
+                if (nama && url) {
+                    suaraDict[nama] = url;
+                }
+            }
+        });
+        
+        console.log("SUKSES: Daftar suara berhasil dimuat!", suaraDict);
+    } catch (error) {
+        console.error("Gagal memuat suara:", error);
+    }
+}
+
+// Panggil fungsinya
+muatSuaraDariSheet();
     
     // ==========================================
     // 1. FIREBASE CONFIG
@@ -1309,6 +1339,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
