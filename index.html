@@ -432,6 +432,33 @@
   </div>
   
   <script>
+let suaraDict = {}; // Variabel global
+
+        async function muatSuaraDariSheet() {
+            const sheetId = '17RVtqpAcSQ1V8X_sEvNg-L4L5yhiaYB_4X78A5jzDTM'; // Pastikan ID ini diisi
+            const sheetName = 'Suara';
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
+
+            try {
+                const response = await fetch(csvUrl);
+                const csvText = await response.text();
+                const baris = csvText.split('\n').slice(1);
+                
+                baris.forEach(b => {
+                    const kolom = b.replace(/(^"|"$)/g, '').split('","');
+                    if (kolom.length >= 2) {
+                        suaraDict[kolom[0].trim().toLowerCase()] = kolom[1].trim();
+                    }
+                });
+                console.log("Suara berhasil dimuat:", suaraDict);
+            } catch (error) {
+                console.error("Gagal muat suara:", error);
+            }
+        }
+
+        // Panggil fungsinya langsung agar berjalan saat web dibuka
+        muatSuaraDariSheet();
+    
     // ==========================================
     // 1. FIREBASE CONFIG
     // ==========================================
@@ -813,35 +840,36 @@ contentHTML = `
     };
 
     // --- COMMAND SUARA ---
-    if (cmd === '/suara') {
-      const namaSuara = args[1] ? args[1].toLowerCase() : "";
-      
-      // Kamus URL Suara dari myinstants
-      const suaraDict = {
-        "cium": "https://www.myinstants.com/media/sounds/kissss.mp3",
-        "wow": "https://www.myinstants.com/media/sounds/anime-wow-sound-effect.mp3",
-        "sorry": "https://www.myinstants.com/media/sounds/prabowo-sorry-ye.mp3",
-        "heartopia": "https://www.myinstants.com/media/sounds/heartopia_UOxitV6.mp3",
-        "hoyah": "https://www.myinstants.com/media/sounds/hooyahh.mp3"
-      };
+if (cmd === '/suara') {
+  const namaSuara = args[1] ? args[1].toLowerCase() : "";
+  
+  // Kita tidak lagi membuat suaraDict di sini, 
+  // melainkan menggunakan suaraDict global yang sudah diisi dari Spreadsheet
 
-      if (suaraDict[namaSuara]) {
-        // Kirim data pesan suara ke Firebase
-        db.ref("chats").push({
-          sender: myName,
-          text: `🔊 Mengirim suara: *${namaSuara}*`,
-          type: 'suara',
-          audioUrl: suaraDict[namaSuara],
-          time: formatTime(),
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-      } else {
-        showToast("Suara tidak ada! Coba: cium, wow, sorry, heartopia, hoyah");
-      }
-      
-      input.value = ""; input.style.height = 'auto';
-      return;
+  if (suaraDict[namaSuara]) {
+    // Kirim data pesan suara ke Firebase
+    db.ref("chats").push({
+      sender: myName,
+      text: `🔊 Mengirim suara: *${namaSuara}*`,
+      type: 'suara',
+      audioUrl: suaraDict[namaSuara],
+      time: formatTime(),
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+  } else {
+    // Ambil semua kunci (nama suara) yang tersedia untuk ditampilkan di Toast
+    const suaraTersedia = Object.keys(suaraDict).join(", ");
+    
+    if (suaraTersedia) {
+      showToast(`Suara tidak ada! Coba: ${suaraTersedia}`);
+    } else {
+      showToast("Daftar suara belum dimuat atau kosong. Tunggu sebentar.");
     }
+  }
+  
+  input.value = ""; input.style.height = 'auto';
+  return;
+}
     
     // Eksekusi Command
     if (cmd === '/clear' || cmd === '/clean') {
@@ -1281,6 +1309,7 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </body>
 </html>
+
 
 
 
