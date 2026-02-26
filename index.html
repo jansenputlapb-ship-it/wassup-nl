@@ -812,6 +812,40 @@ contentHTML = `
       ]
     };
 
+    // --- COMMAND HELP ---
+    if (cmd === '/help') {
+      // Mengambil semua daftar kunci dari bucinDict otomatis ("/peluk, /semangat, /kangen, /cium")
+      const daftarBucin = Object.keys(bucinDict).join(", ");
+      
+      // Menampilkan di Toast (Anda juga bisa menambahkan command lain seperti /suara manual di sini)
+      showToast(`Command tersedia: ${daftarBucin}, /suara`);
+      
+      // Bersihkan kolom input
+      input.value = ""; 
+      input.style.height = 'auto';
+      return;
+    }
+
+    // --- LOGIKA UNTUK MENJALANKAN COMMAND BUCIN ---
+    // (Pastikan Anda memiliki logika ini untuk memproses command bucinnya)
+    if (bucinDict[cmd]) {
+      // Ambil kalimat random dari array
+      const kalimatRandom = bucinDict[cmd][Math.floor(Math.random() * bucinDict[cmd].length)];
+      
+      // Kirim pesan ke Firebase (Sesuaikan dengan format Firebase Anda)
+      db.ref("chats").push({
+        sender: myName, // pastikan variabel myName sudah ada
+        text: kalimatRandom,
+        time: formatTime(), // pastikan fungsi formatTime() ada
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+
+      // Bersihkan kolom input
+      input.value = ""; 
+      input.style.height = 'auto';
+      return;
+    }
+
     // --- COMMAND SUARA ---
 if (cmd === '/suara') {
   const namaSuara = args[1] ? args[1].toLowerCase() : "";
@@ -825,6 +859,9 @@ if (cmd === '/suara') {
     "sorry": "https://www.myinstants.com/media/sounds/prabowo-sorry-ye.mp3",
     "heartopia": "https://www.myinstants.com/media/sounds/heartopia_UOxitV6.mp3",
     "oppa": "https://www.myinstants.com/media/sounds/sooyoung-saying-oppa.mp3",
+    "wolf": "https://www.myinstants.com/media/sounds/exo-wolf.mp3",
+    "sayang": "https://www.myinstants.com/media/sounds/sayang.mp3",
+    "pulang": "https://www.myinstants.com/media/sounds/pulang-sayang-mama-gigit-nih.mp3",
     "hoyah": "https://www.myinstants.com/media/sounds/hooyahh.mp3"
   };
 
@@ -1286,7 +1323,9 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast("Semua pesan berhasil dihapus"); // Beri notifikasi
     }
   </script>
+  
 </body>
 </html>
+
 
 
