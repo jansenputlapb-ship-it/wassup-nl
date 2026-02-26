@@ -814,45 +814,77 @@ contentHTML = `
 
     // --- COMMAND HELP ---
     if (cmd === '/help') {
-      const daftarBucin = Object.keys(bucinDict).join(", ");
-      const pesanFriendly = `💡 <b>Bantuan Command</b><br>Ketik salah satu dari ini yuk:<br><span style="color:#ff6b6b; font-weight:bold;">${daftarBucin}, /suara</span><br><small style="opacity:0.7;"><i>(Pesan ini akan hilang otomatis)</i></small>`;
-      
-      // 1. Buat elemen kotak pesan khusus
-      const tempMsg = document.createElement("div");
-      
-      // Berikan styling agar terlihat seperti pesan sistem yang friendly
-      tempMsg.style.margin = "10px auto";
-      tempMsg.style.padding = "12px 15px";
-      tempMsg.style.backgroundColor = "rgba(224, 175, 160, 0.15)"; // Warna transparan elegan
-      tempMsg.style.border = "1px solid #E0AFA0";
-      tempMsg.style.color = "#fff";
-      tempMsg.style.borderRadius = "12px";
-      tempMsg.style.textAlign = "center";
-      tempMsg.style.maxWidth = "85%";
-      tempMsg.style.fontSize = "0.9rem";
-      tempMsg.style.transition = "opacity 0.5s ease"; // Efek transisi menghilang
-      
-      tempMsg.innerHTML = pesanFriendly;
+      // 1. Ambil semua command dari bucinDict otomatis
+      const cmds = Object.keys(bucinDict);
+      cmds.push('/suara'); // Tambahkan /suara secara manual ke dalam daftar
 
-      // 2. Masukkan pesan ini ke dalam kotak chat utama
-      // (Pastikan ID kotak chat Anda benar, biasanya 'chatBox' atau 'messages')
-      const chatBox = document.getElementById("chatBox"); 
+      // 2. Buat daftar HTML yang rapi dan bisa diklik
+      let listHTML = '<ul style="margin: 8px 0; padding-left: 20px; text-align: left;">';
+      cmds.forEach(c => {
+        // Fungsi onclick ini akan memasukkan teks ke input dan fokus ke kotaknya
+        listHTML += `
+          <li style="margin-bottom: 6px;">
+            <span onclick="document.getElementById('chatInput').value='${c} '; document.getElementById('chatInput').focus();" 
+                  style="color: #ff4757; font-weight: bold; cursor: pointer; text-decoration: underline; background: rgba(255, 71, 87, 0.1); padding: 2px 6px; border-radius: 4px;">
+              ${c}
+            </span>
+          </li>`;
+      });
+      listHTML += '</ul>';
+
+      // 3. Rangkai pesan panduan ala "Pasangan yang mengajari"
+      const pesanTutor = `
+        <div style="font-size: 0.95rem; line-height: 1.4;">
+          Hai sayang! Bingung ya mau ngetik apa? 🤭<br><br>
+          Sini aku ajarin. Kamu tinggal ketik atau <b>klik aja</b> salah satu kata ajaib di bawah ini:<br>
+          ${listHTML}
+          Cobain gih, klik salah satu! Nanti otomatis masuk ke kotak ketik kamu kok. 💕<br>
+          <div style="margin-top: 8px; font-size: 0.75rem; opacity: 0.6; text-align: right;">
+            <i>(Pesan ini otomatis hilang dalam 15 detik)</i>
+          </div>
+        </div>
+      `;
+
+      // 4. Buat Container (Bungkus) Pesan Rata Kiri (Lawan Bicara)
+      const tempMsg = document.createElement("div");
+      tempMsg.style.display = "flex";
+      tempMsg.style.justifyContent = "flex-start"; // Memaksa posisi ke kiri
+      tempMsg.style.marginBottom = "15px";
+      tempMsg.style.width = "100%";
+      tempMsg.style.transition = "opacity 0.5s ease"; // Efek transisi menghilang
+
+      // 5. Buat Desain Bubble Chat-nya
+      const bubble = document.createElement("div");
+      bubble.style.backgroundColor = "#ffffff"; // Warna background bubble lawan bicara (putih)
+      bubble.style.color = "#2f3542"; // Warna teks gelap agar mudah dibaca
+      bubble.style.padding = "12px 16px";
+      // Melengkung di semua sudut KECUALI ujung kiri bawah (ciri khas chat masuk)
+      bubble.style.borderRadius = "15px 15px 15px 0px"; 
+      bubble.style.maxWidth = "75%";
+      bubble.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
+      bubble.style.border = "1px solid #f1f2f6";
+      
+      bubble.innerHTML = pesanTutor;
+      tempMsg.appendChild(bubble);
+
+      // 6. Masukkan ke dalam layar chat
+      const chatBox = document.getElementById("chatBox"); // Sesuaikan ID ini jika punya Anda berbeda
       chatBox.appendChild(tempMsg);
       
-      // 3. Scroll otomatis ke bawah agar pesannya terlihat
+      // Auto-scroll ke bawah agar pesannya langsung terlihat
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // 4. Timer untuk menghilangkan pesan dalam 7 detik (7000 milidetik)
+      // 7. Timer untuk menghilangkan pesan (15000 = 15 detik)
       setTimeout(() => {
-          tempMsg.style.opacity = "0"; // Buat transparan dulu (fade out)
-          
-          // Setelah 0.5 detik (menunggu animasi fade out selesai), hapus dari sistem
+          tempMsg.style.opacity = "0"; // Fade out
           setTimeout(() => {
-              tempMsg.remove();
+              if (tempMsg.parentNode) {
+                  tempMsg.remove(); // Hapus elemen dari HTML
+              }
           }, 500);
-      }, 7000); 
+      }, 15000); 
 
-      // Bersihkan kolom input
+      // Bersihkan kolom input setelah mengetik /help
       input.value = ""; 
       input.style.height = 'auto';
       return;
@@ -1338,6 +1370,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
 
 
