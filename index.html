@@ -823,12 +823,11 @@ contentHTML = `
     if (cmd === '/help') {
       // 1. Ambil semua command dari bucinDict otomatis
       const cmds = Object.keys(bucinDict);
-      cmds.push('/suara'); // Tambahkan /suara secara manual ke dalam daftar
+      cmds.push('/suara'); 
 
       // 2. Buat daftar HTML yang rapi dan bisa diklik
       let listHTML = '<ul style="margin: 8px 0; padding-left: 20px; text-align: left;">';
       cmds.forEach(c => {
-        // Fungsi onclick ini akan memasukkan teks ke input dan fokus ke kotaknya
         listHTML += `
           <li style="margin-bottom: 6px;">
             <span onclick="document.getElementById('chatInput').value='${c} '; document.getElementById('chatInput').focus();" 
@@ -839,33 +838,32 @@ contentHTML = `
       });
       listHTML += '</ul>';
 
-      // 3. Rangkai pesan panduan ala "Pasangan yang mengajari"
+      // 3. Rangkai pesan dengan elemen <span> khusus untuk angka detiknya
       const pesanTutor = `
         <div style="font-size: 0.95rem; line-height: 1.4;">
           Hai sayang! Bingung ya mau ngetik apa? 🤭<br><br>
           Sini aku ajarin. Kamu tinggal ketik atau <b>klik aja</b> salah satu kata ajaib di bawah ini:<br>
           ${listHTML}
           Cobain gih, klik salah satu! Nanti otomatis masuk ke kotak ketik kamu kok. 💕<br>
-          <div style="margin-top: 8px; font-size: 0.75rem; opacity: 0.6; text-align: right;">
-            <i>(Pesan ini otomatis hilang dalam 15 detik)</i>
+          <div style="margin-top: 8px; font-size: 0.75rem; opacity: 0.8; text-align: right; color: #747d8c;">
+            <i>(Pesan ini hilang dalam <b class="countdown-angka" style="color: #ff4757;">15</b> detik)</i>
           </div>
         </div>
       `;
 
-      // 4. Buat Container (Bungkus) Pesan Rata Kiri (Lawan Bicara)
+      // 4. Buat Container Pesan
       const tempMsg = document.createElement("div");
       tempMsg.style.display = "flex";
-      tempMsg.style.justifyContent = "flex-start"; // Memaksa posisi ke kiri
+      tempMsg.style.justifyContent = "flex-start"; 
       tempMsg.style.marginBottom = "15px";
       tempMsg.style.width = "100%";
-      tempMsg.style.transition = "opacity 0.5s ease"; // Efek transisi menghilang
+      tempMsg.style.transition = "opacity 0.5s ease"; 
 
-      // 5. Buat Desain Bubble Chat-nya
+      // 5. Buat Desain Bubble Chat
       const bubble = document.createElement("div");
-      bubble.style.backgroundColor = "#ffffff"; // Warna background bubble lawan bicara (putih)
-      bubble.style.color = "#2f3542"; // Warna teks gelap agar mudah dibaca
+      bubble.style.backgroundColor = "#ffffff"; 
+      bubble.style.color = "#2f3542"; 
       bubble.style.padding = "12px 16px";
-      // Melengkung di semua sudut KECUALI ujung kiri bawah (ciri khas chat masuk)
       bubble.style.borderRadius = "15px 15px 15px 0px"; 
       bubble.style.maxWidth = "75%";
       bubble.style.boxShadow = "0 2px 5px rgba(0,0,0,0.1)";
@@ -874,24 +872,39 @@ contentHTML = `
       bubble.innerHTML = pesanTutor;
       tempMsg.appendChild(bubble);
 
-      // 6. Masukkan ke dalam layar chat
-      const chatBox = document.getElementById("chatBox"); // Sesuaikan ID ini jika punya Anda berbeda
+      // 6. Masukkan ke layar chat
+      const chatBox = document.getElementById("chatBox"); // Sesuaikan ID kotak chat Anda
       chatBox.appendChild(tempMsg);
-      
-      // Auto-scroll ke bawah agar pesannya langsung terlihat
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // 7. Timer untuk menghilangkan pesan (15000 = 15 detik)
-      setTimeout(() => {
-          tempMsg.style.opacity = "0"; // Fade out
-          setTimeout(() => {
-              if (tempMsg.parentNode) {
-                  tempMsg.remove(); // Hapus elemen dari HTML
-              }
-          }, 500);
-      }, 15000); 
+      // 7. LOGIKA HITUNG MUNDUR (COUNTDOWN)
+      // Cari elemen angka di dalam bubble pesan yang baru saja dibuat
+      const elemenAngka = tempMsg.querySelector('.countdown-angka');
+      let waktuTersisa = 15; // Mulai dari 15 detik
 
-      // Bersihkan kolom input setelah mengetik /help
+      // Jalankan interval setiap 1000 milidetik (1 detik)
+      const hitungMundur = setInterval(() => {
+          waktuTersisa--; // Kurangi 1 detik
+          
+          if (elemenAngka) {
+              elemenAngka.innerText = waktuTersisa; // Update angka di layar
+          }
+
+          // Jika waktu habis (0 detik)
+          if (waktuTersisa <= 0) {
+              clearInterval(hitungMundur); // Hentikan mesin hitung mundurnya
+              tempMsg.style.opacity = "0"; // Mulai efek menghilang (fade out)
+              
+              // Tunggu setengah detik untuk animasi fade out, lalu hapus elemennya
+              setTimeout(() => {
+                  if (tempMsg.parentNode) {
+                      tempMsg.remove();
+                  }
+              }, 500);
+          }
+      }, 1000); 
+
+      // Bersihkan kolom input setelah /help diketik
       input.value = ""; 
       input.style.height = 'auto';
       return;
@@ -1377,6 +1390,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
 </body>
 </html>
+
 
 
 
